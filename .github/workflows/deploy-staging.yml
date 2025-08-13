@@ -1,0 +1,65 @@
+
+name: Deploy Staging
+on:
+  push:
+    branches: [ main ]
+
+env:
+  REGION: europe-west1
+  PROJECT_ID: your-gcp-project
+  REPO: twin-repo
+  IMAGE: twin-rag
+  TF_DIR: gcp/terraform
+
+jobs:
+  deploy:
+    permissions:
+      id-token: write
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with: { node-version: '18' }
+      - run: npm ci
+        working-directory: frontend/react_admin
+      - run: npm run build
+        working-directory: frontend/react_admin
+
+      - name: Auth to GCP (OIDC)
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/123456789/locations/global/workloadIdentityPools/github/providers/github
+          service_account: gha-deployer@${{ env.PROJECT_ID }}.iam.gserviceaccount.com
+
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGION }}-docker.pkg.dev
+          username: oauth2accesstoken
+          password: ${{ steps.auth.outputs.access_token }}
+
+      - name: Build & Push RAG image
+        run: |
+          docker build -f docker/Dockerfile.rag -t $REGION-docker.pkg.dev/$PROJECT_ID/$REPO/$IMAGE:staging .
+          docker push $REGION-docker.pkg.dev/$PROJECT_ID/$REPO/$IMAGE:staging
+
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform Init/Apply
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          TF_VAR_project_id: ${{ env.PROJECT_ID }}
+          TF_VAR_region: ${{ env.REGION }}
+          TF_VAR_neo4j_uri: ${{ secrets.NEO4J_URI }}
+          TF_VAR_neo4j_user: ${{ secrets.NEO4J_USER }}
+          TF_VAR_neo4j_password: ${{ secrets.NEO4J_PASSWORD }}
+          TF_VAR_openai_api_key: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Show endpoints
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform output

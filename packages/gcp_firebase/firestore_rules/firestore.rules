@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isSignedIn() { return request.auth != null; }
+    function tenant() { return request.auth.token.tenantId; }
+    function role() { return request.auth.token.role; }
+    function inTenant(tid) { return isSignedIn() && tenant() == tid; }
+    function isAdmin() { return role() in ['owner', 'admin']; }
+
+    match /tenants/{tid} {
+      allow read: if inTenant(tid);
+      allow write: if inTenant(tid) && isAdmin();
+
+      match /users/{uid} {
+        allow read: if inTenant(tid) && (request.auth.uid == uid || isAdmin());
+        allow write: if inTenant(tid) && (request.auth.uid == uid || role() == 'owner');
+      }
+
+      match /sources/{docId} {
+        allow read: if inTenant(tid);
+        allow create, update, delete: if inTenant(tid) && isAdmin();
+      }
+
+      match /goals/{goalId} {
+        allow read: if inTenant(tid);
+        allow create, update: if inTenant(tid) && role() in ['owner','admin','manager'];
+        allow delete: if inTenant(tid) && role() in ['owner','admin'];
+      }
+
+      match /conversations/{convId} {
+        allow read, write: if inTenant(tid);
+      }
+
+      match /events/{eventId} {
+        allow read: if inTenant(tid);
+        allow create: if inTenant(tid);
+      }
+    }
+  }
+}

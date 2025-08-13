@@ -1,0 +1,14 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() { return request.auth != null; }
+    function tenant() { return request.auth.token.tenantId; }
+    function role() { return request.auth.token.role; }
+    function inTenantPrefix(pathTid) { return isSignedIn() && tenant() == pathTid; }
+
+    match /tenants/{tid}/{allPaths=**} {
+      allow read: if inTenantPrefix(tid);
+      allow write: if inTenantPrefix(tid) && role() in ['owner','admin','manager'];
+    }
+  }
+}

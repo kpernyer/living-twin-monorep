@@ -1,0 +1,8 @@
+{
+  "firestore": {
+    "rules": "packages/gcp_firebase/firestore_rules/firestore.rules"
+  },
+  "storage": {
+    "rules": "packages/gcp_firebase/storage_rules/storage.rules"
+  }
+}

@@ -1,0 +1,231 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+      - staging
+    paths:
+      - 'apps/api/**'
+      - 'docker/Dockerfile.cloudrun'
+      - 'packages/gcp_firebase/terraform/**'
+      - '.github/workflows/deploy-cloud-run.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/api/**'
+      - 'docker/Dockerfile.cloudrun'
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GAR_LOCATION: us-central1
+  REPOSITORY: living-twin
+  SERVICE: living-twin-api
+  REGION: us-central1
+
+jobs:
+  # Test job for PRs and pushes
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          cd apps/api
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+
+      - name: Run linting
+        run: |
+          cd apps/api
+          flake8 app --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Run type checking
+        run: |
+          cd apps/api
+          mypy app --ignore-missing-imports
+
+      - name: Run tests
+        run: |
+          cd apps/api
+          pytest app/tests/ -v --cov=app --cov-report=xml
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./apps/api/coverage.xml
+          flags: api
+          name: api-coverage
+
+  # Build and deploy job (only on main/staging push)
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/staging')
+    
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set environment based on branch
+        run: |
+          if [[ $GITHUB_REF == 'refs/heads/main' ]]; then
+            echo "ENVIRONMENT=prod" >> $GITHUB_ENV
+            echo "SERVICE_SUFFIX=" >> $GITHUB_ENV
+          else
+            echo "ENVIRONMENT=staging" >> $GITHUB_ENV
+            echo "SERVICE_SUFFIX=-staging" >> $GITHUB_ENV
+          fi
+
+      - name: Google Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker to use gcloud as a credential helper
+        run: |
+          gcloud auth configure-docker $GAR_LOCATION-docker.pkg.dev
+
+      - name: Create Artifact Registry repository if it doesn't exist
+        run: |
+          gcloud artifacts repositories describe $REPOSITORY \
+            --location=$GAR_LOCATION || \
+          gcloud artifacts repositories create $REPOSITORY \
+            --location=$GAR_LOCATION \
+            --repository-format=docker \
+            --description="Living Twin Docker repository"
+
+      - name: Build and push Docker image
+        run: |
+          IMAGE_TAG=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE$SERVICE_SUFFIX:$GITHUB_SHA
+          IMAGE_LATEST=$GAR_LOCATION-docker.pkg.dev/$PROJECT_ID/$REPOSITORY/$SERVICE$SERVICE_SUFFIX:latest
+          
+          docker build -f docker/Dockerfile.cloudrun -t $IMAGE_TAG -t $IMAGE_LATEST .
+          docker push $IMAGE_TAG
+          docker push $IMAGE_LATEST
+          
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy $SERVICE$SERVICE_SUFFIX \
+            --image=$IMAGE_TAG \
+            --region=$REGION \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=8080 \
+            --memory=2Gi \
+            --cpu=2 \
+            --min-instances=0 \
+            --max-instances=10 \
+            --concurrency=80 \
+            --timeout=300 \
+            --set-env-vars="ENVIRONMENT=$ENVIRONMENT" \
+            --set-secrets="NEO4J_URI=neo4j-uri:latest,NEO4J_USER=neo4j-user:latest,NEO4J_PASSWORD=neo4j-password:latest,OPENAI_API_KEY=openai-api-key:latest,FIREBASE_PROJECT_ID=firebase-project-id:latest" \
+            --service-account=${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT }} \
+            --labels="app=living-twin,component=api,environment=$ENVIRONMENT,version=$GITHUB_SHA"
+
+      - name: Get Cloud Run URL
+        run: |
+          SERVICE_URL=$(gcloud run services describe $SERVICE$SERVICE_SUFFIX --region=$REGION --format='value(status.url)')
+          echo "SERVICE_URL=$SERVICE_URL" >> $GITHUB_ENV
+          echo "🚀 Deployed to: $SERVICE_URL"
+
+      - name: Run health check
+        run: |
+          sleep 30  # Wait for service to be ready
+          curl -f $SERVICE_URL/healthz || exit 1
+          echo "✅ Health check passed"
+
+      - name: Update API Gateway (production only)
+        if: env.ENVIRONMENT == 'prod'
+        run: |
+          # Update API Gateway configuration with new service URL
+          gcloud api-gateway gateways update living-twin-gateway \
+            --api=living-twin-api \
+            --api-config=living-twin-config \
+            --location=$REGION
+
+      - name: Notify deployment
+        if: always()
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#deployments'
+          text: |
+            🚀 *Living Twin API Deployment*
+            
+            *Environment:* ${{ env.ENVIRONMENT }}
+            *Status:* ${{ job.status }}
+            *Service URL:* ${{ env.SERVICE_URL }}
+            *Commit:* ${{ github.sha }}
+            *Branch:* ${{ github.ref_name }}
+            *Author:* ${{ github.actor }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Security scanning
+  security:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.GAR_LOCATION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/${{ env.SERVICE }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  # Performance testing (staging only)
+  performance:
+    needs: deploy
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run load tests
+        run: |
+          # Install k6
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+          # Run performance tests
+          k6 run --out json=results.json tools/scripts/load-test.js
+
+      - name: Upload performance results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-results
+          path: results.json

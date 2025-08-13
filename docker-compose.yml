@@ -1,0 +1,118 @@
+
+version: "3.9"
+services:
+  # Neo4j for knowledge graph and vector search
+  neo4j:
+    image: neo4j:5.20
+    container_name: neo4j-twin
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/password
+      - NEO4J_server_config_strict__validation_enabled=false
+      - NEO4J_PLUGINS=["apoc"]
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "password", "RETURN 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  # Firebase emulator for local development
+  firebase-emulator:
+    image: andreysenov/firebase-tools:latest
+    container_name: firebase-emulator
+    ports:
+      - "4000:4000"   # Emulator UI
+      - "9099:9099"   # Auth emulator
+      - "8080:8080"   # Firestore emulator
+      - "9199:9199"   # Storage emulator
+    volumes:
+      - ./firebase.json:/home/node/firebase.json
+      - ./packages/gcp_firebase/firestore_rules/firestore.rules:/home/node/firestore.rules
+      - ./packages/gcp_firebase/storage_rules/storage.rules:/home/node/storage.rules
+      - firebase_data:/home/node/.cache
+    command: firebase emulators:start --only auth,firestore,storage --host 0.0.0.0
+    environment:
+      - FIREBASE_TOKEN=${FIREBASE_TOKEN:-demo-token}
+
+  # FastAPI backend
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: living-twin-api
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - NEO4J_URI=neo4j://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password
+      - NEO4J_DB=neo4j
+      - VECTOR_INDEX_NAME=docEmbeddings
+      - ENVIRONMENT=development
+      - USE_LOCAL_MOCK=true
+      - FIRESTORE_EMULATOR_HOST=firebase-emulator:8080
+      - FIREBASE_AUTH_EMULATOR_HOST=firebase-emulator:9099
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      firebase-emulator:
+        condition: service_started
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./apps/api:/app
+      - ./local_data:/app/local_data
+    restart: unless-stopped
+
+  # React admin web app
+  admin-web:
+    image: node:18
+    container_name: living-twin-admin-web
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./apps/admin_web:/app
+      - /app/node_modules
+    depends_on:
+      - api
+    restart: unless-stopped
+    environment:
+      - VITE_API_URL=http://localhost:8000
+      - VITE_FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
+      - VITE_FIRESTORE_EMULATOR_HOST=localhost:8080
+
+  # Database seeder service
+  db-seeder:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    container_name: living-twin-db-seeder
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - NEO4J_URI=neo4j://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=password
+      - NEO4J_DB=neo4j
+      - USE_LOCAL_MOCK=${USE_LOCAL_MOCK:-true}
+      - FIRESTORE_EMULATOR_HOST=firebase-emulator:8080
+    depends_on:
+      neo4j:
+        condition: service_healthy
+      firebase-emulator:
+        condition: service_started
+    volumes:
+      - ./apps/api:/app
+      - ./tools:/app/tools
+      - ./local_data:/app/local_data
+      - ./docker/init-databases.sh:/app/init-databases.sh
+    command: /app/init-databases.sh
+    restart: "no"
+
+volumes:
+  neo4j_data:
+  firebase_data:
