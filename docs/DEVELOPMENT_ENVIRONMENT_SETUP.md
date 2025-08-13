@@ -37,6 +37,7 @@ This guide covers external tool dependencies, containerization strategies, and t
 | **Android Studio** | Android development | ❌ **No** | GUI application, requires host |
 | **Android SDK** | Android toolchain | ⚠️ **Limited** | Can containerize CLI tools only |
 | **Xcode** | iOS development | ❌ **macOS only** | Cannot containerize, macOS exclusive |
+| **CocoaPods** | iOS dependency management | ❌ **macOS only** | Required for iOS Flutter development |
 | **iOS Simulator** | iOS testing | ❌ **macOS only** | Cannot containerize, macOS exclusive |
 
 ### 🍺 **Package Managers**

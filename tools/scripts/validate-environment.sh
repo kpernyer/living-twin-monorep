@@ -221,6 +221,14 @@ if command -v flutter &> /dev/null; then
         else
             print_check "WARN" "Xcode" "Install Xcode for iOS development"
         fi
+        
+        # CocoaPods for iOS development
+        if command -v pod &> /dev/null; then
+            pod_version=$(pod --version)
+            print_check "PASS" "CocoaPods" "v$pod_version"
+        else
+            print_check "WARN" "CocoaPods" "Install CocoaPods for iOS development: sudo gem install cocoapods"
+        fi
     fi
 fi
 echo

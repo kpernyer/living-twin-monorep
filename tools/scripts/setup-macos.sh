@@ -117,11 +117,29 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         brew install --cask flutter
         print_success "Flutter installed!"
         
+        # Install CocoaPods for iOS development
+        if ! command -v pod &> /dev/null; then
+            print_status "Installing CocoaPods for iOS development..."
+            sudo gem install cocoapods
+            print_success "CocoaPods installed!"
+        else
+            print_success "CocoaPods already installed: $(pod --version)"
+        fi
+        
         # Run flutter doctor to check setup
         print_status "Running flutter doctor..."
         flutter doctor
     else
         print_success "Flutter already installed: $(flutter --version | head -n1)"
+        
+        # Check CocoaPods
+        if ! command -v pod &> /dev/null; then
+            print_status "Installing CocoaPods for iOS development..."
+            sudo gem install cocoapods
+            print_success "CocoaPods installed!"
+        else
+            print_success "CocoaPods already installed: $(pod --version)"
+        fi
     fi
 fi
 
