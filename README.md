@@ -224,5 +224,6 @@ For detailed documentation on specific topics, see the [`docs/`](docs/) director
 
 ### Development Workflow
 - [**Git Setup Guide**](docs/GIT_SETUP_GUIDE.md) - Repository initialization and Git best practices
+- [**GitHub Setup Guide**](docs/GITHUB_SETUP_GUIDE.md) - GitHub integration and CI/CD configuration
 
 Each document provides in-depth coverage of its respective topic with implementation details, best practices, and troubleshooting guides.
