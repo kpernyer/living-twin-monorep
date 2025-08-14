@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'auth.dart';
-import 'dart:io' show SocketException, TimeoutException;
+import 'dart:io' show SocketException;
+import 'dart:async' show TimeoutException;
 
 class ApiClientEnhanced {
   final String baseUrl;
