@@ -225,7 +225,7 @@ install-flutter:
 		echo "🐧 Installing Flutter on Linux..."; \
 		cd /tmp && \
 		echo "📥 Downloading Flutter SDK..."; \
-		wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.5-stable.tar.xz -O flutter.tar.xz && \
+		wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.27.1-stable.tar.xz -O flutter.tar.xz && \
 		echo "📦 Extracting Flutter..."; \
 		tar xf flutter.tar.xz && \
 		echo "📁 Moving Flutter to /opt/flutter..."; \
