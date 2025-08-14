@@ -166,7 +166,16 @@ install-deps:
 		$(MAKE) install-flutter; \
 	fi
 	@echo "Installing Flutter dependencies..."
-	cd apps/mobile && flutter pub get
+	@if command -v flutter &> /dev/null; then \
+		cd apps/mobile && flutter pub get; \
+	elif [ -f /opt/flutter/bin/flutter ]; then \
+		cd apps/mobile && /opt/flutter/bin/flutter pub get; \
+	else \
+		echo "❌ Flutter not found in PATH or /opt/flutter/bin/flutter"; \
+		echo "⚠️  Please restart your terminal and run: source ~/.bashrc"; \
+		echo "⚠️  Then run: make install-deps again"; \
+		exit 1; \
+	fi
 
 fix-deps:
 	@echo "🔧 Fixing dependency conflicts..."
@@ -202,6 +211,11 @@ install-flutter:
 	@if command -v flutter &> /dev/null; then \
 		echo "✅ Flutter is already installed:"; \
 		flutter --version; \
+		echo "🔧 Configuring Flutter..."; \
+		flutter config --no-cli-animations; \
+		flutter config --no-analytics; \
+		echo "🔄 Checking for Flutter updates..."; \
+		flutter upgrade || echo "⚠️  Flutter upgrade failed, continuing with current version"; \
 		exit 0; \
 	fi
 	@echo "🔍 Detecting operating system..."
@@ -218,14 +232,21 @@ install-flutter:
 		echo 'export PATH="/opt/flutter/bin:$$PATH"' >> ~/.bashrc && \
 		echo 'export PATH="/opt/flutter/bin:$$PATH"' >> ~/.zshrc 2>/dev/null || true && \
 		export PATH="/opt/flutter/bin:$$PATH" && \
+		echo "🔧 Configuring Flutter..."; \
+		/opt/flutter/bin/flutter config --no-cli-animations && \
+		/opt/flutter/bin/flutter config --no-analytics && \
 		echo "🔧 Running Flutter doctor..."; \
 		/opt/flutter/bin/flutter doctor && \
 		echo "✅ Flutter installed successfully!"; \
+		echo "⚠️  Flutter is available at /opt/flutter/bin/flutter"; \
 		echo "⚠️  Please restart your terminal or run: source ~/.bashrc"; \
 	elif [ "$$(uname)" = "Darwin" ]; then \
 		echo "🍎 Installing Flutter on macOS..."; \
 		if command -v brew &> /dev/null; then \
 			brew install --cask flutter && \
+			echo "🔧 Configuring Flutter..."; \
+			flutter config --no-cli-animations && \
+			flutter config --no-analytics && \
 			echo "✅ Flutter installed via Homebrew!"; \
 		else \
 			echo "❌ Homebrew not found. Please install Homebrew first or install Flutter manually."; \
