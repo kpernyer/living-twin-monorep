@@ -23,7 +23,7 @@ dependencies:
   permission_handler: ^12.0.1
   # Audio processing and feedback
   audio_waveforms: ^1.0.5
-  just_audio: ^0.10.4
+  just_audio: ^0.9.46
   # Voice activity detection - using noise_meter instead
   noise_meter: ^5.0.1
 
