@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'auth.dart';
+import 'dart:io' show SocketException, TimeoutException;
 
 class ApiClientEnhanced {
   final String baseUrl;
@@ -163,6 +164,11 @@ class ApiClientEnhanced {
         Uri.parse('$baseUrl/query'),
         headers: headers,
         body: jsonEncode(body),
+      ).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          throw TimeoutException('Request timed out', const Duration(seconds: 10));
+        },
       );
 
       if (response.statusCode == 200) {
@@ -179,10 +185,26 @@ class ApiClientEnhanced {
           'error': 'Server error: ${response.statusCode}',
         };
       }
+    } on SocketException catch (e) {
+      return {
+        'success': false,
+        'offline': true,
+        'error': 'Server is not available. Please check your connection.',
+      };
+    } on TimeoutException catch (e) {
+      return {
+        'success': false,
+        'error': 'Request timed out. Please try again.',
+      };
+    } on FormatException catch (e) {
+      return {
+        'success': false,
+        'error': 'Invalid response from server.',
+      };
     } catch (e) {
       return {
         'success': false,
-        'error': 'Network error: $e',
+        'error': 'Network error: ${e.toString()}',
       };
     }
   }

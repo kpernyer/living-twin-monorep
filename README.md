@@ -55,26 +55,22 @@ This is the development stack for **Living Twin** — a RAG-enabled, Neo4j-backe
 git clone <your-repo-url> living_twin_monorepo
 cd living_twin_monorepo
 
+# Quick setup (recommended)
+make dev-setup
+
+# Or manual setup:
 # Env
 cp .env.example .env
 # Fill in:
 # OPENAI_API_KEY=sk-...
 # Adjust Neo4j creds if needed (dev default: neo4j/password)
 
-# Python venv
-/opt/homebrew/bin/python3.11 -m venv .venv
-source .venv/bin/activate
-pip install -U pip setuptools wheel
+# Install all dependencies
+make install-deps
 
-# Install backend deps
-make install
-
-# Install React admin deps
-make node-setup
-
-# Start Neo4j and init schema (vector index, constraints)
-make neo4j-up
-make neo4j-init
+# Start services and initialize
+make docker-up
+make seed-db
 ```
 
 ## 3️⃣ Verify setup
@@ -99,18 +95,33 @@ make neo4j-init
 
 ## 4️⃣ Run modes
 
+### Quick Start (Recommended)
+```bash
+make quick-start
+```
+- Sets up everything and starts all services
+- Includes sample data and Neo4j initialization
+
+### Development Mode
+```bash
+make docker-up    # Start all services
+make api-dev      # Run API in development mode
+make web-dev      # Run admin web interface
+make mobile-dev   # Run Flutter mobile app
+```
+
 ### Local (no OpenAI cost)
 ```bash
-source .env
-make dev-local
+# Set in .env: LOCAL_EMBEDDINGS=1, RAG_ONLY=1
+make docker-up
 ```
 - Local embeddings: `all-MiniLM-L6-v2` (384-dim)
 - Stub LLM: RAG_ONLY=1 (just returns top snippets)
 
 ### OpenAI (cheap dev)
 ```bash
-source .env
-make dev-openai
+# Set in .env: LLM_PROVIDER=openai
+make docker-up
 ```
 - LLM: `gpt-4o-mini`
 - Embeddings: `text-embedding-3-small` (1536-dim)
@@ -118,39 +129,55 @@ make dev-openai
 ### Ollama (local LLM)
 ```bash
 ollama serve &
-source .env
-make dev-ollama
+# Set in .env: LLM_PROVIDER=ollama
+make docker-up
 ```
 
 ## 5️⃣ Demo flow
 
-1. Start API + Neo4j in your preferred mode.
-2. In a separate terminal:  
+1. **Quick Start**:
    ```bash
-   make dev-react
+   make quick-start
    ```
-3. Open http://localhost:5173
-4. **Ingest a snippet**
-   - Paste: “Fix bug X and raise NPS by 5 points in Q3”
-   - Title: “Retention Strategy Q3”
-   - Click **Ingest**
-5. **Ask a question**
-   - “How do we improve retention according to the latest plan?”
-   - Answer should cite `[1] Retention Strategy Q3`
-6. **Debug RAG**
-   - Show retrieved chunks + scores, grouped by source
+
+2. **Access the interfaces**:
+   - **Admin Web**: http://localhost:5173
+   - **API Docs**: http://localhost:8000/docs
+   - **Neo4j Browser**: http://localhost:7474
+
+3. **Test the system**:
+   - **Ingest a snippet**
+     - Paste: "Fix bug X and raise NPS by 5 points in Q3"
+     - Title: "Retention Strategy Q3"
+     - Click **Ingest**
+   - **Ask a question**
+     - "How do we improve retention according to the latest plan?"
+     - Answer should cite `[1] Retention Strategy Q3`
+   - **Debug RAG**
+     - Show retrieved chunks + scores, grouped by source
+
+4. **Test authentication**:
+   - Sign in with `john@acme.com` (auto-binds to Acme Corporation)
+   - Try invitation code: `APRIO-ACME-INV123456789`
 
 ## 6️⃣ CLI ingestion/query
 
 ```bash
 # Ingest
-curl -s -X POST http://localhost:8080/ingest/text   -H 'Content-Type: application/json'   -d '{"title":"Retention Strategy Q3","text":"Fix bug X and raise NPS by 5 points.","tenantId":"demo"}' | jq
+curl -s -X POST http://localhost:8000/ingest/text \
+  -H 'Content-Type: application/json' \
+  -d '{"title":"Retention Strategy Q3","text":"Fix bug X and raise NPS by 5 points.","tenantId":"demo"}' | jq
 
 # Recent
-curl -s http://localhost:8080/ingest/recent | jq
+curl -s http://localhost:8000/ingest/recent | jq
 
 # Query
-curl -s -X POST http://localhost:8080/query   -H 'Content-Type: application/json'   -d '{"question":"How do we improve retention?", "k":5, "tenantId":"demo"}' | jq
+curl -s -X POST http://localhost:8000/query \
+  -H 'Content-Type: application/json' \
+  -d '{"question":"How do we improve retention?", "k":5, "tenantId":"demo"}' | jq
+
+# Health check
+curl -s http://localhost:8000/healthz | jq
 ```
 
 ## 7️⃣ Common gotchas
@@ -180,15 +207,62 @@ OLLAMA_BASE=http://localhost:11434
 OLLAMA_MODEL=llama3
 ```
 
-## 9️⃣ Full stack in Docker Compose
+## 9️⃣ Development Tools
 
+### **Testing**
 ```bash
-source .env
-make compose-up
-# Neo4j :7474 / FastAPI :8080 / React :5173
+make test              # Run all tests
+make test-unit         # Unit tests only
+make test-integration  # Integration tests only
+make lint              # Run linters
+make format            # Format code
 ```
 
-## 🔟 Next steps
+### **Database Management**
+```bash
+make seed-db           # Populate with sample data
+make init-schema       # Initialize Neo4j schema
+make validate-schema   # Validate Neo4j constraints
+```
+
+### **Monitoring & Debugging**
+```bash
+make docker-logs       # View container logs
+make status            # Check service status
+make logs-api          # API logs (production)
+make logs-worker       # Worker logs (production)
+```
+
+### **Cost Management**
+```bash
+make check-costs ENV=dev PROJECT=your-project
+make cost-optimize-dev PROJECT=your-project
+make scale-down-staging PROJECT=your-project
+```
+
+## 🔟 Testing & CI/CD
+
+### **Automated Testing**
+The project includes comprehensive test suites:
+- **Unit Tests**: `apps/api/tests/test_services.py`, `test_routes.py`
+- **Integration Tests**: `apps/api/tests/test_integration.py`
+- **Load Testing**: `tools/scripts/load-test.js` (k6)
+
+### **GitHub Actions**
+- **Continuous Integration**: `.github/workflows/deploy-cloud-run.yml`
+- **Automated Testing**: Runs on every PR and push
+- **Security Scanning**: Trivy vulnerability scanner
+- **Performance Testing**: k6 load tests on staging
+- **Deployment**: Automated deployment to Cloud Run
+
+### **Quality Assurance**
+```bash
+make lint              # Code linting (flake8, mypy)
+make test              # Full test suite
+make format            # Code formatting (black, isort)
+```
+
+## 1️⃣1️⃣ Next steps
 
 - Add PDF/DOCX ingestion (`unstructured` lib)
 - Wire API Gateway + Firebase Auth in staging

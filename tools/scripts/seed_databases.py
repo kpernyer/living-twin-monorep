@@ -15,27 +15,37 @@ from typing import Dict, Any, List
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'apps', 'api'))
 
 from app.adapters.local_mock_repo import LocalMockRepository
-from app.adapters.neo4j_store import Neo4jVectorStore
-from app.config import get_settings
+from app.adapters.neo4j_store import Neo4jStore
+from app.config import settings
 
 
 class DatabaseSeeder:
     """Seeds databases with demo data for development."""
     
     def __init__(self):
-        self.settings = get_settings()
+        self.settings = settings
         self.mock_repo = LocalMockRepository()
         self.neo4j_store = None
         
     async def init_neo4j(self):
         """Initialize Neo4j connection."""
         try:
-            self.neo4j_store = Neo4jVectorStore(
+            class Neo4jConfig:
+                def __init__(self, uri, user, password, database, vector_index):
+                    self.uri = uri
+                    self.user = user
+                    self.password = password
+                    self.database = database
+                    self.vector_index = vector_index
+
+            config = Neo4jConfig(
                 uri=self.settings.neo4j_uri,
                 user=self.settings.neo4j_user,
                 password=self.settings.neo4j_password,
-                database=self.settings.neo4j_db
+                database=self.settings.neo4j_db,
+                vector_index="docEmbeddings"
             )
+            self.neo4j_store = Neo4jStore(config)
             print("✅ Connected to Neo4j")
         except Exception as e:
             print(f"❌ Failed to connect to Neo4j: {e}")
@@ -143,16 +153,11 @@ class DatabaseSeeder:
                         embedding = self._generate_mock_embedding(chunk["content"])
                         
                         # Store in Neo4j
-                        await self.neo4j_store.upsert_document(
-                            doc_id=f"{tenant_id}_doc_{i}_chunk_{chunk_idx}",
-                            content=chunk["content"],
-                            embedding=embedding,
-                            metadata={
-                                **chunk["metadata"],
-                                "tenant_id": tenant_id,
-                                "chunk_index": chunk_idx,
-                                "total_chunks": len(chunks)
-                            }
+                        await self.neo4j_store.upsert_chunks(
+                            tenant_id=tenant_id,
+                            title=doc["metadata"]["title"],
+                            chunks=[chunk["content"]],
+                            embeddings=[embedding]
                         )
                     
                     print(f"    ✅ Added document: {doc['metadata']['title']}")
@@ -261,6 +266,13 @@ class DatabaseSeeder:
         except Exception as e:
             print(f"❌ Failed to seed Firestore: {e}")
     
+    async def _execute_query(self, query: str):
+        """Execute a Cypher query."""
+        if not self.neo4j_store:
+            return
+        with self.neo4j_store.driver.session(database=self.neo4j_store.db) as session:
+            await asyncio.to_thread(session.run, query)
+
     async def create_neo4j_indexes(self):
         """Create necessary indexes and constraints in Neo4j."""
         if not self.neo4j_store:
@@ -282,7 +294,7 @@ class DatabaseSeeder:
                 for command in setup_commands:
                     command = command.strip()
                     if command:
-                        await self.neo4j_store._execute_query(command)
+                        await self._execute_query(command)
                         print(f"    ✅ Executed: {command[:50]}...")
                 
                 print("✅ Neo4j setup completed!")

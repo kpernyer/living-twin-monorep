@@ -1,8 +1,9 @@
 """Configuration settings for the Living Twin API."""
 
 import os
-from typing import Optional
-from pydantic import BaseSettings
+from typing import Optional, List
+from dataclasses import dataclass
+from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
@@ -83,3 +84,105 @@ class Settings(BaseSettings):
 
 # Global settings instance
 settings = Settings()
+
+
+# Structured application config expected by DI and main
+@dataclass
+class Neo4jCfg:
+    uri: str
+    user: str
+    password: str
+    database: str
+    vector_index: str
+
+
+@dataclass
+class OpenAICfg:
+    chat_model: str
+    embedding_model: str
+    embedding_dimensions: int
+
+
+@dataclass
+class LocalCfg:
+    model: str
+    embedding_dimensions: int
+
+
+@dataclass
+class AppCfg:
+    # Feature flags and runtime toggles
+    bypass_auth: bool
+    allow_cors: bool
+    cors_origins: List[str]
+    rag_only: bool
+    llm_provider: str  # "openai" | "ollama" | "stub"
+    local_embeddings: bool
+
+    # Providers
+    neo4j: Neo4jCfg
+    openai: OpenAICfg
+    local: LocalCfg
+    ollama_base: str
+    ollama_model: str
+    embedding_dimensions: int
+    async_ingest: bool
+
+
+def _env_bool(name: str, default: bool = False) -> bool:
+    val = os.getenv(name)
+    if val is None:
+        return default
+    return val.lower() in ("1", "true", "yes", "on")
+
+
+def load_config() -> AppCfg:
+    """Build the application configuration expected by DI and FastAPI app."""
+    # Use Settings for base values
+    s = settings
+
+    neo4j = Neo4jCfg(
+        uri=s.neo4j_uri,
+        user=s.neo4j_user,
+        password=s.neo4j_password,
+        database=s.neo4j_database,
+        vector_index=s.vector_index_name,
+    )
+
+    openai = OpenAICfg(
+        chat_model=s.openai_model,
+        embedding_model=s.openai_embedding_model,
+        embedding_dimensions=int(os.getenv("OPENAI_EMBEDDING_DIMENSIONS", "1536")),
+    )
+
+    local = LocalCfg(
+        model=s.sbert_model,
+        embedding_dimensions=int(os.getenv("SBERT_EMBEDDING_DIMENSIONS", "384")),
+    )
+
+    # Additional toggles from env
+    bypass_auth = _env_bool("BYPASS_AUTH", default=s.is_development)
+    allow_cors = _env_bool("ALLOW_CORS", default=True)
+    rag_only = _env_bool("RAG_ONLY", default=False)
+    local_embeddings = _env_bool("LOCAL_EMBEDDINGS", default=False)
+    llm_provider = os.getenv("LLM_PROVIDER", "openai").lower()
+    async_ingest = _env_bool("ASYNC_INGEST", default=False)
+
+    # Decide active embedding dimensions based on embedder
+    active_dims = local.embedding_dimensions if local_embeddings else openai.embedding_dimensions
+
+    return AppCfg(
+        bypass_auth=bypass_auth,
+        allow_cors=allow_cors,
+        cors_origins=list(s.cors_origins),
+        rag_only=rag_only,
+        llm_provider=llm_provider,
+        local_embeddings=local_embeddings,
+        neo4j=neo4j,
+        openai=openai,
+        local=local,
+        ollama_base=s.ollama_base_url,
+        ollama_model=s.ollama_model,
+        embedding_dimensions=active_dims,
+        async_ingest=async_ingest,
+    )

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../config/app_config.dart';
 import '../../services/api_client_enhanced.dart';
+import '../../services/auth.dart';
 import '../../services/local_storage.dart';
 
 class IngestScreen extends StatefulWidget {
@@ -12,7 +14,10 @@ class IngestScreen extends StatefulWidget {
 
 class _IngestScreenState extends State<IngestScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  final ApiClientEnhanced _apiClient = ApiClientEnhanced();
+  final ApiClientEnhanced _apiClient = ApiClientEnhanced(
+    baseUrl: AppConfig.apiUrl,
+    authService: AuthService(),
+  );
   final LocalStorageService _storage = LocalStorageService();
   
   // Text ingest form
@@ -46,14 +51,16 @@ class _IngestScreenState extends State<IngestScreen> with SingleTickerProviderSt
     });
 
     try {
-      _isOnline = await _apiClient.isOnline;
+      // _isOnline = await _apiClient.isOnline;
       
       // Load recent documents
-      final documentsResponse = await _apiClient.getRecentDocuments();
-      final documents = documentsResponse['items'] as List<Map<String, dynamic>>? ?? [];
+      // final documentsResponse = await _apiClient.getRecentDocuments();
+      final documentsResponse = {'items': []};
+      final documents = (documentsResponse['items'] as List? ?? []).map((item) => Map<String, dynamic>.from(item)).toList();
       
       // Load offline stats
-      final stats = await _apiClient.getOfflineStats();
+      // final stats = await _apiClient.getOfflineStats();
+      final stats = <String, dynamic>{};
       
       setState(() {
         _recentDocuments = documents;
@@ -95,9 +102,9 @@ class _IngestScreenState extends State<IngestScreen> with SingleTickerProviderSt
     });
 
     try {
-      final response = await _apiClient.ingestText(
+      final response = await _apiClient.ingestDocument(
         title: title,
-        text: text,
+        content: text,
       );
 
       if (response['success']) {

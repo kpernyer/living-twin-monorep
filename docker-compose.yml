@@ -55,6 +55,8 @@ services:
       - USE_LOCAL_MOCK=true
       - FIRESTORE_EMULATOR_HOST=firebase-emulator:8080
       - FIREBASE_AUTH_EMULATOR_HOST=firebase-emulator:9099
+      - AUTO_ENSURE_VECTOR_INDEX=true
+      - ASYNC_INGEST=true
     depends_on:
       neo4j:
         condition: service_healthy

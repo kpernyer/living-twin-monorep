@@ -279,6 +279,7 @@ class _ConversationalChatScreenState extends State<ConversationalChatScreen>
             ),
             child: FloatingActionButton(
               onPressed: _isListening ? _stopListening : _startListening,
+              heroTag: "conversational_mic_button", // Add unique hero tag
               backgroundColor: _isListening ? Colors.red : Colors.blue,
               child: Icon(
                 _isListening ? Icons.mic : Icons.mic_none,
@@ -433,6 +434,7 @@ class _ConversationalChatScreenState extends State<ConversationalChatScreen>
                 const SizedBox(width: 8),
                 FloatingActionButton(
                   mini: true,
+                  heroTag: "conversational_send_button", // Add unique hero tag
                   onPressed: _isLoading || _isListening
                       ? null
                       : () => _sendMessage(_textController.text),

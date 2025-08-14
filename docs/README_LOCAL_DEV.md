@@ -145,30 +145,57 @@ Can later join organization via invitation
 
 ## 🛠️ Development Commands
 
-### **Setup**
+### **Quick Start**
 ```bash
-make dev-setup          # Create .env and local_data directory
+make quick-start        # Complete setup and start all services
+make dev-setup          # Setup dependencies and environment
 ```
 
-### **Run Development Stack**
+### **Service Management**
 ```bash
-make dev-mock           # Mock database (fastest startup)
-make dev-full           # Full Firebase emulator stack
-make dev-api-only       # API only (for frontend development)
-make dev-web-only       # Web app only (assumes API running)
+make docker-up          # Start all Docker services
+make docker-down        # Stop all Docker services
+make docker-logs        # Show container logs
+make docker-build       # Build all containers
 ```
 
-### **Database Seeding**
+### **Development Servers**
 ```bash
-make seed-databases     # Seed both Neo4j and Firestore with demo data
-make seed-neo4j         # Seed only Neo4j with demo documents
-make seed-firestore     # Seed only Firestore emulator with demo data
+make api-dev            # Run API in development mode
+make web-dev            # Run admin web interface
+make mobile-dev         # Run Flutter mobile app
+```
+
+### **Database Management**
+```bash
+make seed-db            # Seed databases with demo data
+make init-schema        # Initialize Neo4j schema and constraints
+make validate-schema    # Validate Neo4j schema
+make list-constraints   # List Neo4j constraints
+make list-vector-indexes # List Neo4j vector indexes
+```
+
+### **Testing & Quality**
+```bash
+make test               # Run all tests
+make test-unit          # Run unit tests only
+make test-integration   # Run integration tests only
+make lint               # Run code linters
+make format             # Format code (black, isort)
 ```
 
 ### **Utilities**
 ```bash
-make dev-logs           # Show container logs
-make dev-clean          # Clean up containers and data
+make clean              # Clean up containers and build artifacts
+make install-deps       # Install all dependencies
+make status             # Check service status (production)
+```
+
+### **Cost Management**
+```bash
+make check-costs ENV=dev PROJECT=your-project
+make cost-optimize-dev PROJECT=your-project
+make scale-down-staging PROJECT=your-project
 ```
 
 ## 📁 Local Data Structure
@@ -253,6 +280,35 @@ SBERT_MODEL=all-MiniLM-L6-v2
 3. Sign out and sign in as `bob@techcorp.io`
 4. Should not see Acme's documents (tenant isolation)
 
+### **Test API Endpoints**
+```bash
+# Health check
+curl http://localhost:8000/healthz
+
+# Ingest document
+curl -X POST http://localhost:8000/ingest/text \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Test Doc","text":"Sample content","tenantId":"demo"}'
+
+# Query knowledge
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"question":"What is the sample content?","tenantId":"demo"}'
+```
+
+### **Run Test Suite**
+```bash
+# Run all tests
+make test
+
+# Run specific test types
+make test-unit          # Unit tests only
+make test-integration   # Integration tests with database
+
+# Run with coverage
+cd apps/api && pytest tests/ -v --cov=app --cov-report=html
+```
+
 ## 🔧 Customizing Mock Data
 
 ### **Add New Organization**
@@ -302,7 +358,7 @@ ports:
 
 ### **Data Reset**
 ```bash
-make dev-clean          # Remove all containers and data
+make clean              # Remove all containers and data
 rm -rf local_data       # Reset mock database
 make dev-setup          # Recreate with fresh demo data
 ```
@@ -311,7 +367,43 @@ make dev-setup          # Recreate with fresh demo data
 ```bash
 docker compose down -v  # Stop and remove volumes
 docker system prune -f  # Clean up Docker
-make dev-mock           # Restart
+make docker-up          # Restart services
+```
+
+### **Test Failures**
+```bash
+# Check test logs
+make test-unit -v
+
+# Run specific test file
+cd apps/api && pytest tests/test_routes.py -v
+
+# Check linting issues
+make lint
+```
+
+### **Neo4j Schema Issues**
+```bash
+# Reinitialize schema
+make init-schema NEO4J_URI=neo4j://localhost:7687 NEO4J_USER=neo4j NEO4J_PASSWORD=password
+
+# Validate current schema
+make validate-schema NEO4J_URI=neo4j://localhost:7687 NEO4J_USER=neo4j NEO4J_PASSWORD=password
+
+# Check vector indexes
+make list-vector-indexes NEO4J_URI=neo4j://localhost:7687 NEO4J_USER=neo4j NEO4J_PASSWORD=password
+```
+
+### **Performance Issues**
+```bash
+# Check resource usage
+make check-costs ENV=dev PROJECT=your-project
+
+# View service logs
+make docker-logs
+
+# Monitor API performance
+curl -w "@curl-format.txt" -o /dev/null -s http://localhost:8000/healthz
 ```
 
 ## 🎯 Production vs Development
@@ -330,6 +422,32 @@ make dev-mock           # Restart
 2. **Test Authentication**: Try different user flows
 3. **Ingest Documents**: Upload PDFs/docs via admin interface
 4. **Query Knowledge**: Ask questions about ingested content
-5. **Customize Organizations**: Add your own demo data
+5. **Run Tests**: `make test` to ensure everything works
+6. **Customize Organizations**: Add your own demo data
+7. **Deploy to Cloud**: Follow [Deployment Guide](DEPLOYMENT_SETUP.md)
+
+## 🧪 Continuous Integration
+
+The project includes GitHub Actions for:
+- **Automated Testing**: Runs on every PR and push
+- **Code Quality**: Linting, type checking, and formatting
+- **Security Scanning**: Vulnerability detection with Trivy
+- **Performance Testing**: Load tests with k6 on staging
+- **Deployment**: Automated deployment to Google Cloud Run
+
+### **Local CI Simulation**
+```bash
+# Run the same checks as CI
+make lint               # Code quality checks
+make test               # Full test suite
+make format             # Code formatting
+
+# Build Docker image (like CI)
+make docker-build
+
+# Run security scan (requires Docker image)
+docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+  aquasec/trivy image living_twin_monorepo_api:latest
+```
 
 The local development setup provides a complete, isolated environment for developing and testing the Living Twin platform without requiring external services or complex setup.

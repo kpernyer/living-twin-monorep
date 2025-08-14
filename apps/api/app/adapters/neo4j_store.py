@@ -42,6 +42,15 @@ class Neo4jStore(IVectorStore):
             s.execute_write(_tx)
         return sid
 
+    def ensure_vector_index(self, label: str = "Doc", property_name: str = "embedding", dimensions: int = 1536, similarity: str = "cosine") -> None:
+        """Ensure the vector index exists with the expected dimensions and similarity function."""
+        cypher = (
+            f"CREATE VECTOR INDEX {self.index} IF NOT EXISTS FOR (n:{label}) ON (n.{property_name}) "
+            f"OPTIONS {{indexConfig: {{ `vector.dimensions`: {dimensions}, `vector.similarity_function`: '" + similarity + "' }} }}"
+        )
+        with self.driver.session(database=self.db) as session:
+            session.run(cypher)
+
     def get_recent_sources(self, tenant_id: str, limit: int = 20) -> List[Dict[str, Any]]:
         """Get recently ingested sources for a tenant."""
         q = """

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'features/auth/login_screen.dart';
 import 'features/chat/chat_screen.dart';
-import 'features/pulse/pulse_screen.dart';
-import 'features/ingest/ingest_screen.dart';
+import 'features/home/home_screen.dart';
 import 'services/api_client_enhanced.dart';
+import 'config/app_config.dart';
 import 'services/auth.dart';
 
 void main() async {
@@ -76,26 +76,24 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
-  final ApiClientEnhanced _apiClient = ApiClientEnhanced();
+  final ApiClientEnhanced _apiClient = ApiClientEnhanced(
+    baseUrl: AppConfig.apiUrl,
+    authService: AuthService(),
+  );
   
   final List<Widget> _screens = [
-    const PulseScreen(),
+    const HomeScreen(),
     const ChatScreen(),
-    const IngestScreen(),
   ];
 
   final List<BottomNavigationBarItem> _navItems = [
     const BottomNavigationBarItem(
-      icon: Icon(Icons.dashboard),
-      label: 'Pulse',
+      icon: Icon(Icons.home),
+      label: 'Home',
     ),
     const BottomNavigationBarItem(
       icon: Icon(Icons.chat),
       label: 'Chat',
-    ),
-    const BottomNavigationBarItem(
-      icon: Icon(Icons.upload),
-      label: 'Ingest',
     ),
   ];
 
@@ -106,13 +104,7 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Future<void> _initializeApp() async {
-    // Process any pending retry queue items on app start
-    try {
-      await _apiClient.processRetryQueue();
-    } catch (e) {
-      // Silently handle errors during initialization
-      debugPrint('Error processing retry queue on startup: $e');
-    }
+    // TODO: Implement retry queue processing if needed
   }
 
   Future<void> _handleLogout() async {
@@ -342,11 +334,9 @@ class _MainScreenState extends State<MainScreen> {
   String _getScreenTitle() {
     switch (_currentIndex) {
       case 0:
-        return 'Pulse';
+        return 'Home';
       case 1:
         return 'Chat';
-      case 2:
-        return 'Ingest';
       default:
         return 'Living Twin';
     }

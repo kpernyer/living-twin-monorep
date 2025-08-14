@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:speech_to_text/speech_to_text.dart';
+import '../../personalization/personalization_layer.dart';
+import '../../personalization/personalization_service.dart';
 import '../../services/api_client_enhanced.dart';
 import '../../services/local_storage.dart';
+import '../../services/auth.dart';
+import '../../config/app_config.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -10,23 +16,60 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  final ApiClientEnhanced _apiClient = ApiClientEnhanced();
+  late final ApiClientEnhanced _apiClient;
   final LocalStorageService _storage = LocalStorageService();
+  final PersonalizationService _personalizationService = PersonalizationLayer();
   
   List<Map<String, dynamic>> _messages = [];
   bool _isLoading = false;
   bool _isOnline = true;
   Map<String, dynamic> _offlineStats = {};
+  final SpeechToText _speechToText = SpeechToText();
+  bool _isListening = false;
+
+  List<String> _todoItems = [];
+  List<String> _sampleQuestions = [];
+
+  AnimationController? _animationController;
+  Animation<int>? _textAnimation;
 
   @override
   void initState() {
     super.initState();
+    _apiClient = ApiClientEnhanced(
+      baseUrl: AppConfig.apiUrl,
+      authService: AuthService(),
+    );
+    _initSpeech();
     _loadMessages();
     _checkConnectivity();
     _loadOfflineStats();
+    _loadPersonalizedData();
+  }
+
+  Future<void> _loadPersonalizedData() async {
+    final todos = await _personalizationService.getTodoItems();
+    final questions = await _personalizationService.getSampleQuestions();
+    setState(() {
+      _todoItems = todos;
+      _sampleQuestions = questions;
+    });
+
+    if (_sampleQuestions.isNotEmpty) {
+      _animationController = AnimationController(
+        vsync: this,
+        duration: const Duration(seconds: 5),
+      )..repeat();
+      _textAnimation = StepTween(begin: 0, end: _sampleQuestions.length - 1).animate(_animationController!);
+    }
+  }
+
+  void _initSpeech() async {
+    await _speechToText.initialize();
+    setState(() {});
   }
 
   Future<void> _loadMessages() async {
@@ -38,21 +81,38 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _checkConnectivity() async {
-    final isOnline = await _apiClient.isOnline;
+    final connectivityResult = await Connectivity().checkConnectivity();
+    final isOnline = connectivityResult != ConnectivityResult.none;
+    
+    // Also check if the server is actually reachable
+    bool serverReachable = false;
+    if (isOnline) {
+      try {
+        final response = await _apiClient.healthCheck();
+        serverReachable = response['success'] == true;
+      } catch (e) {
+        serverReachable = false;
+      }
+    }
+    
     setState(() {
-      _isOnline = isOnline;
+      _isOnline = isOnline && serverReachable;
     });
     
-    if (isOnline) {
-      // Process retry queue when coming back online
-      await _apiClient.processRetryQueue();
-      await _loadMessages(); // Refresh to show synced messages
+    if (_isOnline) {
+      // Refresh messages when coming back online
+      await _loadMessages();
       await _loadOfflineStats();
     }
   }
 
   Future<void> _loadOfflineStats() async {
-    final stats = await _apiClient.getOfflineStats();
+    // Mock offline stats for now
+    final stats = {
+      'totalMessages': _messages.length,
+      'unsyncedMessages': 0,
+      'isOnline': _isOnline,
+    };
     setState(() {
       _offlineStats = stats;
     });
@@ -70,20 +130,56 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       final response = await _apiClient.query(question: question);
       
-      if (response['success']) {
+      // Debug: Print the response to see what we're getting
+      print('API Response: $response');
+      
+      // Handle null safety for response fields
+      final success = response['success'] as bool? ?? false;
+      final isOffline = response['offline'] as bool? ?? false;
+      final error = response['error'] as String?;
+      
+      print('Parsed values - success: $success, isOffline: $isOffline, error: $error');
+      
+      if (success) {
         // Message was successfully processed
         await _loadMessages();
       } else {
-        // Message was saved offline or failed
+        // Save message locally if server is not available
+        if (isOffline || (error != null && error.contains('Connection refused'))) {
+          await _saveMessageLocally(question, 'Server not available. Message saved locally.');
+        }
+        
         await _loadMessages();
         
         if (mounted) {
+          // Provide user-friendly error messages
+          String userMessage;
+          Color backgroundColor;
+          
+          if (isOffline) {
+            userMessage = 'Message saved locally. Will sync when server is available.';
+            backgroundColor = Colors.orange;
+          } else if (error != null && error.contains('Connection refused')) {
+            userMessage = 'Server not available. Message saved locally.';
+            backgroundColor = Colors.orange;
+          } else if (error != null && error.contains('Network error')) {
+            userMessage = 'Network connection issue. Please check your internet connection.';
+            backgroundColor = Colors.red;
+          } else {
+            userMessage = 'Error: ${error ?? 'Unknown error occurred'}';
+            backgroundColor = Colors.red;
+          }
+          
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(response['offline'] 
-                ? 'Message saved offline. Will sync when online.'
-                : 'Error: ${response['error']}'),
-              backgroundColor: response['offline'] ? Colors.orange : Colors.red,
+              content: Text(userMessage),
+              backgroundColor: backgroundColor,
+              duration: const Duration(seconds: 4),
+              action: SnackBarAction(
+                label: 'Retry',
+                textColor: Colors.white,
+                onPressed: () => _sendMessage(),
+              ),
             ),
           );
         }
@@ -107,6 +203,39 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
   }
 
+  Future<void> _saveMessageLocally(String question, String answer) async {
+    final message = {
+      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+      'question': question,
+      'answer': answer,
+      'timestamp': DateTime.now().millisecondsSinceEpoch,
+      'is_synced': false,
+      'is_local': true,
+    };
+    
+    await _storage.saveChatMessage(message);
+  }
+
+  void _listen() async {
+    if (!_isListening) {
+      bool available = await _speechToText.initialize(
+        onStatus: (val) => print('onStatus: $val'),
+        onError: (val) => print('onError: $val'),
+      );
+      if (available) {
+        setState(() => _isListening = true);
+        _speechToText.listen(
+          onResult: (val) => setState(() {
+            _controller.text = val.recognizedWords;
+          }),
+        );
+      }
+    } else {
+      setState(() => _isListening = false);
+      _speechToText.stop();
+    }
+  }
+
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
@@ -122,7 +251,8 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessage(Map<String, dynamic> message) {
     final isUser = message['answer'] == null;
     final timestamp = DateTime.fromMillisecondsSinceEpoch(message['timestamp']);
-    final isSynced = message['is_synced'] as bool;
+    final isSynced = message['is_synced'] as bool? ?? true;
+    final isLocal = message['is_local'] as bool? ?? false;
     
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -183,12 +313,20 @@ class _ChatScreenState extends State<ChatScreen> {
                   fontSize: 12,
                 ),
               ),
-              if (!isSynced) ...[
+              if (!isSynced || isLocal) ...[
                 const SizedBox(width: 4),
                 Icon(
-                  Icons.schedule,
+                  isLocal ? Icons.save : Icons.schedule,
                   size: 12,
-                  color: Colors.orange[600],
+                  color: isLocal ? Colors.blue[600] : Colors.orange[600],
+                ),
+                const SizedBox(width: 2),
+                Text(
+                  isLocal ? 'Local' : 'Pending',
+                  style: TextStyle(
+                    color: isLocal ? Colors.blue[600] : Colors.orange[600],
+                    fontSize: 10,
+                  ),
                 ),
               ],
             ],
@@ -211,7 +349,7 @@ class _ChatScreenState extends State<ChatScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              'Offline mode - Messages will sync when online',
+              'Server not available - Messages will be saved locally',
               style: TextStyle(
                 color: Colors.orange[800],
                 fontSize: 14,
@@ -239,51 +377,65 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   @override
+  void dispose() {
+    _animationController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat with Twin'),
-        backgroundColor: Colors.blue[600],
-        foregroundColor: Colors.white,
+        title: const Text('Living Twin Chat'),
         actions: [
           IconButton(
             icon: Icon(_isOnline ? Icons.cloud_done : Icons.cloud_off),
-            onPressed: _checkConnectivity,
-            tooltip: _isOnline ? 'Online' : 'Offline',
+            tooltip: _isOnline ? 'Connected to server' : 'Server not available',
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(_isOnline 
+                    ? 'Connected to Living Twin server' 
+                    : 'Server not available. Check your connection.'),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh connection',
+            onPressed: _isLoading ? null : () async {
+              setState(() {
+                _isLoading = true;
+              });
+              await _checkConnectivity();
+              await _loadMessages();
+              await _loadOfflineStats();
+              setState(() {
+                _isLoading = false;
+              });
+            },
           ),
           PopupMenuButton<String>(
-            onSelected: (value) async {
+            onSelected: (value) {
               switch (value) {
-                case 'refresh':
-                  await _checkConnectivity();
-                  await _loadMessages();
+                case 'clear':
+                  _showClearDialog();
                   break;
                 case 'stats':
                   _showOfflineStats();
-                  break;
-                case 'clear':
-                  _showClearDialog();
                   break;
               }
             },
             itemBuilder: (context) => [
               const PopupMenuItem(
-                value: 'refresh',
-                child: Row(
-                  children: [
-                    Icon(Icons.refresh),
-                    SizedBox(width: 8),
-                    Text('Refresh'),
-                  ],
-                ),
-              ),
-              const PopupMenuItem(
                 value: 'stats',
                 child: Row(
                   children: [
-                    Icon(Icons.info),
+                    Icon(Icons.analytics),
                     SizedBox(width: 8),
-                    Text('Offline Stats'),
+                    Text('View Statistics'),
                   ],
                 ),
               ),
@@ -293,7 +445,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   children: [
                     Icon(Icons.clear_all),
                     SizedBox(width: 8),
-                    Text('Clear Chat'),
+                    Text('Clear History'),
                   ],
                 ),
               ),
@@ -306,14 +458,28 @@ class _ChatScreenState extends State<ChatScreen> {
           _buildOfflineIndicator(),
           Expanded(
             child: _messages.isEmpty
-                ? const Center(
-                    child: Text(
-                      'Start a conversation with your Living Twin',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                      ),
-                    ),
+                ? Center(
+                    child: _textAnimation != null
+                        ? AnimatedBuilder(
+                            animation: _textAnimation!,
+                            builder: (context, child) {
+                              return Text(
+                                _sampleQuestions[_textAnimation!.value],
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey,
+                                ),
+                                textAlign: TextAlign.center,
+                              );
+                            },
+                          )
+                        : const Text(
+                            'Start a conversation with your Living Twin',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey,
+                            ),
+                          ),
                   )
                 : ListView.builder(
                     controller: _scrollController,
@@ -337,6 +503,16 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             child: Row(
               children: [
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Attach functionality coming soon!'),
+                      ),
+                    );
+                  },
+                ),
                 Expanded(
                   child: TextField(
                     controller: _controller,
@@ -356,9 +532,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
                 const SizedBox(width: 8),
+                IconButton(
+                  icon: Icon(_isListening ? Icons.mic_off : Icons.mic),
+                  onPressed: _listen,
+                ),
                 FloatingActionButton(
                   onPressed: _isLoading ? null : _sendMessage,
                   mini: true,
+                  heroTag: "chat_send_button", // Add unique hero tag
                   backgroundColor: Colors.blue[600],
                   child: _isLoading
                       ? const SizedBox(

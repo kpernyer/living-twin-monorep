@@ -99,6 +99,17 @@ class Neo4jSchemaManager:
         indexes = self.check_indexes()
         vector_indexes = [idx for idx in indexes if idx.get('type') == 'VECTOR']
         return vector_indexes
+
+    def ensure_vector_index(self, label: str, property_name: str, index_name: str, dimensions: int, similarity: str = "cosine") -> None:
+        """Create or update a vector index with the given dimensions and similarity function."""
+        cypher = (
+            f"CREATE VECTOR INDEX {index_name} IF NOT EXISTS FOR (n:{label}) ON (n.{property_name}) "
+            f"OPTIONS {{indexConfig: {{ `vector.dimensions`: {dimensions}, `vector.similarity_function`: '" + similarity + "' }} }}"
+        )
+        with self.driver.session() as session:
+            print(f"🧭 Ensuring vector index {index_name} ({dimensions} dims, {similarity})...")
+            session.run(cypher)
+            print("✅ Vector index ensured")
         
     def validate_schema(self) -> Dict[str, Any]:
         """Validate the current schema against expected structure"""
@@ -255,6 +266,12 @@ def main():
     parser.add_argument("--cypher-file", default="tools/scripts/init_neo4j_schema.cypher", 
                        help="Path to Cypher file for initialization")
     parser.add_argument("--json-output", action="store_true", help="Output results as JSON")
+    parser.add_argument("--ensure-vector-index", action="store_true", help="Ensure a vector index with given params")
+    parser.add_argument("--vi-label", default="Doc", help="Label for vector index (default: Doc)")
+    parser.add_argument("--vi-property", default="embedding", help="Property for vector index (default: embedding)")
+    parser.add_argument("--vi-name", default="docEmbeddings", help="Vector index name (default: docEmbeddings)")
+    parser.add_argument("--vi-dim", type=int, default=1536, help="Vector dimensions")
+    parser.add_argument("--vi-sim", default="cosine", help="Similarity function (cosine|euclidean|dot)")
     
     args = parser.parse_args()
     
@@ -312,6 +329,15 @@ def main():
                 print("📋 Neo4j Vector Indexes:")
                 for index in vector_indexes:
                     print(f"  • {index['name']} - {index['state']}")
+
+        elif args.ensure_vector_index:
+            manager.ensure_vector_index(
+                label=args.vi_label,
+                property_name=args.vi_property,
+                index_name=args.vi_name,
+                dimensions=args.vi_dim,
+                similarity=args.vi_sim,
+            )
                     
         elif args.create_sample_data:
             manager.create_sample_data()

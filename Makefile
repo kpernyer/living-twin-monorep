@@ -25,6 +25,7 @@ help:
 	@echo "  docker-down                                 Stop local development environment"
 	@echo ""
 	@echo "🔧 Development Tools:"
+	@echo "  fix-deps                                    Fix Python dependency conflicts"
 	@echo "  seed-db                                     Seed local databases with test data"
 	@echo "  api-dev                                     Run API in development mode"
 	@echo "  web-dev                                     Run admin web in development mode"
@@ -96,15 +97,23 @@ docker-build:
 
 docker-up:
 	@echo "🚀 Starting local development environment..."
+	docker-compose down -v
 	docker-compose up -d
 	@echo "✅ Development environment started!"
 	@echo "   API: http://localhost:8000"
 	@echo "   Neo4j Browser: http://localhost:7474"
-	@echo "   Admin Web: Run 'make web-dev' in another terminal"
+	@echo "   Admin Web: http://localhost:5173"
+	@echo "   Firebase Emulator UI: http://localhost:4000"
+	@echo "   Firestore Emulator: http://localhost:8080 | Auth Emulator: http://localhost:9099"
+	@echo "   Tip: Run 'make seed-db' to populate sample data"
 
 docker-down:
 	@echo "🛑 Stopping local development environment..."
-	docker-compose down
+	docker-compose down -v
+
+docker-stop:
+	@echo "🛑 Stopping local development containers..."
+	docker-compose stop
 
 docker-logs:
 	@echo "📋 Showing Docker logs..."
@@ -124,7 +133,7 @@ api-dev:
 
 web-dev:
 	@echo "🌐 Starting admin web in development mode..."
-	cd apps/admin_web && npm run dev
+	docker-compose exec admin-web npm run dev
 
 mobile-dev:
 	@echo "📱 Starting mobile app in development mode..."
@@ -136,6 +145,8 @@ mobile-dev:
 
 install-deps:
 	@echo "📦 Installing dependencies..."
+	@echo "Upgrading pip..."
+	python -m pip install --upgrade pip
 	@echo "Installing Python dependencies..."
 	cd apps/api && pip install -r requirements.txt -r requirements-dev.txt
 	@echo "Installing Node.js dependencies..."
@@ -143,17 +154,40 @@ install-deps:
 	@echo "Installing Flutter dependencies..."
 	cd apps/mobile && flutter pub get
 
+fix-deps:
+	@echo "🔧 Fixing dependency conflicts..."
+	python tools/scripts/fix_dependencies.py
+
 lint:
 	@echo "🔍 Running linters..."
-	cd apps/api && python -m flake8 app/
+	cd apps/api && python -m flake8 app/ --max-line-length=100 --ignore=E203,W503
+	cd apps/api && python -m black --check app/ --line-length=100
+	cd apps/api && python -m isort --check-only app/ --profile=black --line-length=100
 	cd apps/admin_web && npm run lint
 	cd apps/mobile && flutter analyze
 
 test:
 	@echo "🧪 Running tests..."
-	cd apps/api && python -m pytest
+	cd apps/api && python -m pytest tests/ -v
 	cd apps/admin_web && npm run test
 	cd apps/mobile && flutter test
+
+test-unit:
+	@echo "🧪 Running unit tests only..."
+	cd apps/api && python -m pytest tests/ -v -m "not integration"
+	cd apps/admin_web && npm run test
+	cd apps/mobile && flutter test
+
+test-integration:
+	@echo "🧪 Running integration tests..."
+	cd apps/api && python -m pytest tests/test_integration.py -v -m integration
+
+format:
+	@echo "🎨 Formatting code..."
+	cd apps/api && python -m black app/ --line-length=100
+	cd apps/api && python -m isort app/ --profile=black --line-length=100
+	cd apps/admin_web && npm run format
+	cd apps/mobile && dart format lib/
 
 clean:
 	@echo "🧹 Cleaning up..."
@@ -229,6 +263,14 @@ init-schema:
 	@if [ -z "$(NEO4J_PASSWORD)" ]; then echo "❌ NEO4J_PASSWORD is required. Usage: make init-schema NEO4J_URI=bolt://localhost:7687 NEO4J_USER=neo4j NEO4J_PASSWORD=password"; exit 1; fi
 	python tools/scripts/manage_neo4j_schema.py --uri $(NEO4J_URI) --user $(NEO4J_USER) --password $(NEO4J_PASSWORD) --init
 
+ensure-vector-index:
+	@echo "🧭 Ensuring Neo4j vector index matches embedding dimensions..."
+	@if [ -z "$(NEO4J_URI)" ]; then echo "❌ NEO4J_URI is required."; exit 1; fi
+	@if [ -z "$(NEO4J_USER)" ]; then echo "❌ NEO4J_USER is required."; exit 1; fi
+	@if [ -z "$(NEO4J_PASSWORD)" ]; then echo "❌ NEO4J_PASSWORD is required."; exit 1; fi
+	@if [ -z "$(VECTOR_DIM)" ]; then echo "❌ VECTOR_DIM is required (e.g., 1536 for OpenAI, 384 for SBERT)."; exit 1; fi
+	python tools/scripts/manage_neo4j_schema.py --uri $(NEO4J_URI) --user $(NEO4J_USER) --password $(NEO4J_PASSWORD) --ensure-vector-index --vi-name docEmbeddings --vi-label Doc --vi-property embedding --vi-dim $(VECTOR_DIM) --vi-sim cosine
+
 validate-schema:
 	@echo "🔍 Validating Neo4j schema..."
 	@if [ -z "$(NEO4J_URI)" ]; then echo "❌ NEO4J_URI is required"; exit 1; fi
@@ -263,3 +305,16 @@ cleanup-sample-data:
 	@if [ -z "$(NEO4J_USER)" ]; then echo "❌ NEO4J_USER is required"; exit 1; fi
 	@if [ -z "$(NEO4J_PASSWORD)" ]; then echo "❌ NEO4J_PASSWORD is required"; exit 1; fi
 	python tools/scripts/manage_neo4j_schema.py --uri $(NEO4J_URI) --user $(NEO4J_USER) --password $(NEO4J_PASSWORD) --cleanup-sample-data
+
+# =========================
+# Presentations
+# =========================
+
+build-presentations:
+	@echo "📄 Building presentations..."
+	@if ! command -v marp &> /dev/null; then echo "❌ marp-cli is not installed. Please run: npm install -g @marp-team/marp-cli"; exit 1; fi
+	marp --html --allow-local-files --input-dir presentations --output presentations/build
+
+clean-presentations:
+	@echo "🧹 Cleaning up presentations..."
+	rm -rf presentations/build

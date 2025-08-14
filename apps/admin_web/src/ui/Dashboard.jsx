@@ -29,7 +29,7 @@ export default function Dashboard() {
 
   async function doIngest() {
     try {
-      const resp = await apiFetch('/ingest/text', {
+      const resp = await apiFetch('/query/ingest/text', {
         method: 'POST',
         body: JSON.stringify({ title, text: ingestText, tenantId: getTenantId() })
       })
@@ -43,7 +43,7 @@ export default function Dashboard() {
 
   async function loadRecent() {
     try {
-      const resp = await apiFetch('/ingest/recent')
+      const resp = await apiFetch('/query/ingest/recent')
       const data = await resp.json()
       setRecent(data.items || [])
     } catch (error) {
@@ -53,7 +53,7 @@ export default function Dashboard() {
 
   async function debugRag() {
     try {
-      const resp = await apiFetch('/debug/rag', {
+      const resp = await apiFetch('/query/debug/rag', {
         method: 'POST',
         body: JSON.stringify({ question, k: 5, tenantId: getTenantId() })
       })
@@ -76,7 +76,7 @@ export default function Dashboard() {
     formData.append('tenantId', getTenantId())
 
     try {
-      const resp = await apiFetch('/ingest/upload', {
+      const resp = await apiFetch('/query/ingest/upload', {
         method: 'POST',
         body: formData
       })
