@@ -35,6 +35,14 @@ help:
 	@echo "  api-dev                                     Run API in development mode"
 	@echo "  web-dev                                     Run admin web in development mode"
 	@echo ""
+	@echo "🔍 Code Quality:"
+	@echo "  lint                                        Run all linters (Python, JS, Flutter)"
+	@echo "  lint-strict                                 Run linters with type checking"
+	@echo "  lint-python                                 Run Python linters only"
+	@echo "  lint-js                                     Run JavaScript/TypeScript linters only"
+	@echo "  lint-flutter                                Run Flutter linters only"
+	@echo "  format                                      Auto-format all code"
+	@echo ""
 	@echo "📝 Examples:"
 	@echo "  make check-costs ENV=dev PROJECT=my-living-twin-project"
 	@echo "  make terraform-plan ENV=staging PROJECT=my-living-twin-project"
@@ -280,7 +288,50 @@ lint:
 	cd apps/api && python -m black --check app/ --line-length=100
 	cd apps/api && python -m isort --check-only app/ --profile=black --line-length=100
 	cd apps/admin_web && npm run lint
-	cd apps/mobile && flutter analyze
+	@if command -v flutter &> /dev/null; then \
+		cd apps/mobile && flutter analyze; \
+	elif [ -f /opt/flutter/bin/flutter ]; then \
+		cd apps/mobile && /opt/flutter/bin/flutter analyze; \
+	else \
+		echo "⚠️  Flutter not found, skipping Flutter analysis"; \
+	fi
+
+lint-strict:
+	@echo "🔍 Running strict linters with type checking..."
+	cd apps/api && python -m flake8 app/ --max-line-length=100 --ignore=E203,W503
+	cd apps/api && python -m black --check app/ --line-length=100
+	cd apps/api && python -m isort --check-only app/ --profile=black --line-length=100
+	cd apps/api && python -m mypy app/
+	cd apps/admin_web && npm run lint
+	@if command -v flutter &> /dev/null; then \
+		cd apps/mobile && flutter analyze; \
+	elif [ -f /opt/flutter/bin/flutter ]; then \
+		cd apps/mobile && /opt/flutter/bin/flutter analyze; \
+	else \
+		echo "⚠️  Flutter not found, skipping Flutter analysis"; \
+	fi
+
+lint-python:
+	@echo "🐍 Running Python linters..."
+	cd apps/api && python -m flake8 app/ --max-line-length=100 --ignore=E203,W503
+	cd apps/api && python -m black --check app/ --line-length=100
+	cd apps/api && python -m isort --check-only app/ --profile=black --line-length=100
+	cd apps/api && python -m mypy app/
+
+lint-js:
+	@echo "🌐 Running JavaScript/TypeScript linters..."
+	cd apps/admin_web && npm run lint
+
+lint-flutter:
+	@echo "📱 Running Flutter linters..."
+	@if command -v flutter &> /dev/null; then \
+		cd apps/mobile && flutter analyze; \
+	elif [ -f /opt/flutter/bin/flutter ]; then \
+		cd apps/mobile && /opt/flutter/bin/flutter analyze; \
+	else \
+		echo "❌ Flutter not found. Run 'make install-flutter' first."; \
+		exit 1; \
+	fi
 
 test:
 	@echo "🧪 Running tests..."
