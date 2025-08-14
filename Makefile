@@ -161,14 +161,16 @@ install-deps:
 	@echo "Auditing Node.js dependencies for vulnerabilities..."
 	cd apps/admin_web && npm audit --audit-level moderate || echo "⚠️  Found vulnerabilities. Run 'make fix-npm-vulnerabilities' to fix them."
 	@echo "Checking Flutter installation..."
-	@if ! command -v flutter &> /dev/null; then \
+	@if ! command -v flutter &> /dev/null && ! [ -f /opt/flutter/bin/flutter ]; then \
 		echo "⚠️  Flutter not found. Installing Flutter..."; \
 		$(MAKE) install-flutter; \
 	fi
 	@echo "Installing Flutter dependencies..."
 	@if command -v flutter &> /dev/null; then \
+		echo "Using Flutter from PATH"; \
 		cd apps/mobile && flutter pub get; \
 	elif [ -f /opt/flutter/bin/flutter ]; then \
+		echo "Using Flutter from /opt/flutter/bin/flutter"; \
 		cd apps/mobile && /opt/flutter/bin/flutter pub get; \
 	else \
 		echo "❌ Flutter not found in PATH or /opt/flutter/bin/flutter"; \
