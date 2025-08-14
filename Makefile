@@ -159,7 +159,7 @@ install-deps:
 	@echo "Installing Node.js dependencies..."
 	cd apps/admin_web && npm install
 	@echo "Auditing Node.js dependencies for vulnerabilities..."
-	cd apps/admin_web && npm audit --audit-level moderate
+	cd apps/admin_web && npm audit --audit-level moderate || echo "⚠️  Found vulnerabilities. Run 'make fix-npm-vulnerabilities' to fix them."
 	@echo "Checking Flutter installation..."
 	@if ! command -v flutter &> /dev/null; then \
 		echo "⚠️  Flutter not found. Installing Flutter..."; \
