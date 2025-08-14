@@ -29,6 +29,8 @@ help:
 	@echo "  fix-npm-vulnerabilities                     Fix npm security vulnerabilities"
 	@echo "  fix-npm-vulnerabilities-force               Force fix npm vulnerabilities (breaking changes)"
 	@echo "  check-node-version                          Check Node.js and npm versions"
+	@echo "  install-flutter                             Install Flutter SDK"
+	@echo "  check-flutter                               Check Flutter installation"
 	@echo "  seed-db                                     Seed local databases with test data"
 	@echo "  api-dev                                     Run API in development mode"
 	@echo "  web-dev                                     Run admin web in development mode"
@@ -158,6 +160,11 @@ install-deps:
 	cd apps/admin_web && npm install
 	@echo "Auditing Node.js dependencies for vulnerabilities..."
 	cd apps/admin_web && npm audit --audit-level moderate
+	@echo "Checking Flutter installation..."
+	@if ! command -v flutter &> /dev/null; then \
+		echo "⚠️  Flutter not found. Installing Flutter..."; \
+		$(MAKE) install-flutter; \
+	fi
 	@echo "Installing Flutter dependencies..."
 	cd apps/mobile && flutter pub get
 
@@ -189,6 +196,60 @@ check-node-version:
 	@if [ -f .nvmrc ]; then cat .nvmrc; else echo "No .nvmrc file found"; fi
 	@echo "Latest npm version available:"
 	npm view npm version
+
+install-flutter:
+	@echo "📱 Installing Flutter..."
+	@if command -v flutter &> /dev/null; then \
+		echo "✅ Flutter is already installed:"; \
+		flutter --version; \
+		exit 0; \
+	fi
+	@echo "🔍 Detecting operating system..."
+	@if [ "$$(uname)" = "Linux" ]; then \
+		echo "🐧 Installing Flutter on Linux..."; \
+		cd /tmp && \
+		echo "📥 Downloading Flutter SDK..."; \
+		wget -q https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.24.5-stable.tar.xz -O flutter.tar.xz && \
+		echo "📦 Extracting Flutter..."; \
+		tar xf flutter.tar.xz && \
+		echo "📁 Moving Flutter to /opt/flutter..."; \
+		sudo mv flutter /opt/flutter && \
+		echo "🔗 Adding Flutter to PATH..."; \
+		echo 'export PATH="/opt/flutter/bin:$$PATH"' >> ~/.bashrc && \
+		echo 'export PATH="/opt/flutter/bin:$$PATH"' >> ~/.zshrc 2>/dev/null || true && \
+		export PATH="/opt/flutter/bin:$$PATH" && \
+		echo "🔧 Running Flutter doctor..."; \
+		/opt/flutter/bin/flutter doctor && \
+		echo "✅ Flutter installed successfully!"; \
+		echo "⚠️  Please restart your terminal or run: source ~/.bashrc"; \
+	elif [ "$$(uname)" = "Darwin" ]; then \
+		echo "🍎 Installing Flutter on macOS..."; \
+		if command -v brew &> /dev/null; then \
+			brew install --cask flutter && \
+			echo "✅ Flutter installed via Homebrew!"; \
+		else \
+			echo "❌ Homebrew not found. Please install Homebrew first or install Flutter manually."; \
+			echo "Visit: https://flutter.dev/docs/get-started/install/macos"; \
+			exit 1; \
+		fi; \
+	else \
+		echo "❌ Unsupported operating system: $$(uname)"; \
+		echo "Please install Flutter manually: https://flutter.dev/docs/get-started/install"; \
+		exit 1; \
+	fi
+
+check-flutter:
+	@echo "📱 Checking Flutter installation..."
+	@if command -v flutter &> /dev/null; then \
+		echo "✅ Flutter is installed:"; \
+		flutter --version; \
+		echo "🔍 Running Flutter doctor..."; \
+		flutter doctor; \
+	else \
+		echo "❌ Flutter is not installed."; \
+		echo "Run 'make install-flutter' to install Flutter."; \
+		exit 1; \
+	fi
 
 lint:
 	@echo "🔍 Running linters..."
