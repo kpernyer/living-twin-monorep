@@ -26,6 +26,9 @@ help:
 	@echo ""
 	@echo "🔧 Development Tools:"
 	@echo "  fix-deps                                    Fix Python dependency conflicts"
+	@echo "  fix-npm-vulnerabilities                     Fix npm security vulnerabilities"
+	@echo "  fix-npm-vulnerabilities-force               Force fix npm vulnerabilities (breaking changes)"
+	@echo "  check-node-version                          Check Node.js and npm versions"
 	@echo "  seed-db                                     Seed local databases with test data"
 	@echo "  api-dev                                     Run API in development mode"
 	@echo "  web-dev                                     Run admin web in development mode"
@@ -147,16 +150,45 @@ install-deps:
 	@echo "📦 Installing dependencies..."
 	@echo "Upgrading pip..."
 	python -m pip install --upgrade pip
+	@echo "Upgrading npm..."
+	npm install -g npm@latest
 	@echo "Installing Python dependencies..."
 	cd apps/api && pip install -r requirements.txt -r requirements-dev.txt
 	@echo "Installing Node.js dependencies..."
 	cd apps/admin_web && npm install
+	@echo "Auditing Node.js dependencies for vulnerabilities..."
+	cd apps/admin_web && npm audit --audit-level moderate
 	@echo "Installing Flutter dependencies..."
 	cd apps/mobile && flutter pub get
 
 fix-deps:
 	@echo "🔧 Fixing dependency conflicts..."
 	python tools/scripts/fix_dependencies.py
+
+fix-npm-vulnerabilities:
+	@echo "🔒 Fixing npm security vulnerabilities..."
+	cd apps/admin_web && npm audit fix
+	@echo "Checking for remaining vulnerabilities..."
+	cd apps/admin_web && npm audit --audit-level moderate || echo "⚠️  Some vulnerabilities may require manual review"
+
+fix-npm-vulnerabilities-force:
+	@echo "🔒 Force fixing npm security vulnerabilities (may include breaking changes)..."
+	@echo "⚠️  This may introduce breaking changes!"
+	@read -p "Continue with force fix? (y/N): " confirm && [ "$$confirm" = "y" ] || exit 1
+	cd apps/admin_web && npm audit fix --force
+	@echo "Checking for remaining vulnerabilities..."
+	cd apps/admin_web && npm audit --audit-level moderate || echo "⚠️  Some vulnerabilities may require manual review"
+
+check-node-version:
+	@echo "📋 Checking Node.js and npm versions..."
+	@echo "Current Node.js version:"
+	node --version
+	@echo "Current npm version:"
+	npm --version
+	@echo "Recommended Node.js version (from .nvmrc):"
+	@if [ -f .nvmrc ]; then cat .nvmrc; else echo "No .nvmrc file found"; fi
+	@echo "Latest npm version available:"
+	npm view npm version
 
 lint:
 	@echo "🔍 Running linters..."
