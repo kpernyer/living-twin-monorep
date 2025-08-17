@@ -4,10 +4,11 @@ import { apiFetch } from '../shared/api'
 import PulseBoard from '../features/pulse/PulseBoard'
 import IntelligenceHub from '../features/intelligence/IntelligenceHub'
 import StrategicAlignmentDashboard from '../features/intelligence/StrategicAlignmentDashboard'
+import DocumentInjection from '../features/document_injection/DocumentInjection'
 
 export default function Dashboard() {
   const { user, organization, logout, getUserRole, getTenantId, isOrganizationAdmin } = useAuth()
-  const [activeTab, setActiveTab] = useState('ingest')
+  const [activeTab, setActiveTab] = useState('document_injection')
   const [question, setQuestion] = useState('How are we doing on retention?')
   const [answer, setAnswer] = useState('')
   const [title, setTitle] = useState('Demo Source')
@@ -207,6 +208,16 @@ export default function Dashboard() {
             >
               Ingest & Query
             </button>
+            <button
+              onClick={() => setActiveTab('document_injection')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'document_injection'
+                  ? 'border-indigo-500 text-indigo-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Document Injection
+            </button>
           </nav>
         </div>
       </div>
@@ -220,6 +231,8 @@ export default function Dashboard() {
             <IntelligenceHub />
           ) : activeTab === 'alignment' ? (
             <StrategicAlignmentDashboard />
+          ) : activeTab === 'document_injection' ? (
+            <DocumentInjection />
           ) : (
             <div className="grid grid-cols-1 gap-6">
             
