@@ -1,0 +1,5 @@
+node_modules
+apps/admin_web/node_modules
+apps/mobile/ios/Pods
+apps/mobile/macos/Pods
+docs/CONVERSATIONAL_EVOLUTION_GUIDE.md

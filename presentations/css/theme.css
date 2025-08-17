@@ -1,0 +1,105 @@
+/* @theme tech-solution */
+@import 'default';
+
+/* Theme */
+:root {
+    --color-primary: #042D42;
+    --color-secondary: #226688;
+    --color-accent1: #F3503C;
+    --color-accent2: #00C2D1;
+    --color-accent3: #F5B158;
+    --font-heading: 'Babas Neue Pro', sans-serif;
+    --font-body: 'Mrs Eaves Zlatan', serif;
+}
+    
+body {
+    font-family: var(--font-body);
+    background-color: var(--color-primary);
+    color: white;
+}
+    
+h1, h2 {
+    font-family: var(--font-heading);
+    color: var(--color-accent3);
+}
+   
+h3, h4 {
+    font-family: var(--font-heading);
+    color: var(--color-accent1);
+}
+
+a, em {
+    color: var(--color-accent2);
+}
+    
+button {
+    background-color: var(--color-secondary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-family: var(--font-heading);
+    cursor: pointer;
+}
+    
+button:hover {
+    background-color: var(--color-accent1);
+}
+
+/* Enable pagination by default */
+section {
+    background-color: var(--color-primary);
+    color: white;
+    font-family: var(--font-body);
+    counter-increment: marpit-slide;
+}
+
+/* Footer layout - automatically injected on all slides */
+section {
+    position: relative;
+}
+
+section::after {
+    content: attr(data-marpit-title) "    " counter(marpit-slide) " / " counter(marpit-slide, decimal-leading-zero) "    © Aprio One AB 2025";
+    position: absolute;
+    bottom: 20px;
+    left: 30px;
+    right: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: var(--color-accent1);
+    font-family: var(--font-heading);
+    opacity: 0.8;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Title page styling */
+section.title-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px;
+}
+
+section.title-page img.logo {
+    max-width: 400px;
+    max-height: 240px;
+    margin-bottom: 30px;
+}
+
+section.title-page h1 {
+    font-size: 2em;
+    margin-bottom: 10px;
+    color: var(--color-accent3);
+}
+
+section.title-page .date {
+    font-size: 1.1em;
+    color: var(--color-accent2);
+    margin-top: 10px;
+    font-family: var(--font-body);
+}

@@ -5,6 +5,7 @@ This document tracks the coordination between all configuration files in the Liv
 ## ✅ Updated and Coordinated Files
 
 ### 1. **Makefile** - Root level build automation
+
 - ✅ Updated Python paths to `apps/api/`
 - ✅ Updated React paths to `apps/admin_web/`
 - ✅ Added Flutter mobile development targets
@@ -12,6 +13,7 @@ This document tracks the coordination between all configuration files in the Liv
 - ✅ Coordinated with new directory structure
 
 ### 2. **docker-compose.yml** - Local development orchestration
+
 - ✅ Updated volume mounts for new structure
 - ✅ Fixed Firebase rules paths to `packages/gcp_firebase/`
 - ✅ API service points to `apps/api/`
@@ -19,15 +21,18 @@ This document tracks the coordination between all configuration files in the Liv
 - ✅ Environment variables coordinated
 
 ### 3. **docker/Dockerfile.api** - API container build
+
 - ✅ Updated COPY paths to `apps/api/`
 - ✅ Coordinated with new API structure
 - ✅ Working directory and entry point correct
 
 ### 4. **firebase.json** - Firebase configuration
+
 - ✅ Updated rules paths to `packages/gcp_firebase/firestore_rules/`
 - ✅ Updated storage rules to `packages/gcp_firebase/storage_rules/`
 
 ### 5. **Environment Files**
+
 - ✅ **`.env.example`** - Comprehensive root-level template
 - ✅ **`.env.local`** - Local development configuration
 - ✅ **`apps/admin_web/.env.example`** - React app specific config
@@ -35,11 +40,13 @@ This document tracks the coordination between all configuration files in the Liv
 - ✅ API URLs and ports consistent across all files
 
 ### 6. **packages/gcp_firebase/terraform/main.tf** - Infrastructure
+
 - ✅ Updated API Gateway path to `../api_gateway/openapi-gateway.yaml`
 - ✅ Cloud Run configuration coordinated
 - ✅ Service account and IAM settings correct
 
 ### 7. **docker/init-databases.sh** - Database initialization
+
 - ✅ Script paths coordinated with new structure
 - ✅ References to `tools/scripts/seed_databases.py` correct
 
@@ -60,6 +67,7 @@ This document tracks the coordination between all configuration files in the Liv
 ## 🔧 Environment Variable Coordination
 
 ### Local Development
+
 ```bash
 # API
 API_HOST=0.0.0.0
@@ -80,11 +88,13 @@ VITE_FIREBASE_AUTH_EMULATOR_HOST=localhost:9099
 ```
 
 ### Docker Compose
+
 - ✅ Environment variables passed correctly to all services
 - ✅ Service discovery working (api, neo4j, firebase-emulator)
 - ✅ Volume mounts pointing to correct directories
 
 ### Production Deployment
+
 - ✅ Terraform variables aligned with Makefile
 - ✅ Cloud Run environment variables coordinated
 - ✅ API Gateway configuration paths correct
@@ -120,7 +130,7 @@ make tf-apply-staging
 
 The configuration files now correctly reference the target structure:
 
-```
+```bash
 living_twin_monorepo/
 ├─ apps/
 │  ├─ api/                    ✅ All configs updated

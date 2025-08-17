@@ -236,22 +236,41 @@ variable "log_level" {
 }
 
 # Integration settings
-variable "slack_webhook_url" {
-  description = "Slack webhook URL for notifications"
+variable "notification_webhook_url" {
+  description = "Webhook URL for notifications to communication platforms"
   type        = string
   default     = null
   sensitive   = true
 }
 
-variable "datadog_api_key" {
-  description = "Datadog API key for monitoring"
+variable "enable_prometheus_monitoring" {
+  description = "Enable Prometheus for monitoring"
+  type        = bool
+  default     = false
+}
+
+variable "jira_api_token" {
+  description = "Jira API token for integration"
   type        = string
   default     = null
   sensitive   = true
 }
 
-variable "sentry_dsn" {
-  description = "Sentry DSN for error tracking"
+variable "jira_instance_url" {
+  description = "Jira instance URL (e.g., https://your-org.atlassian.net)"
+  type        = string
+  default     = null
+}
+
+variable "linear_api_key" {
+  description = "Linear API key for integration"
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "firecrawl_api_key" {
+  description = "Firecrawl API key for web scraping"
   type        = string
   default     = null
   sensitive   = true

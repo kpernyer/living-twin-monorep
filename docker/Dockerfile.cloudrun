@@ -15,13 +15,19 @@ RUN apt-get update \
         g++ \
     && rm -rf /var/lib/apt/lists/*
 
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:$PATH"
+
 # Create virtual environment
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy requirements and install dependencies
-COPY apps/api/requirements.txt /tmp/
-RUN pip install --no-cache-dir -r /tmp/requirements.txt
+# Copy the pyproject.toml file
+COPY apps/api/pyproject.toml /tmp/pyproject.toml
+
+# Install dependencies using uv
+RUN uv pip install --no-cache --compile -r /tmp/pyproject.toml
 
 # Production stage
 FROM python:3.11-slim as production

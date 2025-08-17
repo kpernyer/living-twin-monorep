@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Import UI component styles */
+@import './components/ui/ui.css';
+
 /* Custom styles */
 body {
   margin: 0;

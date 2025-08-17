@@ -8,6 +8,7 @@
 Living Twin is an AI-powered organizational intelligence platform that combines **Retrieval-Augmented Generation (RAG)**, **knowledge graphs**, and **organizational simulation** to provide insights into team dynamics, goal alignment, and communication patterns.
 
 ### **Core Value Proposition**
+
 - **Knowledge Management**: RAG-powered search across organizational documents and communications
 - **Organizational Simulation**: AI agents that model employee behavior and predict organizational outcomes
 - **Multi-tenant SaaS**: Secure, scalable platform supporting multiple organizations
@@ -19,34 +20,38 @@ Living Twin is an AI-powered organizational intelligence platform that combines 
 
 ```mermaid
 graph TB
-    subgraph "Client Applications"
+    subgraph "User-Facing Applications"
         WEB[Admin Web<br/>React + Vite]
         MOBILE[Mobile App<br/>Flutter]
     end
-    
-    subgraph "API Layer"
+
+    subgraph "Core Platform"
         API[FastAPI Backend<br/>Hexagonal Architecture]
         AUTH[Firebase Auth<br/>JWT + Custom Claims]
-    end
-    
-    subgraph "Core Services"
         RAG[RAG Pipeline<br/>LangChain + OpenAI]
         SIM[Simulation Engine<br/>AI Agents + MCP]
         EVENTS[Event System<br/>Pub/Sub + Workers]
     end
-    
-    subgraph "Data Layer"
+
+    subgraph "Data & Storage"
         NEO4J[Neo4j<br/>Knowledge Graph + Vectors]
         FIRESTORE[Firestore<br/>Tenant Config]
         GCS[Cloud Storage<br/>Documents]
     end
-    
-    subgraph "Infrastructure"
+
+    subgraph "Infrastructure & DevOps"
         CLOUDRUN[Cloud Run<br/>Containerized Services]
         TERRAFORM[Terraform<br/>Infrastructure as Code]
         GITHUB[GitHub Actions<br/>CI/CD Pipeline]
+        PROMETHEUS[Prometheus & Grafana<br/>Monitoring]
     end
-    
+
+    subgraph "External Integrations"
+        TICKETING[Ticketing Systems<br/>Jira, Linear]
+        DATA_INGESTION[Data Ingestion<br/>Firecrawl, Puppeteer]
+        COMM_PLATFORMS[Communication Platforms<br/>Email, etc.]
+    end
+
     WEB --> API
     MOBILE --> API
     API --> AUTH
@@ -61,6 +66,10 @@ graph TB
     CLOUDRUN --> NEO4J
     TERRAFORM --> CLOUDRUN
     GITHUB --> TERRAFORM
+    API --> PROMETHEUS
+    API --> TICKETING
+    API --> DATA_INGESTION
+    EVENTS --> COMM_PLATFORMS
 ```
 
 ---
@@ -71,7 +80,7 @@ graph TB
 
 **Technology**: FastAPI with Hexagonal Architecture (Ports & Adapters)
 
-```
+```bash
 apps/api/app/
 ├── main.py                 # FastAPI application entry point
 ├── config.py              # Environment configuration
@@ -97,6 +106,7 @@ apps/api/app/
 ```
 
 **Key Features**:
+
 - **Clean Architecture**: Hexagonal pattern with clear separation of concerns
 - **Dependency Injection**: Centralized DI container for testability
 - **Multi-tenant**: Tenant isolation at data and API level
@@ -107,7 +117,7 @@ apps/api/app/
 
 **Technology**: Python with AI agent framework + MCP integration
 
-```
+```bash
 apps/simulation/
 ├── agents/
 │   ├── agent_factory.py      # Creates agents from employee data
@@ -125,6 +135,7 @@ apps/simulation/
 ```
 
 **Capabilities**:
+
 - **AI Agents**: Realistic employee behavior simulation using LLMs
 - **Personality Modeling**: 6-trait personality system (risk tolerance, communication style, etc.)
 - **Organizational Dynamics**: Manager-report relationships, department interactions
@@ -137,6 +148,7 @@ apps/simulation/
 **Technology**: LangChain + OpenAI/Local embeddings + Neo4j vectors
 
 **Components**:
+
 - **Document Ingestion**: PDF/DOCX parsing with metadata extraction
 - **Embedding Generation**: OpenAI embeddings + local SBERT fallback
 - **Vector Storage**: Neo4j native vector indexes
@@ -145,6 +157,7 @@ apps/simulation/
 - **Memory**: Conversation history and user context
 
 **Supported Formats**:
+
 - PDF documents (PyPDF2)
 - DOCX files (python-docx)
 - Plain text
@@ -153,6 +166,7 @@ apps/simulation/
 ### **4. Data Architecture** ✅ **Multi-modal Storage**
 
 #### **Neo4j - Primary Knowledge Graph**
+
 ```cypher
 // Core schema
 (Organization)-[:HAS_EMPLOYEE]->(User)
@@ -165,18 +179,21 @@ apps/simulation/
 ```
 
 **Features**:
+
 - **Native vector indexes** for semantic search
 - **Graph relationships** for organizational modeling
 - **Multi-tenant isolation** via organization nodes
 - **ACID transactions** for data consistency
 
 #### **Firestore - Configuration & State**
+
 - Tenant configuration and settings
 - User preferences and UI state
 - Real-time subscriptions for live updates
 - Lightweight operational data
 
 #### **Cloud Storage - Document Repository**
+
 - Original document storage
 - Tenant-isolated buckets
 - Versioning and metadata
@@ -187,11 +204,13 @@ apps/simulation/
 **Technology**: Firebase Auth + Custom Claims
 
 **Architecture**:
-```
+
+```bash
 Client → Firebase Auth → Custom Claims → API → Tenant Isolation
 ```
 
 **Features**:
+
 - **Multi-tenant JWT**: Custom claims for organization/role
 - **Role-based access**: Admin, Manager, Employee roles
 - **API-level enforcement**: Middleware validates all requests
@@ -202,7 +221,7 @@ Client → Firebase Auth → Custom Claims → API → Tenant Isolation
 
 **Technology**: Google Pub/Sub + Background Workers
 
-```
+```bash
 apps/api/app/workers/
 └── event_worker.py         # Background event processing
 
@@ -213,12 +232,14 @@ packages/gcp_firebase/terraform/modules/pubsub/
 ```
 
 **Current Events**:
+
 - Document ingestion completion
 - User goal updates
 - Communication tracking
 - Simulation state changes
 
 **Planned Events**:
+
 - Real-time notifications
 - Workflow automation
 - Integration webhooks
@@ -232,7 +253,7 @@ packages/gcp_firebase/terraform/modules/pubsub/
 
 **Technology**: React 18 + Vite + TypeScript
 
-```
+```bash
 apps/admin_web/src/
 ├── features/
 │   ├── auth/              # Authentication flows
@@ -251,6 +272,7 @@ apps/admin_web/src/
 ```
 
 **Features**:
+
 - **Pulse Dashboard**: Real-time team metrics and goal progress
 - **Document Management**: Upload, search, and organize documents
 - **RAG Interface**: Natural language queries with context
@@ -261,7 +283,7 @@ apps/admin_web/src/
 
 **Technology**: Flutter + Dart
 
-```
+```bash
 apps/mobile/lib/
 ├── features/
 │   ├── auth/              # Mobile authentication
@@ -278,12 +300,14 @@ apps/mobile/lib/
 ```
 
 **Current Features**:
+
 - Firebase authentication
 - Basic RAG chat interface
 - Document upload from camera/gallery
 - Offline-first architecture
 
 **Planned Features**:
+
 - Push notifications
 - Offline document sync
 - Voice-to-text queries
@@ -297,7 +321,7 @@ apps/mobile/lib/
 
 **Technology**: Google Cloud Platform + Terraform
 
-```
+```bash
 packages/gcp_firebase/terraform/
 ├── main.tf                    # Root configuration
 ├── variables.tf               # Environment variables
@@ -313,6 +337,7 @@ packages/gcp_firebase/terraform/
 ```
 
 **Resources**:
+
 - **Cloud Run**: Auto-scaling containerized services
 - **Pub/Sub**: Event messaging and async processing
 - **Secret Manager**: Secure credential storage
@@ -325,18 +350,19 @@ packages/gcp_firebase/terraform/
 
 **Technology**: GitHub Actions + Multi-environment deployment
 
-```
+```bash
 .github/workflows/
 └── deploy-cloud-run.yml      # Complete deployment pipeline
 ```
 
 **Pipeline Features**:
+
 - **Multi-stage testing**: Linting, type checking, unit tests
 - **Security scanning**: Trivy vulnerability analysis
 - **Performance testing**: k6 load tests on staging
 - **Multi-environment**: Automatic staging/production deployment
 - **Rollback capability**: Automatic rollback on health check failure
-- **Notifications**: Slack integration for deployment status
+- **Notifications**: Integration with organizational communication platforms for deployment status
 - **Cost optimization**: Auto-scaling configuration per environment
 
 ### **Development Experience** ✅ **Sophisticated Tooling**
@@ -361,6 +387,7 @@ make logs-api PROJECT=my-proj # View production logs
 ```
 
 **Features**:
+
 - **One-command setup**: Complete development environment
 - **Hot reload**: All services support live code updates
 - **Multi-environment**: Easy switching between dev/staging/prod
@@ -373,7 +400,8 @@ make logs-api PROJECT=my-proj # View production logs
 ## 🔒 **Security Architecture**
 
 ### **Authentication Flow**
-```
+
+```bash
 1. User → Firebase Auth (Google/Email)
 2. Firebase → Custom Claims (org_id, role)
 3. Client → API (JWT Bearer token)
@@ -382,12 +410,14 @@ make logs-api PROJECT=my-proj # View production logs
 ```
 
 ### **Multi-tenant Isolation**
+
 - **Database level**: All queries filtered by organization_id
 - **Storage level**: Tenant-prefixed buckets and paths
 - **API level**: Middleware enforces tenant boundaries
 - **UI level**: Role-based feature access
 
 ### **Security Features**
+
 - **HTTPS everywhere**: TLS 1.3 for all communications
 - **JWT validation**: Cryptographic signature verification
 - **Input sanitization**: SQL injection and XSS prevention
@@ -400,7 +430,8 @@ make logs-api PROJECT=my-proj # View production logs
 ## 📊 **Data Flow Architecture**
 
 ### **Document Ingestion Flow**
-```
+
+```bash
 1. Upload → Cloud Storage
 2. Trigger → Pub/Sub event
 3. Worker → Extract text + metadata
@@ -411,7 +442,8 @@ make logs-api PROJECT=my-proj # View production logs
 ```
 
 ### **RAG Query Flow**
-```
+
+```bash
 1. User Query → API
 2. Embedding → Query vector
 3. Search → Neo4j vector similarity
@@ -421,7 +453,8 @@ make logs-api PROJECT=my-proj # View production logs
 ```
 
 ### **Simulation Flow**
-```
+
+```bash
 1. Organization Data → Agent Factory
 2. Agents → Personality + Professional profiles
 3. Communication → Distribution Engine
@@ -435,6 +468,7 @@ make logs-api PROJECT=my-proj # View production logs
 ## 🎯 **Current Status & Roadmap**
 
 ### **✅ Production Ready (Current)**
+
 - **Core RAG pipeline** with document ingestion and search
 - **Multi-tenant architecture** with Firebase auth
 - **Organizational simulation** with AI agents
@@ -445,13 +479,17 @@ make logs-api PROJECT=my-proj # View production logs
 - **Cost optimization** tools and monitoring
 
 ### **🔄 In Progress**
+
 - **Enhanced mobile features** (push notifications, offline sync)
 - **Advanced simulation analytics** (predictive modeling)
 - **Plugin architecture** for extensible skills
 - **Real-time collaboration** features
-- **Advanced observability** (OpenTelemetry, metrics)
+- **Advanced observability** (OpenTelemetry, Prometheus, Grafana)
+- **Ticketing System Integration** (Jira, Linear) via MCP
+- **Automated Data Ingestion** (Firecrawl, Puppeteer)
 
 ### **📋 Planned (Next Sprints)**
+
 - **API Gateway** with centralized JWT validation
 - **Plugin marketplace** with paywalled skills
 - **Advanced billing** and quota enforcement
@@ -465,30 +503,35 @@ make logs-api PROJECT=my-proj # View production logs
 ## 🏛️ **Architectural Principles**
 
 ### **1. Hexagonal Architecture**
+
 - **Domain-driven design** with pure business logic
 - **Port-adapter pattern** for external integrations
 - **Dependency inversion** for testability
 - **Clean separation** of concerns
 
 ### **2. Multi-tenancy**
+
 - **Shared infrastructure** with logical isolation
 - **Tenant-aware** data access patterns
 - **Scalable** resource allocation
 - **Cost-effective** shared services
 
 ### **3. Event-Driven Design**
+
 - **Asynchronous processing** for scalability
 - **Loose coupling** between services
 - **Eventual consistency** where appropriate
 - **Resilient** error handling
 
 ### **4. Cloud-Native**
+
 - **Containerized** services for portability
 - **Auto-scaling** based on demand
 - **Managed services** for operational simplicity
 - **Infrastructure as Code** for reproducibility
 
 ### **5. Security by Design**
+
 - **Zero-trust** architecture
 - **Principle of least privilege**
 - **Defense in depth** strategy
@@ -510,7 +553,7 @@ make logs-api PROJECT=my-proj # View production logs
 | **Events** | Google Pub/Sub | 🔄 Partial | Async processing |
 | **Infrastructure** | GCP + Terraform | ✅ Production | Infrastructure as Code |
 | **CI/CD** | GitHub Actions | ✅ Advanced | Multi-environment pipeline |
-| **Monitoring** | Cloud Logging + Custom | 🔄 Basic | Observability in progress |
+| **Monitoring** | Prometheus + Grafana | 🔄 Basic | Advanced observability in progress |
 | **Simulation** | Custom AI Agents + MCP | ✅ Innovation | Unique organizational modeling |
 
 ---
@@ -518,6 +561,7 @@ make logs-api PROJECT=my-proj # View production logs
 ## 📈 **Performance & Scalability**
 
 ### **Current Capacity**
+
 - **API**: 1000+ concurrent requests
 - **Database**: 10M+ documents, 100M+ relationships
 - **Storage**: Unlimited document storage
@@ -525,6 +569,7 @@ make logs-api PROJECT=my-proj # View production logs
 - **Tenants**: 1000+ organizations
 
 ### **Scaling Strategy**
+
 - **Horizontal scaling**: Cloud Run auto-scaling
 - **Database sharding**: Neo4j clustering for large datasets
 - **CDN**: Global content distribution
@@ -532,6 +577,7 @@ make logs-api PROJECT=my-proj # View production logs
 - **Load balancing**: Geographic traffic distribution
 
 ### **Performance Targets**
+
 - **API Response**: <200ms p95
 - **RAG Queries**: <2s end-to-end
 - **Document Ingestion**: <30s for typical documents
@@ -547,6 +593,7 @@ Living Twin has evolved into a sophisticated **organizational intelligence platf
 The system is **production-ready** for core RAG functionality and **pioneering** in organizational simulation capabilities, positioning it as a unique offering in the enterprise AI space.
 
 **Key Differentiators**:
+
 1. **AI-powered organizational simulation** - unique in the market
 2. **Hybrid LLM approach** - cost-effective cloud/local flexibility  
 3. **Graph-native knowledge management** - superior relationship modeling

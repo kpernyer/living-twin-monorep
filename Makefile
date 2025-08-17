@@ -141,12 +141,12 @@ seed-db:
 	python3 tools/scripts/seed_databases.py
 
 api-dev:
-	@echo "🚀 Starting API in development mode..."
-	cd apps/api && python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+	@echo "🚀 Starting API in development mode with uv..."
+	cd apps/api && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 web-dev:
 	@echo "🌐 Starting admin web in development mode..."
-	docker-compose exec admin-web npm run dev
+	pnpm dev
 
 mobile-dev:
 	@echo "📱 Starting mobile app in development mode..."
@@ -157,17 +157,21 @@ mobile-dev:
 # =========================
 
 install-deps:
-	@echo "📦 Installing dependencies..."
-	@echo "Upgrading pip..."
-	python3 -m pip install --upgrade pip
-	@echo "Upgrading npm..."
-	npm install -g npm@latest
+	@echo "📦 Installing dependencies with uv and pnpm..."
+	@if ! command -v uv &> /dev/null; then \
+		echo "⚠️  uv not found. Installing uv..."; \
+		pip install uv; \
+	fi
+	@if ! command -v pnpm &> /dev/null; then \
+		echo "⚠️  pnpm not found. Installing pnpm..."; \
+		npm install -g pnpm; \
+	fi
 	@echo "Installing Python dependencies..."
-	cd apps/api && pip install -r requirements.txt -r requirements-dev.txt
+	cd apps/api && uv pip install --system --no-cache --compile -e .[dev]
 	@echo "Installing Node.js dependencies..."
-	cd apps/admin_web && npm install
+	pnpm install
 	@echo "Auditing Node.js dependencies for vulnerabilities..."
-	cd apps/admin_web && npm audit --audit-level moderate || echo "⚠️  Found vulnerabilities. Run 'make fix-npm-vulnerabilities' to fix them."
+	pnpm audit --audit-level moderate || echo "⚠️  Found vulnerabilities. Run 'make fix-npm-vulnerabilities' to fix them."
 	@echo "Checking Flutter installation..."
 	@if ! command -v flutter &> /dev/null && ! [ -f /opt/flutter/bin/flutter ]; then \
 		echo "⚠️  Flutter not found. Installing Flutter..."; \
@@ -193,17 +197,17 @@ fix-deps:
 
 fix-npm-vulnerabilities:
 	@echo "🔒 Fixing npm security vulnerabilities..."
-	cd apps/admin_web && npm audit fix
+	pnpm audit --fix
 	@echo "Checking for remaining vulnerabilities..."
-	cd apps/admin_web && npm audit --audit-level moderate || echo "⚠️  Some vulnerabilities may require manual review"
+	pnpm audit --audit-level moderate || echo "⚠️  Some vulnerabilities may require manual review"
 
 fix-npm-vulnerabilities-force:
 	@echo "🔒 Force fixing npm security vulnerabilities (may include breaking changes)..."
 	@echo "⚠️  This may introduce breaking changes!"
 	@read -p "Continue with force fix? (y/N): " confirm && [ "$$confirm" = "y" ] || exit 1
-	cd apps/admin_web && npm audit fix --force
+	pnpm audit --fix --force
 	@echo "Checking for remaining vulnerabilities..."
-	cd apps/admin_web && npm audit --audit-level moderate || echo "⚠️  Some vulnerabilities may require manual review"
+	pnpm audit --audit-level moderate || echo "⚠️  Some vulnerabilities may require manual review"
 
 check-node-version:
 	@echo "📋 Checking Node.js and npm versions..."
@@ -320,7 +324,9 @@ lint-python:
 
 lint-js:
 	@echo "🌐 Running JavaScript/TypeScript linters..."
-	cd apps/admin_web && npm run lint
+	pnpm lint
+	@echo "🌐 Running markdown linter..."
+	pnpm exec markdownlint "**/*.md" --ignore-path .markdownlintignore --config .markdownlint.json
 
 lint-flutter:
 	@echo "📱 Running Flutter linters..."
@@ -336,7 +342,7 @@ lint-flutter:
 test:
 	@echo "🧪 Running tests..."
 	cd apps/api && python -m pytest tests/ -v
-	cd apps/admin_web && npm run test
+	pnpm test
 	cd apps/mobile && flutter test
 
 test-unit:
@@ -353,7 +359,7 @@ format:
 	@echo "🎨 Formatting code..."
 	cd apps/api && python -m black app/ --line-length=100
 	cd apps/api && python -m isort app/ --profile=black --line-length=100
-	cd apps/admin_web && npm run format
+	pnpm format
 	cd apps/mobile && dart format lib/
 
 clean:
@@ -477,11 +483,29 @@ cleanup-sample-data:
 # Presentations
 # =========================
 
-build-presentations:
-	@echo "📄 Building presentations..."
-	@if ! command -v marp &> /dev/null; then echo "❌ marp-cli is not installed. Please run: npm install -g @marp-team/marp-cli"; exit 1; fi
-	marp --html --allow-local-files --input-dir presentations --output presentations/build
+# Find all markdown files in the presentations directory
+PRESENTATIONS_MD := $(wildcard presentations/*.md)
+
+# Create corresponding html and pptx file names
+PRESENTATIONS_HTML := $(patsubst presentations/%.md,presentations/export/html/%.html,$(PRESENTATIONS_MD))
+PRESENTATIONS_PPTX := $(patsubst presentations/%.md,presentations/export/ppt/%.pptx,$(PRESENTATIONS_MD))
+
+# The main target depends on all the final output files
+build-presentations: $(PRESENTATIONS_HTML) $(PRESENTATIONS_PPTX)
+	@echo "✅ All presentations are up to date."
+
+# Rule to build HTML files from Markdown files
+presentations/export/html/%.html: presentations/%.md presentations/css/theme.css presentations/img/*
+	@echo "Building HTML presentation for $<..."
+	@mkdir -p presentations/export/html
+	marp --html --allow-local-files --theme presentations/css/theme.css $< -o $@
+
+# Rule to build PowerPoint files from Markdown files
+presentations/export/ppt/%.pptx: presentations/%.md presentations/css/theme.css presentations/img/*
+	@echo "Building PowerPoint presentation for $<..."
+	@mkdir -p presentations/export/ppt
+	marp --pptx --allow-local-files --theme presentations/css/theme.css $< -o $@
 
 clean-presentations:
 	@echo "🧹 Cleaning up presentations..."
-	rm -rf presentations/build
+	rm -rf presentations/export

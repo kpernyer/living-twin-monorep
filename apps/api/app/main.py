@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from .config import load_config
 from .di import init_container, container
-from .routers import health, rag
+from .routers import health, rag, intelligence
 
 app = FastAPI(title="Twin API (Firebase-ready)")
 cfg = load_config()
@@ -32,3 +32,4 @@ async def auth_middleware(request: Request, call_next):
 
 app.include_router(health.router)
 app.include_router(rag.router)
+app.include_router(intelligence.router)

@@ -1,6 +1,6 @@
 # ASCII Art and Illustrations Guide
 
-*Documentation of visual elements used in Living Twin monorepo markdown files*
+## *Documentation of visual elements used in Living Twin monorepo markdown files*
 
 ## Overview
 
@@ -9,7 +9,8 @@ The Living Twin documentation uses various ASCII art and illustration techniques
 ## 1. Architecture Diagrams
 
 ### **System Architecture (README.md)**
-```
+
+```bash
                           +--------------------+
                           |   React Admin UI   |
                           |  Vite @ :5173      |
@@ -35,6 +36,7 @@ The Living Twin documentation uses various ASCII art and illustration techniques
 ```
 
 **Style Elements:**
+
 - **Boxes**: `+----+` for corners, `|` for vertical lines, `-` for horizontal lines
 - **Arrows**: `-->`, `<--`, `v`, `^` for directional flow
 - **Connections**: Lines connecting components with labels
@@ -43,7 +45,8 @@ The Living Twin documentation uses various ASCII art and illustration techniques
 ## 2. Directory Structure Trees
 
 ### **File System Layouts**
-```
+
+```bash
 apps/api/app/
 ├── main.py                 # FastAPI application entry point
 ├── config.py              # Environment configuration
@@ -69,13 +72,15 @@ apps/api/app/
 ```
 
 **Style Elements:**
+
 - **Tree Structure**: `├──`, `└──`, `│` for hierarchical display
 - **File Types**: `.py`, `.md`, `.json` extensions shown
 - **Comments**: `# Description` for each file/directory
 - **Indentation**: Consistent spacing for hierarchy levels
 
 ### **Simple Directory Lists**
-```
+
+```bash
 local_data/
 ├── organizations.json   # Organization metadata
 ├── tenants.json        # Tenant settings (maps to orgs)
@@ -86,7 +91,8 @@ local_data/
 ## 3. Data Flow Diagrams
 
 ### **Authentication Flow**
-```
+
+```bash
 User signs in with john@acme.com
 ↓
 System detects acme.com → Acme Corporation
@@ -97,6 +103,7 @@ Access to organization features & data
 ```
 
 **Style Elements:**
+
 - **Flow Direction**: `↓` for downward flow
 - **Process Steps**: Plain text descriptions
 - **Decision Points**: `→` for transitions
@@ -105,7 +112,8 @@ Access to organization features & data
 ## 4. Tables and Matrices
 
 ### **Comparison Tables**
-```
+
+```markdown
 | Feature | Development (Mock) | Production |
 |---------|-------------------|------------|
 | **Organizations** | JSON files | Firestore |
@@ -116,7 +124,8 @@ Access to organization features & data
 ```
 
 ### **Status Tables**
-```
+
+```markdown
 | Layer | Technology | Status | Notes |
 |-------|------------|--------|-------|
 | **Frontend Web** | React 18 + Vite + TypeScript | ✅ Production | Modern, fast development |
@@ -126,6 +135,7 @@ Access to organization features & data
 ```
 
 **Style Elements:**
+
 - **Headers**: Pipe-separated `| Header |`
 - **Separators**: `|-------|` for column divisions
 - **Status Icons**: `✅` (complete), `🔄` (in progress), `❌` (not started)
@@ -133,7 +143,8 @@ Access to organization features & data
 - **Technology Stacks**: Multiple technologies separated by `+`
 
 ### **Schema Mapping Tables**
-```
+
+```markdown
 | Entity | Neo4j Label | Firestore Collection | Local Storage Key | Pub/Sub Topic |
 |--------|-------------|---------------------|-------------------|---------------|
 | Tenant | `:Tenant` | `tenants` | `tenant_data` | `tenant-events` |
@@ -144,7 +155,8 @@ Access to organization features & data
 ## 5. Security Scan Output
 
 ### **Vulnerability Tables**
-```
+
+```bash
 ┌─────────────────────────────────────┬──────────────────┬──────────┬───────────────────┬───────────────┬─────────────────────────────────────┐
 │                Library              │    Vulnerability │ Severity │ Installed Version │ Fixed Version │                Title                │
 ├─────────────────────────────────────┼──────────────────┼──────────┼───────────────────┼───────────────┼─────────────────────────────────────┤
@@ -154,6 +166,7 @@ Access to organization features & data
 ```
 
 **Style Elements:**
+
 - **Box Drawing**: `┌┐└┘├┤┬┴┼─│` for table borders
 - **Unicode Characters**: Extended ASCII for professional table appearance
 - **Severity Levels**: `CRITICAL`, `HIGH`, `MEDIUM`, `LOW`
@@ -162,7 +175,8 @@ Access to organization features & data
 ## 6. Cost and Environment Tables
 
 ### **Cost Breakdown**
-```
+
+```markdown
 | Environment | Min Cost/Month | When Idle | When Busy |
 |-------------|----------------|-----------|-----------|
 | **dev** | ~$0 | Scales to 0 | Scales up as needed |
@@ -173,7 +187,8 @@ Access to organization features & data
 ## 7. Configuration Status
 
 ### **Component Status Matrix**
-```
+
+```markdown
 | Component | Config File | Status | Key Paths |
 |-----------|-------------|--------|-----------|
 | API | `apps/api/pyproject.toml` | ✅ | Module structure |
@@ -185,7 +200,8 @@ Access to organization features & data
 ## 8. Troubleshooting Tables
 
 ### **Issue Resolution Matrix**
-```
+
+```markdown
 | Issue | Fix |
 |-------|-----|
 | **`No such vector schema index: docEmbeddings`** | Run `make neo4j-init` |
@@ -198,6 +214,7 @@ Access to organization features & data
 ## 9. Plugin-Based Diagrams
 
 ### **Mermaid Architecture Diagrams (docs/ARCHITECTURE.md)**
+
 ```mermaid
 graph TB
     subgraph "Client Applications"
@@ -245,6 +262,7 @@ graph TB
 ```
 
 **Style Elements:**
+
 - **Subgraphs**: Logical grouping of related components
 - **Node Labels**: Multi-line descriptions with technology stack
 - **Directional Flow**: Clear arrows showing data/control flow
@@ -280,7 +298,8 @@ graph TB
 ## Usage Examples
 
 ### **Creating New Architecture Diagrams**
-```
+
+```bash
 # Template for system components
 +------------------+
 |   Component      |
@@ -295,7 +314,8 @@ graph TB
 ```
 
 ### **Creating Directory Trees**
-```
+
+```bash
 # Template for file structures
 project_root/
 ├── folder1/
@@ -308,7 +328,8 @@ project_root/
 ```
 
 ### **Creating Flow Diagrams**
-```
+
+```bash
 # Template for process flows
 Step 1: Initial action
 ↓
@@ -318,7 +339,8 @@ Step 3: Final result
 ```
 
 ### **Creating Status Tables**
-```
+
+```markdown
 # Template for status tracking
 | Component | Status | Notes |
 |-----------|--------|-------|
@@ -330,20 +352,24 @@ Step 3: Final result
 ## Character Reference
 
 ### **Box Drawing Characters**
+
 - **Simple**: `+` (corners), `-` (horizontal), `|` (vertical)
 - **Unicode Light**: `┌┐└┘` (corners), `─` (horizontal), `│` (vertical), `├┤┬┴┼` (junctions)
 - **Unicode Heavy**: `┏┓┗┛` (corners), `━` (horizontal), `┃` (vertical), `┣┫┳┻╋` (junctions)
 
 ### **Arrow Characters**
+
 - **ASCII**: `-->`, `<--`, `^`, `v`
 - **Unicode**: `→`, `←`, `↑`, `↓`, `↗`, `↘`, `↙`, `↖`
 
 ### **Status and Emoji Characters**
+
 - **Status**: `✅` (check), `❌` (cross), `⚠️` (warning), `🔄` (progress)
 - **Objects**: `📊` (chart), `🌐` (web), `💻` (computer), `📱` (mobile)
 - **Actions**: `🚀` (deploy), `🔧` (tools), `🧪` (test), `🔍` (search)
 
 ### **Tree Drawing Characters**
+
 - **Branches**: `├──` (middle), `└──` (last)
 - **Vertical**: `│` (continuation)
 - **Spacing**: 4 spaces for each level
@@ -351,18 +377,21 @@ Step 3: Final result
 ## Best Practices
 
 ### **Readability**
+
 1. **Consistent Spacing**: Maintain uniform spacing in diagrams
 2. **Clear Labels**: Use descriptive labels for all components
 3. **Logical Flow**: Arrange elements in logical reading order (top-to-bottom, left-to-right)
 4. **Appropriate Scale**: Size diagrams appropriately for content complexity
 
 ### **Maintenance**
+
 1. **Version Control**: ASCII art should be version controlled like code
 2. **Documentation**: Include text descriptions for complex diagrams
 3. **Testing**: Verify diagrams render correctly in different environments
 4. **Updates**: Keep diagrams synchronized with code changes
 
 ### **Cross-Platform Compatibility**
+
 1. **Character Support**: Test on different operating systems and terminals
 2. **Font Requirements**: Document monospace font requirements
 3. **Encoding**: Use UTF-8 encoding for Unicode characters

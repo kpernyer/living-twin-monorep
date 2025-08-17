@@ -4,7 +4,7 @@ This is the development stack for **Living Twin** — a RAG-enabled, Neo4j-backe
 
 ## 📜 Architecture (Dev Stack)
 
-```
+```bash
                           +--------------------+
                           |   React Admin UI   |
                           |  Vite @ :5173      |
@@ -40,10 +40,12 @@ This is the development stack for **Living Twin** — a RAG-enabled, Neo4j-backe
 - **Python 3.11+** (3.13 not recommended — pydantic-core build issues)
 - **Node.js 20+** + npm
 - (Optional) **Ollama** for local LLM testing:
+
   ```bash
   brew install ollama
   ollama pull llama3
   ```
+
 - OpenAI account with API key (if using OpenAI models)
 
 > 📋 **New to the project?** Check out our [**Development Environment Setup Guide**](docs/DEVELOPMENT_ENVIRONMENT_SETUP.md) for automated installation scripts and containerization strategies for macOS and Linux.
@@ -75,20 +77,27 @@ make seed-db
 
 ## 3️⃣ Verify setup
 
-- **Neo4j** — http://localhost:7474 → login `neo4j` / `password`
+- **Neo4j** — <http://localhost:7474> → login `neo4j` / `password`
+
   ```cypher
   SHOW INDEXES WHERE name='docEmbeddings';
   ```
+
 - **Python deps**
+
   ```bash
   .venv/bin/python -c "import fastapi, neo4j, sentence_transformers; print('✅ Python OK')"
   ```
+
 - **React admin**
+
   ```bash
   make dev-react
   # Visit http://localhost:5173
   ```
+
 - **OpenAI key check**
+
   ```bash
   make check-billing-py
   ```
@@ -96,13 +105,16 @@ make seed-db
 ## 4️⃣ Run modes
 
 ### Quick Start (Recommended)
+
 ```bash
 make quick-start
 ```
+
 - Sets up everything and starts all services
 - Includes sample data and Neo4j initialization
 
 ### Development Mode
+
 ```bash
 make docker-up    # Start all services
 make api-dev      # Run API in development mode
@@ -111,22 +123,27 @@ make mobile-dev   # Run Flutter mobile app
 ```
 
 ### Local (no OpenAI cost)
+
 ```bash
 # Set in .env: LOCAL_EMBEDDINGS=1, RAG_ONLY=1
 make docker-up
 ```
+
 - Local embeddings: `all-MiniLM-L6-v2` (384-dim)
 - Stub LLM: RAG_ONLY=1 (just returns top snippets)
 
 ### OpenAI (cheap dev)
+
 ```bash
 # Set in .env: LLM_PROVIDER=openai
 make docker-up
 ```
+
 - LLM: `gpt-4o-mini`
 - Embeddings: `text-embedding-3-small` (1536-dim)
 
 ### Ollama (local LLM)
+
 ```bash
 ollama serve &
 # Set in .env: LLM_PROVIDER=ollama
@@ -136,14 +153,15 @@ make docker-up
 ## 5️⃣ Demo flow
 
 1. **Quick Start**:
+
    ```bash
    make quick-start
    ```
 
 2. **Access the interfaces**:
-   - **Admin Web**: http://localhost:5173
-   - **API Docs**: http://localhost:8000/docs
-   - **Neo4j Browser**: http://localhost:7474
+   - **Admin Web**: <http://localhost:5173>
+   - **API Docs**: <http://localhost:8000/docs>
+   - **Neo4j Browser**: <http://localhost:7474>
 
 3. **Test the system**:
    - **Ingest a snippet**
@@ -194,7 +212,7 @@ curl -s http://localhost:8000/healthz | jq
 
 In `.env`:
 
-```
+```bash
 LLM_PROVIDER=openai       # openai | ollama | stub
 LLM_MODEL=gpt-4o-mini
 EMBEDDINGS_MODEL=text-embedding-3-small
@@ -210,6 +228,7 @@ OLLAMA_MODEL=llama3
 ## 9️⃣ Development Tools
 
 ### **Testing**
+
 ```bash
 make test              # Run all tests
 make test-unit         # Unit tests only
@@ -219,6 +238,7 @@ make format            # Format code
 ```
 
 ### **Database Management**
+
 ```bash
 make seed-db           # Populate with sample data
 make init-schema       # Initialize Neo4j schema
@@ -226,6 +246,7 @@ make validate-schema   # Validate Neo4j constraints
 ```
 
 ### **Monitoring & Debugging**
+
 ```bash
 make docker-logs       # View container logs
 make status            # Check service status
@@ -234,6 +255,7 @@ make logs-worker       # Worker logs (production)
 ```
 
 ### **Cost Management**
+
 ```bash
 make check-costs ENV=dev PROJECT=your-project
 make cost-optimize-dev PROJECT=your-project
@@ -243,12 +265,15 @@ make scale-down-staging PROJECT=your-project
 ## 🔟 Testing & CI/CD
 
 ### **Automated Testing**
+
 The project includes comprehensive test suites:
+
 - **Unit Tests**: `apps/api/tests/test_services.py`, `test_routes.py`
 - **Integration Tests**: `apps/api/tests/test_integration.py`
 - **Load Testing**: `tools/scripts/load-test.js` (k6)
 
 ### **GitHub Actions**
+
 - **Continuous Integration**: `.github/workflows/deploy-cloud-run.yml`
 - **Automated Testing**: Runs on every PR and push
 - **Security Scanning**: Trivy vulnerability scanner
@@ -256,6 +281,7 @@ The project includes comprehensive test suites:
 - **Deployment**: Automated deployment to Cloud Run
 
 ### **Quality Assurance**
+
 ```bash
 make lint              # Code linting (flake8, mypy)
 make test              # Full test suite
@@ -275,11 +301,13 @@ make format            # Code formatting (black, isort)
 For detailed documentation on specific topics, see the [`docs/`](docs/) directory:
 
 ### Architecture & Design
+
 - [**Architecture Overview**](docs/ARCHITECTURE.md) - System architecture and design patterns
 - [**Schema Consistency Guide**](docs/SCHEMA_CONSISTENCY_GUIDE.md) - Data models and schema management
 - [**Configuration Sync**](docs/CONFIGURATION_SYNC.md) - Environment and configuration management
 
 ### Development & Deployment
+
 - [**Development Environment Setup**](docs/DEVELOPMENT_ENVIRONMENT_SETUP.md) - External tools, containerization strategies, and automated setup scripts
 - [**Local Development Setup**](docs/README_LOCAL_DEV.md) - Detailed local development guide
 - [**Deployment Setup**](docs/DEPLOYMENT_SETUP.md) - Production deployment instructions
@@ -287,19 +315,23 @@ For detailed documentation on specific topics, see the [`docs/`](docs/) director
 - [**Scaling & Cost Guide**](docs/SCALING_AND_COST_GUIDE.md) - Performance optimization and cost management
 
 ### Features & Implementation
+
 - [**Conversational Evolution Guide**](docs/CONVERSATIONAL_EVOLUTION_GUIDE.md) - Chat and conversation features
 - [**Conversational Implementation Guide**](docs/CONVERSATIONAL_IMPLEMENTATION_GUIDE.md) - Technical implementation details
 - [**PubSub Event System**](docs/PUBSUB_EVENT_SYSTEM.md) - Event-driven architecture
 - [**PDF/DOCX Ingestion**](docs/pdf-docx-ingestion.md) - Document processing capabilities
 
 ### Security & Operations
+
 - [**Security & Performance Testing**](docs/SECURITY_AND_PERFORMANCE_TESTING.md) - Testing strategies and security
 - [**Tenant Isolation & Authorization**](docs/TENANT_ISOLATION_AND_AUTHORIZATION.md) - Multi-tenant security
 
 ### Release Notes
+
 - [**README Patch Notes**](docs/README_PATCH.md) - Recent changes and updates
 
 ### Development Workflow
+
 - [**Git Setup Guide**](docs/GIT_SETUP_GUIDE.md) - Repository initialization and Git best practices
 - [**GitHub Setup Guide**](docs/GITHUB_SETUP_GUIDE.md) - GitHub integration and CI/CD configuration
 

@@ -47,6 +47,7 @@ flutter run --dart-define=FIREBASE_PROJECT_ID=your-project-id
 1. **Install Flutter**: Follow the [Flutter installation guide](https://flutter.dev/docs/get-started/install)
 
 2. **Install Dependencies**:
+
    ```bash
    flutter pub get
    ```
@@ -56,6 +57,7 @@ flutter run --dart-define=FIREBASE_PROJECT_ID=your-project-id
    - Update Firebase configuration in the app
 
 4. **Run the App**:
+
    ```bash
    # Development mode (localhost API)
    flutter run
@@ -73,14 +75,14 @@ flutter run --dart-define=FIREBASE_PROJECT_ID=your-project-id
 - **LocalStorageService**: SQLite-based local storage
 - **AuthService**: Firebase authentication wrapper
 
-### Features
+### App Features
 
 - **Chat**: Conversational interface with voice support
 - **Pulse**: Dashboard and analytics
 - **Ingest**: Document upload and processing
 - **Auth**: User authentication and onboarding
 
-### Configuration
+### Build Configuration
 
 The `AppConfig` class manages environment-specific settings:
 
@@ -100,12 +102,14 @@ bool speechEnabled = AppConfig.enableSpeechRecognition;
 ### Local Development
 
 1. Start your API server locally:
+
    ```bash
    cd ../api
    uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
    ```
 
 2. Run the Flutter app:
+
    ```bash
    flutter run
    ```
@@ -153,7 +157,7 @@ flutter build ios --dart-define=API_URL=https://api.livingtwin.com
 
 The app logs configuration information at startup:
 
-```
+```bash
 I/flutter: Environment: development
 I/flutter: API URL: http://localhost:8000
 I/flutter: Firebase Project: living-twin-demo

@@ -18,12 +18,15 @@ RUN apt-get update \
         git \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first for better caching
-COPY apps/api/requirements.txt .
-COPY apps/api/requirements-dev.txt .
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.cargo/bin:$PATH"
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy the pyproject.toml file
+COPY apps/api/pyproject.toml .
+
+# Install Python dependencies using uv
+RUN uv pip install --system --no-cache --compile -e .[dev]
 
 # Copy application code
 COPY apps/api/app ./app

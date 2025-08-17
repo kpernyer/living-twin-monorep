@@ -40,12 +40,14 @@ I've implemented a complete conversational memory system that extends your exist
 ## 🚀 **How to Test It**
 
 ### **1. Start Your API**
+
 ```bash
 cd apps/api
 uvicorn app.main:app --reload
 ```
 
 ### **2. Test Conversational Query**
+
 ```bash
 # First message (creates new conversation)
 curl -X POST "http://localhost:8000/query/conversation/query" \
@@ -74,11 +76,13 @@ curl -X POST "http://localhost:8000/query/conversation/query" \
 ```
 
 ### **3. List Conversations**
+
 ```bash
 curl -X GET "http://localhost:8000/query/conversations"
 ```
 
 ### **4. Get Full Conversation**
+
 ```bash
 curl -X GET "http://localhost:8000/query/conversations/{conversation-id}"
 ```

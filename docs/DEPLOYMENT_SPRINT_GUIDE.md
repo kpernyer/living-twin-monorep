@@ -13,6 +13,7 @@ This guide walks you through deploying the prioritized features for your next sp
 ## 📋 Pre-Deployment Checklist
 
 ### Prerequisites
+
 - [ ] GCP Project created
 - [ ] Firebase project linked to GCP project
 - [ ] gcloud CLI installed and authenticated
@@ -21,6 +22,7 @@ This guide walks you through deploying the prioritized features for your next sp
 - [ ] Neo4j Aura instance or self-hosted Neo4j
 
 ### Required Secrets
+
 - [ ] OpenAI API key
 - [ ] Neo4j URI, username, password
 - [ ] Firebase service account key (JSON)
@@ -28,6 +30,7 @@ This guide walks you through deploying the prioritized features for your next sp
 ## 🚀 Step 1: Ship Staging on GCP
 
 ### 1.1 Initialize Terraform Backend
+
 ```bash
 # Create Terraform state bucket
 gsutil mb gs://YOUR_PROJECT_ID-terraform-state
@@ -37,6 +40,7 @@ make terraform-init
 ```
 
 ### 1.2 Configure Environment Variables
+
 ```bash
 # Copy and edit environment file
 cp packages/gcp_firebase/terraform/environments/staging.tfvars.example packages/gcp_firebase/terraform/environments/staging.tfvars
@@ -48,6 +52,7 @@ cp packages/gcp_firebase/terraform/environments/staging.tfvars.example packages/
 ```
 
 ### 1.3 Build and Push Container Images
+
 ```bash
 # Build API container
 docker build -f docker/Dockerfile.api -t gcr.io/YOUR_PROJECT_ID/living-twin-api:latest .
@@ -60,6 +65,7 @@ docker push gcr.io/YOUR_PROJECT_ID/living-twin-api:latest
 ```
 
 ### 1.4 Deploy Infrastructure
+
 ```bash
 # Plan deployment
 make terraform-plan ENV=staging PROJECT=YOUR_PROJECT_ID
@@ -69,6 +75,7 @@ make terraform-apply ENV=staging PROJECT=YOUR_PROJECT_ID
 ```
 
 ### 1.5 Configure API Gateway + Custom Domain
+
 ```bash
 # The API Gateway is already configured in:
 # packages/gcp_firebase/api_gateway/openapi-gateway.yaml
@@ -86,6 +93,7 @@ make terraform-apply ENV=staging PROJECT=YOUR_PROJECT_ID
 ## 🔐 Step 2: Basic Auth UI + Invite Flow
 
 ### 2.1 Deploy Admin Web Interface
+
 ```bash
 # Build admin web
 cd apps/admin_web
@@ -96,6 +104,7 @@ firebase deploy --only hosting
 ```
 
 ### 2.2 Create Invite Cloud Function
+
 ```bash
 # The invite function is already structured in:
 # apps/api/app/routers/auth.py (invite endpoint)
@@ -109,7 +118,9 @@ curl -X POST https://your-api-url/auth/invite \
 ```
 
 ### 2.3 Configure Role-Based Access
+
 The system already includes:
+
 - ✅ Firebase JWT validation
 - ✅ Tenant isolation
 - ✅ Role-based permissions
@@ -120,6 +131,7 @@ The system already includes:
 ## 🗄️ Step 3: Vector Index Lifecycle & Schema
 
 ### 3.1 Create Neo4j Schema Scripts
+
 ```bash
 # Create the schema initialization script
 cat > tools/scripts/init_neo4j_schema.cypher << 'EOF'
@@ -180,6 +192,7 @@ EOF
 ```
 
 ### 3.2 Create Schema Management Script
+
 ```bash
 # Create Python script to manage schema
 cat > tools/scripts/manage_neo4j_schema.py << 'EOF'
@@ -234,6 +247,7 @@ chmod +x tools/scripts/manage_neo4j_schema.py
 ```
 
 ### 3.3 Add Schema Commands to Makefile
+
 ```bash
 # Add to Makefile
 cat >> Makefile << 'EOF'
@@ -243,11 +257,11 @@ cat >> Makefile << 'EOF'
 # =========================
 
 init-schema:
-	@echo "🔧 Initializing Neo4j schema..."
-	@if [ -z "$(NEO4J_URI)" ]; then echo "❌ NEO4J_URI is required"; exit 1; fi
-	@if [ -z "$(NEO4J_USER)" ]; then echo "❌ NEO4J_USER is required"; exit 1; fi
-	@if [ -z "$(NEO4J_PASSWORD)" ]; then echo "❌ NEO4J_PASSWORD is required"; exit 1; fi
-	python tools/scripts/manage_neo4j_schema.py --uri $(NEO4J_URI) --user $(NEO4J_USER) --password $(NEO4J_PASSWORD) --init
+ @echo "🔧 Initializing Neo4j schema..."
+ @if [ -z "$(NEO4J_URI)" ]; then echo "❌ NEO4J_URI is required"; exit 1; fi
+ @if [ -z "$(NEO4J_USER)" ]; then echo "❌ NEO4J_USER is required"; exit 1; fi
+ @if [ -z "$(NEO4J_PASSWORD)" ]; then echo "❌ NEO4J_PASSWORD is required"; exit 1; fi
+ python tools/scripts/manage_neo4j_schema.py --uri $(NEO4J_URI) --user $(NEO4J_USER) --password $(NEO4J_PASSWORD) --init
 EOF
 ```
 
@@ -256,13 +270,16 @@ EOF
 ## 📄 Step 4: Ingestion - PDFs
 
 ### 4.1 Create PDF Processing Cloud Run Job
+
 The infrastructure already supports this via:
+
 - ✅ Cloud Run worker service
 - ✅ Pub/Sub topics for job queuing
 - ✅ GCS storage for file uploads
 - ✅ Document processing adapters
 
 ### 4.2 Test PDF Ingestion Flow
+
 ```bash
 # Upload a PDF file
 curl -X POST https://your-api-url/ingest/file \
@@ -281,12 +298,15 @@ curl -X GET https://your-api-url/ingest/status/JOB_ID \
 ## 📊 Step 5: Observability MVP
 
 ### 5.1 OpenTelemetry Integration
+
 The API already includes observability setup in:
+
 - ✅ `apps/api/app/config.py` - Telemetry configuration
 - ✅ Cloud Logging integration
 - ✅ Per-tenant metrics tracking
 
 ### 5.2 Enable Monitoring
+
 ```bash
 # Monitoring is already configured in Terraform
 # To enable detailed tracing, set in your environment:

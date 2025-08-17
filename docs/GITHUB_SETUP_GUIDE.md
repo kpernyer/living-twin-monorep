@@ -30,6 +30,7 @@ git push -u origin main
 ### 3. Verify Repository Structure
 
 After pushing, verify on GitHub that you see:
+
 - ✅ All apps/, packages/, docs/, tools/ directories
 - ✅ GitHub Actions workflows in .github/workflows/
 - ✅ No .env files (secrets protected)
@@ -42,12 +43,14 @@ After pushing, verify on GitHub that you see:
 Set up these secrets in **Settings > Secrets and variables > Actions**:
 
 #### **Basic Secrets**
-```
+
+```bash
 OPENAI_API_KEY=sk-your-openai-api-key-here
 ```
 
 #### **GCP/Cloud Run Deployment Secrets**
-```
+
+```bash
 GCP_PROJECT_ID=your-gcp-project-id
 WIF_PROVIDER=projects/123456789/locations/global/workloadIdentityPools/github-pool/providers/github-provider
 WIF_SERVICE_ACCOUNT=github-actions@your-project.iam.gserviceaccount.com
@@ -55,7 +58,8 @@ CLOUD_RUN_SERVICE_ACCOUNT=cloud-run-sa@your-project.iam.gserviceaccount.com
 ```
 
 #### **Optional Notification Secrets**
-```
+
+```bash
 SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
 ```
 
@@ -64,23 +68,27 @@ SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
 The repository includes 4 pre-configured workflows:
 
 #### 1. **CI Workflow** (`.github/workflows/ci.yml`)
+
 - **Triggers:** Push/PR to main/develop branches
 - **Tests:** All apps (API, admin web, mobile)
 - **Validates:** Terraform, Docker builds, security scanning
 - **Runs on:** Every push and pull request
 
 #### 2. **Cloud Run Deployment** (`.github/workflows/deploy-cloud-run.yml`)
+
 - **Triggers:** Push to main/staging branches
 - **Deploys:** API to Google Cloud Run
 - **Includes:** Health checks, performance testing, security scanning
 - **Environments:** Production (main) and Staging (staging)
 
 #### 3. **Production Deployment** (`.github/workflows/deploy-prod.yml`)
+
 - **Triggers:** Manual dispatch or tags
 - **Deploys:** Full production environment
 - **Includes:** Database migrations, infrastructure updates
 
 #### 4. **Staging Deployment** (`.github/workflows/deploy-staging.yml`)
+
 - **Triggers:** Push to develop branch
 - **Deploys:** Staging environment for testing
 - **Includes:** Integration tests, performance benchmarks
@@ -92,7 +100,8 @@ The repository includes 4 pre-configured workflows:
 Set up branch protection in **Settings > Branches**:
 
 **For `main` branch:**
-```
+
+```markdown
 ✅ Require a pull request before merging
 ✅ Require approvals (1 minimum)
 ✅ Dismiss stale PR approvals when new commits are pushed
@@ -108,7 +117,8 @@ Set up branch protection in **Settings > Branches**:
 ```
 
 **For `develop` branch:**
-```
+
+```markdown
 ✅ Require a pull request before merging
 ✅ Require status checks to pass before merging
 ✅ Require branches to be up to date before merging
@@ -117,7 +127,8 @@ Set up branch protection in **Settings > Branches**:
 ### 2. Security Alerts
 
 Enable in **Settings > Security & analysis**:
-```
+
+```markdown
 ✅ Dependency graph
 ✅ Dependabot alerts
 ✅ Dependabot security updates
@@ -134,6 +145,7 @@ The CI workflow includes Trivy security scanning. Results appear in the **Securi
 ### 1. Create Teams (if organization)
 
 In your GitHub organization:
+
 - **@living-twin/core** - Core developers (admin access)
 - **@living-twin/developers** - All developers (write access)
 - **@living-twin/reviewers** - Code reviewers (triage access)
@@ -141,7 +153,8 @@ In your GitHub organization:
 ### 2. CODEOWNERS File
 
 Create `.github/CODEOWNERS`:
-```
+
+```bash
 # Global owners
 * @living-twin/core
 
@@ -166,6 +179,7 @@ Create `.github/CODEOWNERS`:
 Create `.github/ISSUE_TEMPLATE/`:
 
 **Bug Report** (`.github/ISSUE_TEMPLATE/bug_report.md`):
+
 ```markdown
 ---
 name: Bug report
@@ -200,6 +214,7 @@ What you expected to happen.
 ```
 
 **Feature Request** (`.github/ISSUE_TEMPLATE/feature_request.md`):
+
 ```markdown
 ---
 name: Feature request
@@ -238,21 +253,24 @@ Add any other context or screenshots about the feature request here.
 ### Environment Variables by Branch
 
 **Production (main branch):**
-```
+
+```bash
 ENVIRONMENT=production
 DEBUG=false
 LOG_LEVEL=INFO
 ```
 
 **Staging (staging branch):**
-```
+
+```bash
 ENVIRONMENT=staging
 DEBUG=true
 LOG_LEVEL=DEBUG
 ```
 
 **Development (develop branch):**
-```
+
+```bash
 ENVIRONMENT=development
 DEBUG=true
 LOG_LEVEL=DEBUG
@@ -263,6 +281,7 @@ LOG_LEVEL=DEBUG
 ### 1. GitHub Insights
 
 Monitor repository health in **Insights**:
+
 - **Pulse** - Recent activity overview
 - **Contributors** - Team contribution metrics
 - **Traffic** - Repository views and clones
@@ -271,6 +290,7 @@ Monitor repository health in **Insights**:
 ### 2. Actions Monitoring
 
 Track CI/CD performance:
+
 - **Actions** tab shows all workflow runs
 - Set up notifications for failed deployments
 - Monitor build times and success rates
@@ -278,6 +298,7 @@ Track CI/CD performance:
 ### 3. Security Monitoring
 
 Regular security checks:
+
 - **Security** tab for vulnerability alerts
 - **Dependabot** for dependency updates
 - **Code scanning** results from Trivy
@@ -333,19 +354,23 @@ git push origin v1.2.0
 
 ### Common Issues
 
-**1. CI Fails with "No such file or directory"**
+#### **1. CI Fails with "No such file or directory"**
+
 - Check that paths in workflows match monorepo structure
 - Verify working-directory settings in workflow files
 
-**2. Secrets Not Available in Workflows**
+#### **2. Secrets Not Available in Workflows**
+
 - Ensure secrets are set in repository settings
 - Check secret names match exactly in workflow files
 
-**3. Branch Protection Prevents Merge**
+#### **3. Branch Protection Prevents Merge**
+
 - Ensure all required status checks pass
 - Get required approvals from code owners
 
-**4. Docker Build Fails**
+#### **4. Docker Build Fails**
+
 - Check Dockerfile paths are correct for monorepo
 - Verify build context includes necessary files
 

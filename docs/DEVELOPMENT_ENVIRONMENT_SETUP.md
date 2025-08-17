@@ -17,6 +17,7 @@ This guide covers external tool dependencies, containerization strategies, and t
 | Tool | Purpose | Can Containerize? | Current Status |
 |------|---------|-------------------|----------------|
 | **Python 3.11+** | API development | ✅ **Containerized** | Available in `docker/Dockerfile.api` |
+| **uv** | Python package management | ✅ **Containerized** | Used for dependency installation |
 | **Neo4j** | Graph database | ✅ **Containerized** | Available in `docker-compose.yml` |
 | **FastAPI** | Web framework | ✅ **Containerized** | Runs in API container |
 
@@ -25,7 +26,7 @@ This guide covers external tool dependencies, containerization strategies, and t
 | Tool | Purpose | Can Containerize? | Current Status |
 |------|---------|-------------------|----------------|
 | **Node.js 20+** | React development | ⚠️ **Partial** | Can containerize, but slower dev experience |
-| **npm/yarn** | Package management | ⚠️ **Partial** | Included with Node.js |
+| **pnpm** | Package management | ✅ **Containerized** | Used for dependency installation |
 | **Vite** | Build tool | ⚠️ **Partial** | Can run in container with volume mounts |
 
 ### 📱 **Mobile Development (Flutter)**
@@ -52,6 +53,7 @@ This guide covers external tool dependencies, containerization strategies, and t
 ### ✅ **What We've Successfully Containerized**
 
 #### 1. **Backend Stack (Fully Containerized)**
+
 ```yaml
 # docker-compose.yml
 services:
@@ -60,8 +62,10 @@ services:
     # Fully containerized database
   
   api:
-    build: ./docker/Dockerfile.api
-    # Python, FastAPI, all dependencies
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    # Python, FastAPI, all dependencies installed with uv
   
   admin_web:
     build: ./docker/Dockerfile.admin
@@ -69,12 +73,15 @@ services:
 ```
 
 **Benefits:**
+
 - ✅ Consistent environment across all developers
 - ✅ No Python/Neo4j installation required
+- ✅ Fast dependency installation with uv
 - ✅ Easy database reset and schema management
 - ✅ Production-ready containers
 
 #### 2. **Development Database (Neo4j)**
+
 ```bash
 # Before: Manual Neo4j Desktop installation
 # After: One command setup
@@ -84,6 +91,7 @@ make neo4j-up && make neo4j-init
 ### ⚠️ **Partial Containerization Challenges**
 
 #### 1. **React Development**
+
 ```dockerfile
 # Possible but with trade-offs
 FROM node:20-alpine
@@ -96,14 +104,16 @@ CMD ["npm", "run", "dev", "--", "--host"]
 ```
 
 **Trade-offs:**
+
 - ✅ Consistent Node.js version
 - ❌ Slower hot reload (file watching through Docker)
 - ❌ More complex volume mounting
 - ❌ Potential permission issues
 
-**Current Recommendation:** Local Node.js for development, containerized for production.
+**Current Recommendation:** Local Node.js for development, containerized for production with `pnpm`.
 
 #### 2. **Flutter Development**
+
 ```dockerfile
 # Experimental Flutter container
 FROM ubuntu:22.04
@@ -114,6 +124,7 @@ ENV PATH="/flutter/bin:${PATH}"
 ```
 
 **Major Limitations:**
+
 - ❌ No Android emulator support
 - ❌ No iOS development (macOS required)
 - ❌ Complex device connection
@@ -123,17 +134,20 @@ ENV PATH="/flutter/bin:${PATH}"
 ### ❌ **Cannot Containerize**
 
 #### 1. **iOS Development**
+
 - **Xcode**: macOS exclusive, cannot run in containers
 - **iOS Simulator**: Requires macOS and Xcode
 - **Code signing**: Requires macOS keychain access
 - **App Store deployment**: Requires macOS tools
 
 #### 2. **Android Emulator**
+
 - Requires hardware acceleration (KVM/HAXM)
 - GUI application needs X11 forwarding
 - Complex device management
 
 #### 3. **IDE Integration**
+
 - VS Code extensions need local Flutter/Dart SDK
 - Debugging requires local toolchain
 - Hot reload performance issues
@@ -143,12 +157,14 @@ ENV PATH="/flutter/bin:${PATH}"
 ### 🏆 **Hybrid Approach (Current Best Practice)**
 
 #### **Containerize:**
+
 - ✅ **Databases** (Neo4j, PostgreSQL, Redis)
 - ✅ **Backend services** (FastAPI, workers)
 - ✅ **Production builds** (React, API)
 - ✅ **Testing environments**
 
 #### **Install Locally:**
+
 - 🔧 **Flutter SDK** (for mobile development)
 - 🔧 **Node.js** (for React development)
 - 🔧 **Android Studio** (for Android development)
@@ -157,23 +173,29 @@ ENV PATH="/flutter/bin:${PATH}"
 ### 📋 **Minimal Local Setup Requirements**
 
 #### **For Backend Development Only:**
+
 ```bash
 # Minimal requirements
 brew install docker docker-compose git
-# Everything else runs in containers
+pip install uv
+# Everything else runs in containers, uv used for local dev
 ```
 
 #### **For Full-Stack Development:**
+
 ```bash
 # Backend + Frontend
 brew install docker docker-compose git node@20
+npm install -g pnpm
 # React runs locally, backend in containers
 ```
 
 #### **For Mobile Development:**
+
 ```bash
 # Complete setup
 brew install docker docker-compose git node@20
+npm install -g pnpm
 # Install Flutter SDK
 # Install Android Studio
 # Install Xcode (macOS only)
@@ -184,6 +206,7 @@ brew install docker docker-compose git node@20
 ### **Automated Installation Scripts**
 
 #### **macOS Setup Script**
+
 ```bash
 #!/bin/bash
 # tools/scripts/setup-macos.sh
@@ -197,6 +220,7 @@ fi
 
 # Core tools
 brew install docker docker-compose git node@20
+npm install -g pnpm
 
 # Optional: Flutter for mobile development
 read -p "Install Flutter for mobile development? (y/n): " -n 1 -r
@@ -214,6 +238,7 @@ echo "✅ Setup complete!"
 ```
 
 #### **Linux Setup Script**
+
 ```bash
 #!/bin/bash
 # tools/scripts/setup-linux.sh
@@ -228,9 +253,10 @@ curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 sudo usermod -aG docker $USER
 
-# Install Node.js
+# Install Node.js and pnpm
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
+sudo npm install -g pnpm
 
 # Install Flutter (optional)
 read -p "Install Flutter for mobile development? (y/n): " -n 1 -r
@@ -286,37 +312,39 @@ echo "🎯 Environment validation complete!"
 ## 📚 Development Workflow Options
 
 ### **Option 1: Minimal Setup (Backend Only)**
+
 ```bash
-# Only Docker required
+# Docker and uv required
 git clone <repo>
 cd living_twin_monorepo
-make dev-local  # Everything in containers
+make install-deps
+make api-dev
 ```
 
 **Pros:** Fastest setup, consistent environment
 **Cons:** No frontend/mobile development
 
 ### **Option 2: Full-Stack Setup**
+
 ```bash
-# Docker + Node.js required
+# Docker, Node.js and uv required
 git clone <repo>
 cd living_twin_monorepo
-make install        # Backend in containers
-make node-setup     # Frontend locally
-make dev-openai     # Hybrid development
+make install-deps
+make api-dev & make web-dev
 ```
 
 **Pros:** Full web development capability
 **Cons:** Requires local Node.js installation
 
 ### **Option 3: Complete Setup**
+
 ```bash
 # All tools installed
 git clone <repo>
 cd living_twin_monorepo
-make install
-make node-setup
-cd apps/mobile && flutter pub get
+make install-deps
+make api-dev & make web-dev & make mobile-dev
 # Full development capability
 ```
 
@@ -328,6 +356,7 @@ cd apps/mobile && flutter pub get
 ### **Emerging Solutions**
 
 #### **1. Remote Development Containers**
+
 ```json
 // .devcontainer/devcontainer.json
 {
@@ -343,11 +372,13 @@ cd apps/mobile && flutter pub get
 ```
 
 #### **2. Cloud Development Environments**
+
 - **GitHub Codespaces**: Full environment in browser
 - **GitPod**: Automated development environments
 - **Replit**: Collaborative development
 
 #### **3. Flutter Web Containers**
+
 ```dockerfile
 # Future: Flutter web development
 FROM cirrusci/flutter:stable
@@ -362,18 +393,21 @@ CMD ["flutter", "run", "-d", "web-server", "--web-port", "3000"]
 ## 🎯 Recommendations
 
 ### **For New Developers**
+
 1. **Start minimal**: Docker + Git only
 2. **Add as needed**: Node.js for frontend, Flutter for mobile
 3. **Use automation**: Run setup scripts
 4. **Validate environment**: Use validation scripts
 
 ### **For Teams**
+
 1. **Document requirements**: Clear setup instructions
 2. **Provide alternatives**: Multiple setup options
 3. **Automate validation**: CI checks for environment
 4. **Consider cloud**: Remote development options
 
 ### **For Production**
+
 1. **Everything containerized**: No local dependencies
 2. **Multi-stage builds**: Optimized containers
 3. **Security scanning**: Automated vulnerability checks
@@ -382,16 +416,19 @@ CMD ["flutter", "run", "-d", "web-server", "--web-port", "3000"]
 ## 🔧 Implementation Plan
 
 ### **Phase 1: Enhanced Documentation**
+
 - ✅ Create setup scripts for macOS/Linux
 - ✅ Add environment validation
 - ✅ Document trade-offs clearly
 
 ### **Phase 2: Improved Containerization**
+
 - 🔄 Add React development container option
 - 🔄 Improve Flutter web container support
 - 🔄 Add remote development container config
 
 ### **Phase 3: Cloud Development**
+
 - 🔄 GitHub Codespaces configuration
 - 🔄 GitPod integration
 - 🔄 Cloud-based mobile development options

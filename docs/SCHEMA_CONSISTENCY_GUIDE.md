@@ -5,6 +5,7 @@ This document ensures consistent naming conventions and data structures across a
 ## 🎯 **Schema Consistency Overview**
 
 All data stores follow the same naming conventions and entity relationships:
+
 - **Neo4j** (Graph database) - Primary data store
 - **Firestore** (Document database) - Configuration and metadata
 - **Local Storage** (Flutter/React) - Offline caching
@@ -307,6 +308,7 @@ interface TenantData {
 ## 🔗 **Relationship Naming Conventions**
 
 ### **Neo4j Relationships**
+
 ```cypher
 # User belongs to Tenant
 (:User)-[:BELONGS_TO]->(:Tenant)
@@ -339,11 +341,13 @@ interface TenantData {
 ## 📨 **Pub/Sub Topic & Message Conventions**
 
 ### **Topic Naming Pattern**
-```
+
+```bash
 {entity}-{action}
 ```
 
 ### **Topics List**
+
 ```yaml
 # Entity lifecycle events
 - tenant-events          # tenant.created, tenant.updated, tenant.deleted
@@ -364,6 +368,7 @@ interface TenantData {
 ```
 
 ### **Message Structure**
+
 ```json
 {
   "event_type": "entity.action",
@@ -385,6 +390,7 @@ interface TenantData {
 ## 💾 **Local Storage Conventions**
 
 ### **Flutter (Dart)**
+
 ```dart
 // Storage keys
 class StorageKeys {
@@ -408,6 +414,7 @@ class TenantModel {
 ```
 
 ### **React (TypeScript)**
+
 ```typescript
 // Storage keys
 export const STORAGE_KEYS = {
@@ -433,6 +440,7 @@ interface TenantData {
 ## 🔄 **Data Synchronization Patterns**
 
 ### **Write Pattern (API → All Stores)**
+
 1. **API receives request** → Validates data
 2. **Write to Neo4j** → Primary source of truth
 3. **Write to Firestore** → For fast queries and offline support
@@ -440,6 +448,7 @@ interface TenantData {
 5. **Update local storage** → Via real-time sync
 
 ### **Read Pattern (Optimized for each use case)**
+
 - **Complex queries** → Neo4j (graph relationships)
 - **Simple lookups** → Firestore (fast document access)
 - **Offline access** → Local storage (cached data)
@@ -448,7 +457,8 @@ interface TenantData {
 ## ✅ **Validation Rules**
 
 ### **ID Format Validation**
-```regex
+
+```bash
 # Entity ID patterns
 tenant_id: ^tenant-[a-z0-9]{6,12}$
 user_id: ^user-[a-z0-9]{6,12}$
@@ -458,6 +468,7 @@ chunk_id: ^chunk-[a-z0-9-]{6,50}$
 ```
 
 ### **Property Validation**
+
 ```yaml
 # Required fields for all entities
 - id: string (required, unique)

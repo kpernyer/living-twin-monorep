@@ -5,6 +5,7 @@ This guide provides step-by-step instructions to set up automated deployment to 
 ## 🚀 **Ready-to-Use Files**
 
 ### **1. Cloud Run Dockerfile** (`docker/Dockerfile.cloudrun`)
+
 ✅ **Multi-stage build** for optimized image size
 ✅ **Production-ready** with gunicorn + uvicorn workers
 ✅ **Security hardened** with non-root user
@@ -12,11 +13,12 @@ This guide provides step-by-step instructions to set up automated deployment to 
 ✅ **Environment variable** support for PORT
 
 ### **2. GitHub Actions Workflow** (`.github/workflows/deploy-cloud-run.yml`)
+
 ✅ **Automated testing** (linting, type checking, unit tests)
 ✅ **Multi-environment** deployment (staging/production)
 ✅ **Security scanning** with Trivy
 ✅ **Performance testing** with k6 load tests
-✅ **Slack notifications** for deployment status
+✅ **Notifications** for deployment status
 ✅ **Workload Identity** for secure GCP authentication
 
 ## 🔧 **Setup Instructions**
@@ -24,12 +26,14 @@ This guide provides step-by-step instructions to set up automated deployment to 
 ### **Step 1: Google Cloud Setup**
 
 1. **Create or select a GCP project:**
+
    ```bash
    gcloud projects create living-twin-prod --name="Living Twin Production"
    gcloud config set project living-twin-prod
    ```
 
 2. **Enable required APIs:**
+
    ```bash
    gcloud services enable \
      cloudbuild.googleapis.com \
@@ -40,6 +44,7 @@ This guide provides step-by-step instructions to set up automated deployment to 
    ```
 
 3. **Create Artifact Registry repository:**
+
    ```bash
    gcloud artifacts repositories create living-twin \
      --repository-format=docker \
@@ -50,12 +55,14 @@ This guide provides step-by-step instructions to set up automated deployment to 
 ### **Step 2: Service Account Setup**
 
 1. **Create service account for Cloud Run:**
+
    ```bash
    gcloud iam service-accounts create living-twin-cloudrun \
      --display-name="Living Twin Cloud Run Service Account"
    ```
 
 2. **Grant necessary permissions:**
+
    ```bash
    # Cloud Run service account permissions
    gcloud projects add-iam-policy-binding living-twin-prod \
@@ -70,12 +77,14 @@ This guide provides step-by-step instructions to set up automated deployment to 
 ### **Step 3: Workload Identity Setup**
 
 1. **Create service account for GitHub Actions:**
+
    ```bash
    gcloud iam service-accounts create github-actions \
      --display-name="GitHub Actions Service Account"
    ```
 
 2. **Grant deployment permissions:**
+
    ```bash
    gcloud projects add-iam-policy-binding living-twin-prod \
      --member="serviceAccount:github-actions@living-twin-prod.iam.gserviceaccount.com" \
@@ -91,6 +100,7 @@ This guide provides step-by-step instructions to set up automated deployment to 
    ```
 
 3. **Create Workload Identity Pool:**
+
    ```bash
    gcloud iam workload-identity-pools create "github-pool" \
      --location="global" \
@@ -105,6 +115,7 @@ This guide provides step-by-step instructions to set up automated deployment to 
    ```
 
 4. **Bind service account to Workload Identity:**
+
    ```bash
    gcloud iam service-accounts add-iam-policy-binding \
      --role roles/iam.workloadIdentityUser \
@@ -141,7 +152,8 @@ echo -n "your-firebase-project-id" | \
 Add these secrets to your GitHub repository (`Settings > Secrets and variables > Actions`):
 
 #### **Required Secrets:**
-```
+
+```bash
 GCP_PROJECT_ID=living-twin-prod
 WIF_PROVIDER=projects/PROJECT_NUMBER/locations/global/workloadIdentityPools/github-pool/providers/github-provider
 WIF_SERVICE_ACCOUNT=github-actions@living-twin-prod.iam.gserviceaccount.com
@@ -149,8 +161,9 @@ CLOUD_RUN_SERVICE_ACCOUNT=living-twin-cloudrun@living-twin-prod.iam.gserviceacco
 ```
 
 #### **Optional Secrets (for notifications):**
-```
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
+
+```bash
+NOTIFICATION_WEBHOOK_URL=https://hooks.example.com/services/YOUR/WEBHOOK
 ```
 
 ### **Step 6: Get Project Number**
@@ -164,10 +177,12 @@ Replace `PROJECT_NUMBER` in the WIF_PROVIDER secret with this value.
 ## 🎯 **Deployment Workflow**
 
 ### **Automatic Deployments:**
+
 - **Staging:** Push to `staging` branch → deploys to `living-twin-api-staging`
 - **Production:** Push to `main` branch → deploys to `living-twin-api`
 
 ### **Manual Deployment:**
+
 ```bash
 # Build and push manually
 docker build -f docker/Dockerfile.cloudrun -t gcr.io/living-twin-prod/living-twin-api:latest .
@@ -184,6 +199,7 @@ gcloud run deploy living-twin-api \
 ## 🔍 **Monitoring & Debugging**
 
 ### **View Logs:**
+
 ```bash
 # Cloud Run logs
 gcloud logs read --service=living-twin-api --limit=50
@@ -194,11 +210,13 @@ gcloud builds log BUILD_ID
 ```
 
 ### **Health Check:**
+
 ```bash
 curl https://your-service-url.a.run.app/healthz
 ```
 
 ### **Performance Testing:**
+
 ```bash
 # Run load tests locally
 k6 run tools/scripts/load-test.js
@@ -207,6 +225,7 @@ k6 run tools/scripts/load-test.js
 ## 🚨 **Security Considerations**
 
 ### **✅ Implemented Security Features:**
+
 - **Workload Identity** - No service account keys stored in GitHub
 - **Secret Manager** - Sensitive data encrypted at rest
 - **Non-root containers** - Reduced attack surface
@@ -215,6 +234,7 @@ k6 run tools/scripts/load-test.js
 - **HTTPS only** - Cloud Run enforces TLS
 
 ### **🔒 Additional Security Recommendations:**
+
 1. **Enable VPC Connector** for private network access
 2. **Set up Cloud Armor** for DDoS protection
 3. **Configure Binary Authorization** for image verification
@@ -224,6 +244,7 @@ k6 run tools/scripts/load-test.js
 ## 📊 **Cost Optimization**
 
 ### **Current Configuration:**
+
 - **CPU:** 2 vCPU (scales to zero when idle)
 - **Memory:** 2GB
 - **Min instances:** 0 (saves costs during low traffic)
@@ -231,6 +252,7 @@ k6 run tools/scripts/load-test.js
 - **Concurrency:** 80 requests per instance
 
 ### **Cost Estimates (US-Central1):**
+
 - **Idle:** $0/month (scales to zero)
 - **Light usage:** ~$10-30/month
 - **Production load:** ~$50-200/month
@@ -245,9 +267,10 @@ Your deployment pipeline is now configured with:
 ✅ **Performance monitoring** with load tests
 ✅ **Security hardening** with Workload Identity
 ✅ **Cost optimization** with auto-scaling
-✅ **Monitoring & alerting** with Slack notifications
+✅ **Monitoring & alerting** with notifications
 
 **Next Steps:**
+
 1. Push your code to the `staging` branch to test deployment
 2. Verify the staging environment works correctly
 3. Merge to `main` branch for production deployment

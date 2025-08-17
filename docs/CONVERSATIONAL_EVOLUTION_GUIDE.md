@@ -1,12 +1,14 @@
 # Conversational Evolution Guide
 
-> **From Simple RAG to Advanced Conversational AI**  
+> **From Simple RAG to Advanced Conversational AI**
 > **Focus**: Conversation Memory + Voice Integration + Real-time Considerations
 
 ## 🧠 **Phase 1: Conversational Memory Implementation**
 
 ### **Current State Analysis**
+
 Your current implementation is **stateless** - each query is independent:
+
 ```python
 # Current: No conversation context
 def query_documents(self, request: QueryRequest) -> QueryResponse:
@@ -18,6 +20,7 @@ def query_documents(self, request: QueryRequest) -> QueryResponse:
 ### **Conversation Memory Architecture**
 
 #### **1. Domain Models Extension**
+
 ```python
 # apps/api/app/domain/models.py
 
@@ -52,6 +55,7 @@ class ConversationalQueryRequest:
 ```
 
 #### **2. Conversation Storage Port**
+
 ```python
 # apps/api/app/ports/conversation_store.py
 
@@ -69,6 +73,7 @@ class IConversationStore(Protocol):
 ```
 
 #### **3. Neo4j Conversation Adapter**
+
 ```python
 # apps/api/app/adapters/neo4j_conversation_store.py
 
@@ -141,6 +146,7 @@ class Neo4jConversationStore(IConversationStore):
 ```
 
 #### **4. Enhanced RAG Service with Memory**
+
 ```python
 # apps/api/app/domain/services.py - Enhanced RagService
 
@@ -322,6 +328,7 @@ Please provide a helpful answer using the retrieved documents and conversation c
 ```
 
 #### **5. Updated Router with Conversation Support**
+
 ```python
 # apps/api/app/routers/rag.py - Add conversation endpoints
 
@@ -437,13 +444,17 @@ class ConversationalQuery(BaseModel):
 ### **Real-time vs Async Voice - The Trade-offs**
 
 #### **Real-time Voice (Streaming)**
+
 **What it means**: Continuous audio processing with immediate response
+
 - User speaks → Audio streamed to server → Processed in chunks → Response streamed back
 - **Latency**: 200-500ms end-to-end
 - **Experience**: Natural conversation flow, interruptions possible
 
 #### **Async Voice (Record → Process → Respond)**
+
 **What it means**: Complete audio recording before processing
+
 - User speaks → Complete recording → Send to server → Full processing → Response
 - **Latency**: 2-5 seconds depending on recording length
 - **Experience**: Walkie-talkie style, no interruptions
@@ -460,6 +471,7 @@ class ConversationalQuery(BaseModel):
 ### **Real-time Voice Architecture**
 
 #### **Technical Requirements**
+
 ```python
 # Real-time voice processing pipeline
 class RealTimeVoiceProcessor:
@@ -490,18 +502,21 @@ class RealTimeVoiceProcessor:
 #### **Cost Considerations**
 
 **OpenAI Whisper API (Recommended for Production)**:
+
 - **Cost**: $0.006 per minute of audio
 - **Quality**: Excellent, multilingual
 - **Latency**: ~500ms for real-time
 - **5-minute conversation**: ~$0.03 per conversation
 
 **Local Whisper Models**:
+
 - **Cost**: Hardware/compute only
 - **Quality**: Good (depends on model size)
 - **Latency**: Varies by hardware (200ms-2s)
 - **Models**: whisper-tiny (39MB) to whisper-large (1.5GB)
 
 **Google Speech-to-Text**:
+
 - **Cost**: $0.024 per minute (4x more expensive)
 - **Quality**: Excellent
 - **Latency**: Very low (~200ms)
@@ -509,10 +524,12 @@ class RealTimeVoiceProcessor:
 ### **Local Whisper in Flutter/Dart**
 
 #### **Current State (2024)**
+
 **Direct Dart/Flutter**: No native Whisper implementation
 **Available Options**:
 
 1. **Flutter + Native Plugins**:
+
 ```dart
 // Using flutter_whisper plugin (community)
 import 'package:flutter_whisper/flutter_whisper.dart';
@@ -531,6 +548,7 @@ class LocalWhisperService {
 ```
 
 2. **WebAssembly Whisper** (Web only):
+
 ```dart
 // Using whisper.wasm in Flutter web
 import 'dart:js' as js;
@@ -543,6 +561,7 @@ class WebWhisperService {
 ```
 
 3. **Server-side Processing** (Recommended):
+
 ```dart
 // Send audio to your API for processing
 class ServerWhisperService {
@@ -560,6 +579,7 @@ class ServerWhisperService {
 #### **Recommended Approach for Flutter**
 
 **Hybrid Architecture**:
+
 1. **Mobile**: Use device speech recognition for real-time feedback
 2. **Server**: Use Whisper API for accurate final transcription
 3. **Fallback**: Local processing when offline
@@ -588,6 +608,7 @@ class HybridVoiceService {
 ### **Voice Implementation Roadmap**
 
 #### **Phase 1: Basic Voice (2-3 weeks)**
+
 ```dart
 // Flutter implementation
 class BasicVoiceChat extends StatefulWidget {
@@ -630,6 +651,7 @@ class _BasicVoiceChatState extends State<BasicVoiceChat> {
 ```
 
 #### **Phase 2: Real-time Voice (4-6 weeks)**
+
 ```python
 # Backend real-time voice processing
 from fastapi import WebSocket
@@ -672,6 +694,7 @@ async def voice_stream(websocket: WebSocket):
 ```
 
 #### **Phase 3: Advanced Voice Features (6-8 weeks)**
+
 - **Interrupt handling**: Stop speaking when user starts talking
 - **Emotion detection**: Analyze tone and adjust responses
 - **Multi-language support**: Detect language and respond accordingly
@@ -679,13 +702,15 @@ async def voice_stream(websocket: WebSocket):
 
 ### **Cost Analysis for Voice**
 
-#### **5-minute Conversation Costs**:
+#### **5-minute Conversation Costs**
+
 - **Whisper API**: $0.03 per conversation
 - **OpenAI TTS**: $0.015 per 1000 characters (~$0.05 per response)
 - **Total per conversation**: ~$0.08-0.15
 - **1000 conversations/month**: $80-150
 
-#### **Local Processing Costs**:
+#### **Local Processing Costs**
+
 - **Initial setup**: Higher (model downloads, optimization)
 - **Per conversation**: Only compute/electricity
 - **Privacy**: Complete data control

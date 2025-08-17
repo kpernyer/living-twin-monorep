@@ -4,7 +4,7 @@ This package contains shared infrastructure-facing code and configurations for G
 
 ## Structure
 
-```
+```bash
 packages/gcp_firebase/
 ├── api_gateway/
 │   └── openapi-gateway.yaml    # API Gateway configuration with Firebase JWT
@@ -22,22 +22,27 @@ packages/gcp_firebase/
 ## Components
 
 ### API Gateway
+
 - **openapi-gateway.yaml**: Configures Google Cloud API Gateway with Firebase JWT authentication
 - Handles routing to the FastAPI backend
 - Validates Firebase ID tokens
 
 ### Firestore Rules
+
 - **firestore.rules**: Security rules for multi-tenant Firestore access
 - Ensures tenant isolation
 - Validates user permissions based on custom claims
 
 ### Storage Rules
+
 - **storage.rules**: Security rules for Cloud Storage buckets
 - Implements tenant-prefixed access patterns
 - Validates file upload/download permissions
 
 ### Terraform
+
 Infrastructure as Code for:
+
 - Cloud Run services
 - Pub/Sub topics and subscriptions
 - Storage buckets
@@ -48,6 +53,7 @@ Infrastructure as Code for:
 ## Usage
 
 ### Deploy Infrastructure
+
 ```bash
 cd packages/gcp_firebase/terraform
 terraform init
@@ -56,16 +62,19 @@ terraform apply
 ```
 
 ### Deploy Firestore Rules
+
 ```bash
 firebase deploy --only firestore:rules
 ```
 
 ### Deploy Storage Rules
+
 ```bash
 firebase deploy --only storage
 ```
 
 ### Deploy API Gateway
+
 ```bash
 gcloud api-gateway api-configs create CONFIG_ID \
   --api=API_ID \
@@ -75,12 +84,15 @@ gcloud api-gateway api-configs create CONFIG_ID \
 ## Configuration
 
 ### Environment Variables
+
 - `GCP_PROJECT_ID`: Google Cloud Project ID
 - `FIREBASE_PROJECT_ID`: Firebase Project ID (usually same as GCP_PROJECT_ID)
 - `REGION`: Deployment region (e.g., us-central1)
 
 ### Firebase Configuration
+
 Ensure Firebase is properly configured with:
+
 - Authentication enabled
 - Firestore database created
 - Cloud Storage bucket created
@@ -89,6 +101,7 @@ Ensure Firebase is properly configured with:
 ## Multi-Tenancy
 
 This package implements a multi-tenant architecture where:
+
 - Each tenant has isolated data in Firestore
 - Storage files are prefixed with tenant ID
 - API Gateway validates tenant access via Firebase custom claims

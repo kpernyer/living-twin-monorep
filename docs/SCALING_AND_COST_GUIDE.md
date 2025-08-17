@@ -76,6 +76,7 @@ env_config = {
 ### Scaling Configuration Locations
 
 #### 1. Main Terraform Configuration
+
 ```bash
 # File: packages/gcp_firebase/terraform/main.tf
 # Section: locals.env_config
@@ -86,6 +87,7 @@ vim packages/gcp_firebase/terraform/main.tf
 ```
 
 #### 2. Override Variables
+
 ```bash
 # File: packages/gcp_firebase/terraform/variables.tf
 # Variables: api_min_instances, api_max_instances, etc.
@@ -95,6 +97,7 @@ terraform apply -var="api_min_instances=0" -var="api_max_instances=3"
 ```
 
 #### 3. Environment Files (Recommended)
+
 ```bash
 # Create environment-specific variable files:
 # packages/gcp_firebase/terraform/environments/dev.tfvars
@@ -105,6 +108,7 @@ terraform apply -var="api_min_instances=0" -var="api_max_instances=3"
 ## 💡 Cost Optimization Strategies
 
 ### 1. Development Environment (Minimize Costs)
+
 ```hcl
 # Recommended dev settings
 dev = {
@@ -117,6 +121,7 @@ dev = {
 ```
 
 ### 2. Staging Environment (Balance Cost/Performance)
+
 ```hcl
 # Recommended staging settings
 staging = {
@@ -129,6 +134,7 @@ staging = {
 ```
 
 ### 3. Production Environment (Performance First)
+
 ```hcl
 # Recommended prod settings
 prod = {
@@ -143,6 +149,7 @@ prod = {
 ## 🔧 How to Change Scaling Configuration
 
 ### Method 1: Edit Terraform Configuration
+
 ```bash
 # 1. Edit the main configuration
 vim packages/gcp_firebase/terraform/main.tf
@@ -157,6 +164,7 @@ terraform apply
 ```
 
 ### Method 2: Use Environment Variables
+
 ```bash
 # Create environment-specific tfvars file
 cat > packages/gcp_firebase/terraform/environments/dev.tfvars << EOF
@@ -172,6 +180,7 @@ terraform apply -var-file=environments/dev.tfvars
 ```
 
 ### Method 3: Command Line Override
+
 ```bash
 # Quick one-time changes
 terraform apply \
@@ -183,13 +192,16 @@ terraform apply \
 ## 📈 Monitoring and Alerts
 
 ### Built-in Cost Monitoring
+
 The infrastructure includes monitoring for:
+
 - Service scaling events
 - Resource utilization
 - Cost anomalies
 - Unused resources
 
 ### Manual Monitoring Commands
+
 ```bash
 # Check current service status
 gcloud run services list --region=europe-west1
@@ -204,6 +216,7 @@ gcloud billing budgets list
 ## 🚨 Cost Alerts and Budgets
 
 ### Setting Up Budget Alerts
+
 ```bash
 # Create a budget alert (run once)
 gcloud billing budgets create \
@@ -215,7 +228,9 @@ gcloud billing budgets create \
 ```
 
 ### Automated Cost Monitoring
+
 The resource utilization script runs checks and provides recommendations:
+
 ```bash
 # Daily cost check (add to cron)
 python tools/scripts/check_resource_utilization.py \
@@ -226,6 +241,7 @@ python tools/scripts/check_resource_utilization.py \
 ## 🎛️ Advanced Scaling Configuration
 
 ### Custom Scaling Metrics
+
 ```hcl
 # In Cloud Run module
 resource "google_cloud_run_service" "service" {
@@ -243,6 +259,7 @@ resource "google_cloud_run_service" "service" {
 ```
 
 ### Traffic-Based Scaling
+
 ```hcl
 # Configure concurrency limits
 spec {
@@ -254,6 +271,7 @@ spec {
 ## 📋 Cost Optimization Checklist
 
 ### ✅ Development Environment
+
 - [ ] `min_instances = 0` (scale to zero)
 - [ ] `max_instances ≤ 5` (limit max cost)
 - [ ] `enable_backup = false` (no backups needed)
@@ -261,12 +279,14 @@ spec {
 - [ ] Monitor with resource utilization script
 
 ### ✅ Staging Environment
+
 - [ ] Consider `min_instances = 0` for cost savings
 - [ ] `max_instances ≤ 10` (reasonable limit)
 - [ ] `enable_backup = true` (test backups)
 - [ ] Monitor scaling behavior
 
 ### ✅ Production Environment
+
 - [ ] `min_instances ≥ 1` (always ready)
 - [ ] `max_instances` based on expected traffic
 - [ ] `enable_backup = true` (full backups)
@@ -276,6 +296,7 @@ spec {
 ## 🔍 Troubleshooting Scaling Issues
 
 ### Service Not Scaling Down
+
 ```bash
 # Check if there are active requests
 gcloud run services describe SERVICE_NAME --region=europe-west1
@@ -285,6 +306,7 @@ gcloud logs read "resource.type=cloud_run_revision" --limit=50
 ```
 
 ### Unexpected Costs
+
 ```bash
 # Run cost analysis
 python tools/scripts/check_resource_utilization.py \
@@ -297,7 +319,9 @@ gcloud billing projects describe YOUR_PROJECT_ID
 ```
 
 ### Cold Start Issues
+
 If cold starts are problematic:
+
 1. Increase `min_instances` to 1
 2. Optimize application startup time
 3. Consider using Cloud Run always-on CPU allocation

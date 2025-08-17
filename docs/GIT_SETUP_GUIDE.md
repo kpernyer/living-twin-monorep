@@ -58,12 +58,14 @@ The `.gitignore` file protects these sensitive files:
 ### Environment Setup for New Developers
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/your-username/living-twin-monorepo.git
    cd living-twin-monorepo
    ```
 
 2. **Set up environment:**
+
    ```bash
    # Copy environment template
    cp .env.example .env
@@ -73,6 +75,7 @@ The `.gitignore` file protects these sensitive files:
    ```
 
 3. **Install dependencies:**
+
    ```bash
    # Python backend
    python3.11 -m venv .venv

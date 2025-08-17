@@ -6,7 +6,9 @@
 ## 🔒 **Trivy Security Scanning**
 
 ### **What is Trivy?**
+
 Trivy is a comprehensive security scanner that detects vulnerabilities in:
+
 - **Container images** (OS packages, language-specific packages)
 - **Filesystem** (source code dependencies)
 - **Git repositories** (secrets, misconfigurations)
@@ -15,6 +17,7 @@ Trivy is a comprehensive security scanner that detects vulnerabilities in:
 ### **How We Use Trivy**
 
 #### **1. Automated CI/CD Scanning**
+
 ```yaml
 # .github/workflows/deploy-cloud-run.yml
 security:
@@ -35,6 +38,7 @@ security:
 ```
 
 **What This Does**:
+
 - ✅ **Scans every Docker image** before deployment
 - ✅ **Uploads results to GitHub Security tab** for tracking
 - ✅ **Blocks deployment** if critical vulnerabilities found
@@ -43,6 +47,7 @@ security:
 #### **2. Local Security Scanning**
 
 **Install Trivy locally**:
+
 ```bash
 # macOS
 brew install trivy
@@ -56,6 +61,7 @@ sudo apt-get install trivy
 ```
 
 **Scan your local Docker images**:
+
 ```bash
 # Build your image first
 make docker-build
@@ -79,6 +85,7 @@ trivy repo .
 #### **3. Trivy Configuration**
 
 **Create `.trivyignore` file** to ignore false positives:
+
 ```bash
 # .trivyignore
 CVE-2023-12345  # False positive - not applicable to our use case
@@ -86,6 +93,7 @@ CVE-2023-67890  # Fixed in our custom build
 ```
 
 **Advanced scanning options**:
+
 ```bash
 # Scan specific package types only
 trivy image --pkg-types os,library your-image:tag
@@ -100,12 +108,14 @@ trivy image --policy custom-policy.rego your-image:tag
 ### **4. Security Scanning Results**
 
 **View results in GitHub**:
+
 1. Go to **Security** tab in your GitHub repo
 2. Click **Code scanning alerts**
 3. Review Trivy findings with severity levels
 4. Create issues for critical vulnerabilities
 
 **Local results interpretation**:
+
 ```bash
 # Example output
 Total: 45 (UNKNOWN: 0, LOW: 20, MEDIUM: 15, HIGH: 8, CRITICAL: 2)
@@ -123,7 +133,9 @@ Total: 45 (UNKNOWN: 0, LOW: 20, MEDIUM: 15, HIGH: 8, CRITICAL: 2)
 ## ⚡ **K6 Load Testing**
 
 ### **What is K6?**
+
 K6 is a modern load testing tool that uses JavaScript to define test scenarios and provides:
+
 - **HTTP/WebSocket/gRPC** protocol support
 - **Realistic load patterns** with virtual users
 - **Rich metrics** and thresholds
@@ -132,6 +144,7 @@ K6 is a modern load testing tool that uses JavaScript to define test scenarios a
 ### **How We Use K6**
 
 #### **1. Automated Performance Testing**
+
 ```yaml
 # .github/workflows/deploy-cloud-run.yml
 performance:
@@ -152,6 +165,7 @@ performance:
 ```
 
 **What This Does**:
+
 - ✅ **Tests staging environment** after deployment
 - ✅ **Validates performance thresholds** (95% < 500ms, error rate < 10%)
 - ✅ **Prevents production deployment** if performance degrades
@@ -160,6 +174,7 @@ performance:
 #### **2. Local Performance Testing**
 
 **Install K6 locally**:
+
 ```bash
 # macOS
 brew install k6
@@ -175,6 +190,7 @@ winget install k6
 ```
 
 **Run load tests locally**:
+
 ```bash
 # Test against local development server
 make docker-up  # Start local environment
@@ -194,6 +210,7 @@ k6 run --out csv=results.csv tools/scripts/load-test.js
 #### **3. K6 Test Configuration**
 
 **Our current test scenario** (`tools/scripts/load-test.js`):
+
 ```javascript
 export let options = {
   stages: [
@@ -212,6 +229,7 @@ export let options = {
 ```
 
 **Test scenarios covered**:
+
 - ✅ **Health checks** (`/healthz`)
 - ✅ **RAG search queries** (`/search`)
 - ✅ **Document ingestion** (`/ingest/text`)
@@ -221,6 +239,7 @@ export let options = {
 #### **4. Advanced K6 Usage**
 
 **Create custom test scenarios**:
+
 ```javascript
 // Spike testing
 export let options = {
@@ -246,6 +265,7 @@ export let options = {
 ```
 
 **Test with authentication**:
+
 ```javascript
 // Add to your test script
 import { authenticate } from './auth-helper.js';
@@ -272,6 +292,7 @@ export default function (data) {
 #### **5. Performance Metrics & Analysis**
 
 **Key metrics K6 provides**:
+
 ```bash
 # Example K6 output
      ✓ health check status is 200
@@ -306,32 +327,33 @@ Add these commands to your `Makefile` for easy local testing:
 ```makefile
 # Security scanning
 security-scan:
-	@echo "🔒 Running security scan with Trivy..."
-	trivy image --severity HIGH,CRITICAL living_twin_monorepo-api:latest
+ @echo "🔒 Running security scan with Trivy..."
+ trivy image --severity HIGH,CRITICAL living_twin_monorepo-api:latest
 
 security-scan-all:
-	@echo "🔒 Running comprehensive security scan..."
-	trivy image living_twin_monorepo-api:latest
-	trivy fs apps/api/
-	trivy repo .
+ @echo "🔒 Running comprehensive security scan..."
+ trivy image living_twin_monorepo-api:latest
+ trivy fs apps/api/
+ trivy repo .
 
 # Performance testing  
 load-test-local:
-	@echo "⚡ Running load tests against local environment..."
-	@if ! command -v k6 &> /dev/null; then echo "❌ k6 not installed. Run: brew install k6"; exit 1; fi
-	BASE_URL=http://localhost:8000 k6 run tools/scripts/load-test.js
+ @echo "⚡ Running load tests against local environment..."
+ @if ! command -v k6 &> /dev/null; then echo "❌ k6 not installed. Run: brew install k6"; exit 1; fi
+ BASE_URL=http://localhost:8000 k6 run tools/scripts/load-test.js
 
 load-test-staging:
-	@echo "⚡ Running load tests against staging..."
-	@if [ -z "$(STAGING_URL)" ]; then echo "❌ STAGING_URL is required. Usage: make load-test-staging STAGING_URL=https://your-staging-url"; exit 1; fi
-	BASE_URL=$(STAGING_URL) k6 run tools/scripts/load-test.js
+ @echo "⚡ Running load tests against staging..."
+ @if [ -z "$(STAGING_URL)" ]; then echo "❌ STAGING_URL is required. Usage: make load-test-staging STAGING_URL=https://your-staging-url"; exit 1; fi
+ BASE_URL=$(STAGING_URL) k6 run tools/scripts/load-test.js
 
 # Combined security and performance validation
 validate-deployment: security-scan load-test-local
-	@echo "✅ Deployment validation complete"
+ @echo "✅ Deployment validation complete"
 ```
 
 **Usage**:
+
 ```bash
 # Run security scan
 make security-scan
@@ -352,18 +374,21 @@ make validate-deployment
 ## 📊 **Monitoring & Alerting**
 
 ### **GitHub Security Integration**
+
 - **Security tab** shows all Trivy findings
 - **Dependabot alerts** for dependency vulnerabilities  
 - **Code scanning alerts** with severity levels
 - **Security advisories** for your repositories
 
 ### **Performance Monitoring**
+
 - **K6 results** stored as GitHub Actions artifacts
 - **Performance regression detection** via threshold failures
-- **Slack notifications** for failed performance tests
+- **Notifications** for failed performance tests sent to the organization's communication platform
 - **Historical performance data** tracking
 
 ### **Local Development Workflow**
+
 ```bash
 # Before committing code
 make security-scan          # Check for vulnerabilities
@@ -382,6 +407,7 @@ git commit -m "feature: ..."
 ## 🎯 **Best Practices**
 
 ### **Security Scanning**
+
 - ✅ **Scan early and often** - integrate into development workflow
 - ✅ **Fix critical vulnerabilities** before deployment
 - ✅ **Keep base images updated** - use latest stable versions
@@ -389,6 +415,7 @@ git commit -m "feature: ..."
 - ✅ **Monitor security advisories** for your dependencies
 
 ### **Performance Testing**
+
 - ✅ **Test realistic scenarios** - use actual API endpoints and data
 - ✅ **Set appropriate thresholds** - based on your SLA requirements
 - ✅ **Test different load patterns** - normal, peak, spike, stress
@@ -396,6 +423,7 @@ git commit -m "feature: ..."
 - ✅ **Test with authentication** - realistic user scenarios
 
 ### **CI/CD Integration**
+
 - ✅ **Fail fast** - block deployment on security/performance issues
 - ✅ **Test staging first** - validate before production
 - ✅ **Store results** - track trends over time
@@ -407,12 +435,14 @@ git commit -m "feature: ..."
 ## 🚀 **Next Steps**
 
 ### **Enhanced Security**
+
 - **SAST scanning** with CodeQL for source code analysis
 - **Dependency scanning** with Snyk or GitHub Dependabot
 - **Infrastructure scanning** with Checkov for Terraform
 - **Runtime security** with Falco for container monitoring
 
 ### **Advanced Performance Testing**
+
 - **Browser testing** with K6 browser module
 - **API contract testing** with Pact
 - **Chaos engineering** with Litmus or Chaos Monkey

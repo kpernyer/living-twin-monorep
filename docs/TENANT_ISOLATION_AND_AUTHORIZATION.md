@@ -8,8 +8,9 @@
 Your Living Twin platform implements **sophisticated multi-tenancy** with multiple layers of isolation and authorization:
 
 ### **1. Tenant Isolation Strategy**
+
 - **Logical Isolation**: Single database with tenant-aware queries
-- **Data Segregation**: All data tagged with `tenantId` 
+- **Data Segregation**: All data tagged with `tenantId`
 - **Cross-tenant Access Control**: Role-based permissions for data access
 - **Agent-based Authorization**: AI agents respect organizational boundaries
 
@@ -18,7 +19,8 @@ Your Living Twin platform implements **sophisticated multi-tenancy** with multip
 ## 🔐 **Authentication & Authorization Flow**
 
 ### **Complete Request Flow**
-```
+
+```bash
 1. Client → Firebase Auth (Google/Email login)
 2. Firebase → JWT with Custom Claims (tenantId, role)
 3. Client → API Request (Bearer JWT token)
@@ -60,6 +62,7 @@ class FirebaseAuth:
 ```
 
 ### **Custom Claims Structure**
+
 ```json
 {
   "uid": "user123",
@@ -75,6 +78,7 @@ class FirebaseAuth:
 ```
 
 ### **Role Hierarchy**
+
 - **`owner`**: Full access, can cross tenant boundaries
 - **`admin`**: Full access within tenant
 - **`manager`**: Read/write access, user management
@@ -106,6 +110,7 @@ async def auth_middleware(request: Request, call_next):
 ```
 
 **What This Does**:
+
 - ✅ **Validates every request** (except health checks)
 - ✅ **Extracts user context** from JWT claims
 - ✅ **Attaches user to request state** for downstream use
@@ -136,6 +141,7 @@ def query(q: Query, request: Request):
 ```
 
 **Authorization Pattern**:
+
 - ✅ **Extract user context** from request state
 - ✅ **Determine target tenant** (from request or user default)
 - ✅ **Validate cross-tenant access** using business rules
@@ -162,6 +168,7 @@ class TenantService:
 ```
 
 ### **Authorization Rules**
+
 - **Same Tenant**: All authenticated users can access their own tenant's data
 - **Cross Tenant**: Only `owner` role can access other tenants
 - **Role-based**: Different permissions within tenant based on role
@@ -193,6 +200,7 @@ def search(self, tenant_id: str, query_vector: list[float], k: int = 5):
 ```
 
 ### **Data Isolation Features**
+
 - ✅ **All nodes tagged** with `tenantId` property
 - ✅ **All queries filtered** by tenant in WHERE clause
 - ✅ **Default tenant fallback** (`coalesce(node.tenantId,'demo')`)
@@ -223,13 +231,15 @@ async def _build_agent_context(self, agent: SimulationAgent, communication, all_
 ```
 
 ### **Agent Authorization Features**
+
 - ✅ **Agents belong to organizations** (`agent.organization_id`)
-- ✅ **AI reasoning respects tenant boundaries** 
+- ✅ **AI reasoning respects tenant boundaries**
 - ✅ **Company knowledge searches** are tenant-isolated
 - ✅ **Agent communications** stay within organizational boundaries
 - ✅ **Cross-organizational simulation** requires explicit permission
 
 ### **Agent Persona with Organizational Context**
+
 ```python
 def _create_persona_prompt(self, agent_info: Dict[str, Any]) -> str:
     return f"""
@@ -252,6 +262,7 @@ def _create_persona_prompt(self, agent_info: Dict[str, Any]) -> str:
 ## 🔧 **Implementation Details**
 
 ### **User Context Structure**
+
 ```python
 class UserContext(TypedDict):
     uid: str           # Firebase user ID
@@ -261,6 +272,7 @@ class UserContext(TypedDict):
 ```
 
 ### **Authorization Interfaces**
+
 ```python
 class IAuth(Protocol):
     def verify(self, bearer_token: str) -> UserContext: ...
@@ -270,6 +282,7 @@ class IAuthorizer(Protocol):
 ```
 
 ### **Cross-Tenant Authorization Logic**
+
 ```python
 class SimpleAuthorizer:
     def can_cross_tenant(self, user: UserContext, target_tenant: str) -> bool:
@@ -282,6 +295,7 @@ class SimpleAuthorizer:
 ## 🛠️ **Development & Testing**
 
 ### **Local Development Bypass**
+
 ```python
 class FirebaseAuth:
     def __init__(self, bypass: bool = False):
@@ -294,6 +308,7 @@ class FirebaseAuth:
 ```
 
 ### **Testing Different Roles**
+
 ```bash
 # Test as different roles
 export BYPASS_AUTH=true  # Local development
@@ -312,6 +327,7 @@ curl -H "Authorization: Bearer $FIREBASE_TOKEN" \
 ## 📊 **Security Features**
 
 ### **Multi-Layer Security**
+
 1. **Network Level**: HTTPS/TLS encryption
 2. **Authentication**: Firebase JWT validation
 3. **Authorization**: Role-based + cross-tenant rules
@@ -320,6 +336,7 @@ curl -H "Authorization: Bearer $FIREBASE_TOKEN" \
 6. **Agent Level**: AI respects organizational boundaries
 
 ### **Audit & Monitoring**
+
 ```python
 # All interactions logged with tenant context
 interaction = {
@@ -334,6 +351,7 @@ interaction = {
 ```
 
 ### **Security Best Practices**
+
 - ✅ **Principle of least privilege** - users only access what they need
 - ✅ **Defense in depth** - multiple authorization layers
 - ✅ **Explicit deny** - default to denying access
@@ -346,6 +364,7 @@ interaction = {
 ## 🚀 **Advanced Features**
 
 ### **Dynamic Role Assignment**
+
 ```python
 # Future: Dynamic role assignment based on context
 def get_effective_role(user: UserContext, resource: str) -> str:
@@ -363,6 +382,7 @@ def get_effective_role(user: UserContext, resource: str) -> str:
 ```
 
 ### **Resource-Level Permissions**
+
 ```python
 # Future: Fine-grained resource permissions
 class ResourceAuthorizer:
@@ -377,6 +397,7 @@ class ResourceAuthorizer:
 ```
 
 ### **Agent Permission System**
+
 ```python
 # Future: Agent-specific permissions
 class AgentAuthorizer:

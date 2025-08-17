@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useAuth } from '../features/auth/AuthProvider'
 import { apiFetch } from '../shared/api'
 import PulseBoard from '../features/pulse/PulseBoard'
+import IntelligenceHub from '../features/intelligence/IntelligenceHub'
+import StrategicAlignmentDashboard from '../features/intelligence/StrategicAlignmentDashboard'
 
 export default function Dashboard() {
   const { user, organization, logout, getUserRole, getTenantId, isOrganizationAdmin } = useAuth()
@@ -176,6 +178,26 @@ export default function Dashboard() {
               Pulse Dashboard
             </button>
             <button
+              onClick={() => setActiveTab('intelligence')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'intelligence'
+                  ? 'border-indigo-500 text-indigo-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Strategic Intelligence
+            </button>
+            <button
+              onClick={() => setActiveTab('alignment')}
+              className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'alignment'
+                  ? 'border-indigo-500 text-indigo-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Strategic Alignment
+            </button>
+            <button
               onClick={() => setActiveTab('ingest')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 activeTab === 'ingest'
@@ -194,6 +216,10 @@ export default function Dashboard() {
         <div className="px-4 py-6 sm:px-0">
           {activeTab === 'pulse' ? (
             <PulseBoard />
+          ) : activeTab === 'intelligence' ? (
+            <IntelligenceHub />
+          ) : activeTab === 'alignment' ? (
+            <StrategicAlignmentDashboard />
           ) : (
             <div className="grid grid-cols-1 gap-6">
             

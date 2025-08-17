@@ -32,20 +32,29 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Set up Python and uv
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          cache: 'pip'
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+      - name: Add uv to PATH
+        run: echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
 
       - name: Install dependencies
         run: |
+          pnpm install
           cd apps/api
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+          uv pip install --system --no-cache --compile -e .[dev]
 
       - name: Run linting
         run: |
+          pnpm lint
           cd apps/api
           flake8 app --count --select=E9,F63,F7,F82 --show-source --statistics
           flake8 app --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
@@ -57,6 +66,7 @@ jobs:
 
       - name: Run tests
         run: |
+          pnpm test
           cd apps/api
           pytest app/tests/ -v --cov=app --cov-report=xml
 
