@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Request, HTTPException, UploadFile, File, Form, status
+from fastapi import APIRouter, Request, HTTPException, UploadFile, File, Form, status, Query
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
-from ..di import container
+from .. import di
 from ..config import load_config
 from ..domain.models import QueryRequest, QueryResponse, ConversationalQueryRequest
 import tempfile
@@ -123,7 +123,7 @@ def query(q: QueryRequestSchema, request: Request):
     tenant = q.tenantId or user["tenantId"]
     
     # Authorization check using domain service
-    if not container.tenant_service.validate_cross_tenant_access(
+    if not di.container.tenant_service.validate_cross_tenant_access(
         user_role=user["role"],
         user_tenant=user["tenantId"], 
         target_tenant=tenant
@@ -139,7 +139,7 @@ def query(q: QueryRequestSchema, request: Request):
     )
     
     # Delegate to domain service
-    response = container.rag.query_documents(domain_request)
+    response = di.container.rag.query_documents(domain_request)
     
     # Convert domain response to HTTP response
     return QueryResponseSchema(
@@ -165,7 +165,7 @@ def ingest(payload: IngestRequestSchema, request: Request):
     tenant = payload.tenantId or user["tenantId"]
     
     # Authorization check using domain service
-    if not container.tenant_service.validate_cross_tenant_access(
+    if not di.container.tenant_service.validate_cross_tenant_access(
         user_role=user["role"],
         user_tenant=user["tenantId"],
         target_tenant=tenant
@@ -173,13 +173,13 @@ def ingest(payload: IngestRequestSchema, request: Request):
         raise HTTPException(403, "Cross-tenant access denied")
     
     # Delegate to domain service
-    cfg = container.cfg if hasattr(container, 'cfg') else load_config()
+    cfg = di.container.cfg if hasattr(di.container, 'cfg') else load_config()
     if getattr(cfg, 'async_ingest', False):
         # Fire-and-forget pattern with job tracking
         import threading, time, uuid
         job_id = str(uuid.uuid4())
         now_ms = int(time.time() * 1000)
-        container.jobs.create_job({
+        di.container.jobs.create_job({
             "jobId": job_id,
             "tenantId": tenant,
             "userId": user["uid"],
@@ -191,11 +191,11 @@ def ingest(payload: IngestRequestSchema, request: Request):
 
         def _worker():
             try:
-                container.jobs.update_job(job_id, {"status": "processing", "startedAt": int(time.time() * 1000)})
+                di.container.jobs.update_job(job_id, {"status": "processing", "startedAt": int(time.time() * 1000)})
                 start = time.time()
-                result = container.rag.ingest_text(title=payload.title, text=payload.text, tenant_id=tenant)
+                result = di.container.rag.ingest_text(title=payload.title, text=payload.text, tenant_id=tenant)
                 duration_ms = int((time.time() - start) * 1000)
-                container.jobs.update_job(job_id, {
+                di.container.jobs.update_job(job_id, {
                     "status": "completed",
                     "sourceId": result.get("source_id"),
                     "chunkCount": result.get("chunks_created", 0),
@@ -204,11 +204,11 @@ def ingest(payload: IngestRequestSchema, request: Request):
                 })
                 # Emit domain event if event bus available
                 try:
-                    if getattr(container, 'event_bus', None):
+                    if getattr(di.container, 'event_bus', None):
                         # Fire-and-forget; don't await in thread
                         import asyncio
                         asyncio.get_event_loop().create_task(
-                            container.event_bus.publish_document_ingested(
+                            di.container.event_bus.publish_document_ingested(
                                 document_id=result.get("source_id", ""),
                                 tenant_id=tenant,
                             )
@@ -216,7 +216,7 @@ def ingest(payload: IngestRequestSchema, request: Request):
                 except Exception:
                     pass
             except Exception as e:
-                container.jobs.update_job(job_id, {
+                di.container.jobs.update_job(job_id, {
                     "status": "failed",
                     "error": str(e),
                     "updatedAt": int(time.time() * 1000),
@@ -225,7 +225,7 @@ def ingest(payload: IngestRequestSchema, request: Request):
         threading.Thread(target=_worker, daemon=True).start()
         return IngestAcceptedResponseSchema(ok=True, jobId=job_id, status="queued")
     else:
-        result = container.rag.ingest_text(
+        result = di.container.rag.ingest_text(
             title=payload.title,
             text=payload.text,
             tenant_id=tenant
@@ -249,7 +249,7 @@ async def upload_file(
     tenant = tenantId or user["tenantId"]
     
     # Authorization check
-    if not container.tenant_service.validate_cross_tenant_access(
+    if not di.container.tenant_service.validate_cross_tenant_access(
         user_role=user["role"],
         user_tenant=user["tenantId"],
         target_tenant=tenant
@@ -271,7 +271,7 @@ async def upload_file(
     
     try:
         # Delegate to domain service for file processing
-        result = container.rag.ingest_file(
+        result = di.container.rag.ingest_file(
             file_path=tmp_file_path,
             title=title,
             tenant_id=tenant,
@@ -297,7 +297,7 @@ def get_recent_documents(request: Request, tenantId: Optional[str] = None):
     tenant = tenantId or user["tenantId"]
     
     # Authorization check
-    if not container.tenant_service.validate_cross_tenant_access(
+    if not di.container.tenant_service.validate_cross_tenant_access(
         user_role=user["role"],
         user_tenant=user["tenantId"],
         target_tenant=tenant
@@ -305,7 +305,7 @@ def get_recent_documents(request: Request, tenantId: Optional[str] = None):
         raise HTTPException(403, "Cross-tenant access denied")
     
     # Get recent documents from domain service
-    documents = container.rag.get_recent_documents(tenant_id=tenant, limit=20)
+    documents = di.container.rag.get_recent_documents(tenant_id=tenant, limit=20)
     
     return RecentDocumentsResponseSchema(
         items=[
@@ -328,7 +328,7 @@ def debug_rag(q: QueryRequestSchema, request: Request):
     tenant = q.tenantId or user["tenantId"]
     
     # Authorization check
-    if not container.tenant_service.validate_cross_tenant_access(
+    if not di.container.tenant_service.validate_cross_tenant_access(
         user_role=user["role"],
         user_tenant=user["tenantId"],
         target_tenant=tenant
@@ -336,7 +336,7 @@ def debug_rag(q: QueryRequestSchema, request: Request):
         raise HTTPException(403, "Cross-tenant access denied")
     
     # Get debug information from domain service
-    debug_info = container.rag.debug_query(
+    debug_info = di.container.rag.debug_query(
         query=q.question,
         tenant_id=tenant,
         k=q.k
@@ -353,7 +353,7 @@ def conversational_query(payload: ConversationalQueryRequestSchema, request: Req
     tenant = payload.tenantId or user["tenantId"]
     
     # Authorization check
-    if not container.tenant_service.validate_cross_tenant_access(
+    if not di.container.tenant_service.validate_cross_tenant_access(
         user_role=user["role"],
         user_tenant=user["tenantId"], 
         target_tenant=tenant
@@ -371,7 +371,7 @@ def conversational_query(payload: ConversationalQueryRequestSchema, request: Req
     )
     
     # Delegate to conversational service
-    response = container.conversational_rag.conversational_query(domain_request)
+    response = di.container.conversational_rag.conversational_query(domain_request)
     
     return ConversationalQueryResponseSchema(
         answer=response.answer,
@@ -391,11 +391,11 @@ def conversational_query(payload: ConversationalQueryRequestSchema, request: Req
 
 
 @router.get("/conversations", response_model=ConversationsResponseSchema)
-def list_conversations(request: Request, limit: int = Field(20, ge=1, le=100)):
+def list_conversations(request: Request, limit: int = Query(20, ge=1, le=100)):
     """List user's conversations."""
     user = getattr(request.state, "user", {"tenantId": "demo", "uid": "dev"})
     
-    conversations = container.conversation_store.list_conversations(
+    conversations = di.container.conversation_store.list_conversations(
         tenant_id=user["tenantId"],
         user_id=user["uid"],
         limit=limit
@@ -420,7 +420,7 @@ def get_conversation(conversation_id: str, request: Request):
     """Get conversation with full message history."""
     user = getattr(request.state, "user", {"tenantId": "demo", "uid": "dev"})
     
-    conversation = container.conversation_store.get_conversation(
+    conversation = di.container.conversation_store.get_conversation(
         conversation_id, 
         user["tenantId"]
     )
@@ -456,7 +456,7 @@ def delete_conversation(conversation_id: str, request: Request):
     user = getattr(request.state, "user", {"tenantId": "demo", "uid": "dev"})
     
     # First verify the conversation exists and user owns it
-    conversation = container.conversation_store.get_conversation(
+    conversation = di.container.conversation_store.get_conversation(
         conversation_id, 
         user["tenantId"]
     )
@@ -468,7 +468,7 @@ def delete_conversation(conversation_id: str, request: Request):
         raise HTTPException(403, "Access denied")
     
     # Delete the conversation
-    success = container.conversation_store.delete_conversation(
+    success = di.container.conversation_store.delete_conversation(
         conversation_id, 
         user["tenantId"]
     )
@@ -480,7 +480,7 @@ def delete_conversation(conversation_id: str, request: Request):
 def get_ingest_status(jobId: str, request: Request):
     """Get ingest job status by jobId."""
     user = getattr(request.state, "user", {"tenantId": "demo", "uid": "dev"})
-    job = container.jobs.get_job(jobId)
+    job = di.container.jobs.get_job(jobId)
     if not job:
         raise HTTPException(404, "Job not found")
     # Enforce tenant/user ownership

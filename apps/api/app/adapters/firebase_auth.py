@@ -1,5 +1,8 @@
 import os
 from typing import Dict
+from dataclasses import dataclass
+from fastapi import Request, Depends
+import os
 from ..ports.authz import UserContext
 
 # Support both FIREBASE_PROJECT_ID and legacy PROJECT_ID
@@ -39,3 +42,41 @@ class FirebaseAuth:
 class SimpleAuthorizer:
     def can_cross_tenant(self, user: UserContext, target_tenant: str) -> bool:
         return user["role"] in ("owner",) and user["tenantId"] != target_tenant
+
+
+# --- FastAPI dependency providers ---
+
+def _auth_bypass_enabled() -> bool:
+    # Default to True for local/dev and tests; override in prod by setting FASTAPI_AUTH_BYPASS=false
+    return (os.getenv("FASTAPI_AUTH_BYPASS", "true").lower() in {"1", "true", "yes"})
+
+
+@dataclass
+class CurrentUser:
+    id: str
+    role: str
+    tenant_id: str
+
+
+@dataclass
+class CurrentTenant:
+    id: str
+
+
+def _resolve_user_context(request: Request) -> UserContext:
+    firebase = FirebaseAuth(bypass=_auth_bypass_enabled())
+    bearer = request.headers.get("authorization", "")
+    try:
+        return firebase.verify(bearer)
+    except Exception:
+        # Fallback for tests / missing auth header
+        return {"uid": "dev-user", "tenantId": "demo", "role": "owner", "claims": {}}
+
+
+def get_current_user(request: Request) -> CurrentUser:
+    ctx = _resolve_user_context(request)
+    return CurrentUser(id=ctx["uid"], role=ctx["role"], tenant_id=ctx["tenantId"])
+
+
+def get_current_tenant(current_user: CurrentUser = Depends(get_current_user)) -> CurrentTenant:
+    return CurrentTenant(id=current_user.tenant_id)

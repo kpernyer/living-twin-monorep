@@ -248,7 +248,7 @@ class CommunicationService extends ChangeNotifier {
   /// Send delivery confirmation
   Future<void> _sendDeliveryConfirmation(String communicationId, DeliveryStatus status) async {
     try {
-      await _apiClient.post('/communication/delivery-confirmation', {
+      await _apiClient.post('/communication/delivery-confirmation', body: {
         'communication_id': communicationId,
         'status': status.toString().split('.').last,
         'timestamp': DateTime.now().toIso8601String(),
@@ -261,7 +261,7 @@ class CommunicationService extends ChangeNotifier {
   /// Mark communication as read
   Future<void> markAsRead(String communicationId) async {
     try {
-      await _apiClient.post('/communication/read-receipt', {
+      await _apiClient.post('/communication/read-receipt', body: {
         'communication_id': communicationId,
         'timestamp': DateTime.now().toIso8601String(),
       });
@@ -280,7 +280,7 @@ class CommunicationService extends ChangeNotifier {
   /// Respond to communication
   Future<void> respondToCommunication(CommunicationResponse response) async {
     try {
-      await _apiClient.post('/communication/respond', response.toJson());
+      await _apiClient.post('/communication/respond', body: response.toJson());
       
       // Store response locally
       _responses[response.communicationId] = response;
@@ -304,7 +304,7 @@ class CommunicationService extends ChangeNotifier {
     bool organizationWide = false,
   }) async {
     try {
-      await _apiClient.post('/communication/send', {
+      await _apiClient.post('/communication/send', body: {
         'recipient_ids': recipientIds,
         'subject': subject,
         'content': content,
@@ -324,7 +324,7 @@ class CommunicationService extends ChangeNotifier {
   /// Update user presence
   Future<void> _updatePresence(bool isActive) async {
     try {
-      await _apiClient.post('/user/presence', {
+      await _apiClient.post('/user/presence', body: {
         'is_active': isActive,
         'timestamp': DateTime.now().toIso8601String(),
       });

@@ -3,6 +3,7 @@ import '../../services/communication_service.dart';
 import '../../services/api_client_enhanced.dart';
 import '../../services/auth.dart';
 import '../../services/local_storage.dart';
+import '../../config/app_config.dart';
 
 class CommunicationScreen extends StatefulWidget {
   const CommunicationScreen({Key? key}) : super(key: key);
@@ -25,7 +26,10 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
   Future<void> _initializeCommunicationService() async {
     try {
       _communicationService = CommunicationService(
-        ApiClientEnhanced(),
+        ApiClientEnhanced(
+          baseUrl: AppConfig.apiUrl,
+          authService: AuthService(),
+        ),
         AuthService(),
         LocalStorageService(),
       );

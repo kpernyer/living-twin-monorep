@@ -274,4 +274,23 @@ class ApiClientEnhanced {
       };
     }
   }
+
+  /// Generic GET request
+  Future<http.Response> get(String endpoint) async {
+    final headers = await _getHeaders();
+    return await http.get(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: headers,
+    );
+  }
+
+  /// Generic POST request
+  Future<http.Response> post(String endpoint, {Map<String, dynamic>? body}) async {
+    final headers = await _getHeaders();
+    return await http.post(
+      Uri.parse('$baseUrl$endpoint'),
+      headers: headers,
+      body: body != null ? jsonEncode(body) : null,
+    );
+  }
 }
