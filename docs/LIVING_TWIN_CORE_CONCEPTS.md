@@ -103,7 +103,7 @@
 
 ## 🔄 **Core Value Proposition**
 
-**"Living Twin transforms how organizations maintain strategic alignment by creating a living conversation between strategy and execution, ensuring that every decision and action is informed by current insights and aligned with organizational goals."**
+> **"Living Twin transforms how organizations maintain strategic alignment by creating a living conversation between strategy and execution, ensuring that every decision and action is informed by current insights and aligned with organizational goals."**
 
 ## 📊 **KPI Framework Integration**
 
@@ -118,6 +118,7 @@ Your system should focus on **strategic KPIs** rather than operational metrics:
 - **Knowledge Currency**: How up-to-date organizational knowledge is
 
 ### **Avoid Operational Metrics:**
+
 - Daily active users
 - Message volume
 - System performance metrics
@@ -126,12 +127,14 @@ Your system should focus on **strategic KPIs** rather than operational metrics:
 ## 🎨 **Naming Convention Strategy**
 
 ### **Keep it Simple:**
+
 - Use familiar business terms
 - Avoid technical jargon
 - Focus on outcomes, not processes
 - Make it intuitive for non-technical users
 
 ### **Examples:**
+
 - ✅ "Strategic Insights" (not "AI-generated intelligence")
 - ✅ "Priority Communications" (not "escalated messages")
 - ✅ "Market Intelligence" (not "external agent monitoring")
@@ -140,24 +143,28 @@ Your system should focus on **strategic KPIs** rather than operational metrics:
 ## 🏗️ **Architecture Principles**
 
 ### **1. Living System Design**
+
 - Continuous learning and adaptation
 - Real-time information processing
 - Dynamic knowledge evolution
 - Contextual intelligence
 
 ### **2. Strategic Focus**
+
 - Goal-oriented design
 - Priority-driven information flow
 - Impact-based escalation
 - Alignment measurement
 
 ### **3. User-Centric Experience**
+
 - Conversational interface
 - Role-based intelligence
 - Progressive disclosure
 - Action-oriented insights
 
 ### **4. Scalable Foundation**
+
 - Multi-tenant architecture
 - Modular component design
 - API-first approach
@@ -166,34 +173,40 @@ Your system should focus on **strategic KPIs** rather than operational metrics:
 ## 🔄 **Core Workflows**
 
 ### **1. Strategic Intelligence Flow**
-```
+
+```mermaid
 External Agents → Market Intelligence → Strategic Truths → Priority Communications → Organizational Action
 ```
 
 ### **2. Goal Alignment Flow**
-```
+
+```mermaid
 Strategic Goals → Tactical Objectives → Individual Actions → Feedback Collection → Goal Refinement
 ```
 
 ### **3. Communication Escalation Flow**
-```
+
+```mermaid
 Insight Generation → Priority Assessment → Communication Delivery → Response Monitoring → Escalation Decision
 ```
 
 ### **4. Knowledge Evolution Flow**
-```
+
+```mermaid
 New Information → Truth Extraction → Knowledge Integration → Context Enhancement → Strategic Memory Update
 ```
 
 ## 🎯 **Success Metrics**
 
 ### **Primary Metrics:**
+
 - **Strategic Alignment Score**: How well organizational actions align with strategic goals
 - **Response Effectiveness**: Rate of appropriate responses to priority communications
 - **Knowledge Currency**: How current and relevant organizational knowledge is
 - **Adaptation Speed**: How quickly the organization adapts to new strategic insights
 
 ### **Secondary Metrics:**
+
 - **Engagement Quality**: Depth of interaction with strategic insights
 - **Communication Efficiency**: Reduction in information overload
 - **Decision Confidence**: User confidence in strategic decisions
@@ -202,18 +215,21 @@ New Information → Truth Extraction → Knowledge Integration → Context Enhan
 ## 🚀 **Implementation Phases**
 
 ### **Phase 1: Foundation**
+
 - Core intelligence system
 - Basic communication escalation
 - Multi-tenant architecture
 - Essential user interface
 
 ### **Phase 2: Intelligence**
+
 - Advanced agent integration
 - Sophisticated truth extraction
 - Enhanced escalation logic
 - Comprehensive reporting
 
 ### **Phase 3: Optimization**
+
 - Machine learning integration
 - Predictive intelligence
 - Advanced analytics
@@ -229,16 +245,19 @@ New Information → Truth Extraction → Knowledge Integration → Context Enhan
 ## 🎯 **Key Questions to Address**
 
 ### **Strategic Questions:**
+
 - What specific strategic alignment problems are we solving?
 - How do we measure the success of strategic alignment?
 - What makes our approach different from existing solutions?
 
 ### **Technical Questions:**
+
 - How do we ensure the system remains "living" and adaptive?
 - What level of intelligence is appropriate for different user roles?
 - How do we balance automation with human judgment?
 
 ### **Business Questions:**
+
 - What is the value proposition for different organizational roles?
 - How do we demonstrate ROI for strategic alignment?
 - What is the competitive advantage of our approach?

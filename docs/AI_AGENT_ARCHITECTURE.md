@@ -9,12 +9,14 @@ The Living Twin AI Agent system provides a plug-and-play architecture for runnin
 ### 1. Domain Models (`agent_models.py`)
 
 **Core Models:**
+
 - `Agent`: Main agent entity with configuration and status
 - `AgentConfig`: Configuration for agent behavior and sources
 - `AgentResult`: Results from agent executions
 - `AgentExecution`: Execution records for monitoring and debugging
 
 **Enums:**
+
 - `AgentType`: `TENANT_SPECIFIC` or `SHARED`
 - `AgentStatus`: `ACTIVE`, `INACTIVE`, `ERROR`, `RUNNING`
 - `AgentCapability`: Various capabilities like news monitoring, trend analysis, etc.
@@ -22,16 +24,19 @@ The Living Twin AI Agent system provides a plug-and-play architecture for runnin
 ### 2. Agent Implementations (`agents.py`)
 
 **Base Classes:**
+
 - `BaseAgent`: Abstract base class for all agents
 - `AgentFactory`: Factory for creating agent instances
 
 **Concrete Implementations:**
+
 - `NewsMonitoringAgent`: Monitors news using free APIs and RSS feeds
 - `TechnologyTrendsAgent`: Shared agent for global technology trends
 
 ### 3. Agent Service (`agent_service.py`)
 
 **Key Features:**
+
 - Agent lifecycle management (create, update, delete, activate/deactivate)
 - Scheduled execution with configurable frequencies
 - Health monitoring and metrics
@@ -41,6 +46,7 @@ The Living Twin AI Agent system provides a plug-and-play architecture for runnin
 ### 4. API Layer (`routers/agents.py`)
 
 **Endpoints:**
+
 - `POST /agents/` - Create new agent
 - `GET /agents/` - List agents (tenant-specific + shared)
 - `PUT /agents/{id}` - Update agent
@@ -53,6 +59,7 @@ The Living Twin AI Agent system provides a plug-and-play architecture for runnin
 ### 5. Worker System (`workers/agent_worker.py`)
 
 **Isolation Mode:**
+
 - Runs agents in separate Cloud Run jobs
 - Environment-based configuration
 - Graceful shutdown handling
@@ -188,6 +195,7 @@ AGENT_ID=agent-123 TENANT_ID=tenant-123 python -m app.workers.agent_worker
 The system includes built-in free news sources:
 
 ### General News
+
 - BBC News RSS
 - CNN RSS
 - Reuters RSS
@@ -195,6 +203,7 @@ The system includes built-in free news sources:
 - NPR RSS
 
 ### Technology News
+
 - TechCrunch RSS
 - Wired RSS
 - Ars Technica RSS
@@ -204,6 +213,7 @@ The system includes built-in free news sources:
 ## Health Monitoring
 
 ### Metrics Tracked
+
 - Success rate (last 7 days)
 - Average execution time
 - Error count
@@ -211,15 +221,19 @@ The system includes built-in free news sources:
 - Next scheduled run
 
 ### Health Status
+
 - **Healthy**: Active + success rate ≥ 80% + error count < 3
 - **Unhealthy**: Any issues detected
 
 ### Health Check Endpoint
+
 ```bash
+
 GET /agents/{agent_id}/health
 ```
 
 Response:
+
 ```json
 {
   "agent_id": "agent-123",
@@ -239,6 +253,7 @@ Response:
 ### Adding New Agent Types
 
 1. **Create Agent Implementation**:
+
 ```python
 class CustomAgent(BaseAgent):
     def get_capabilities(self) -> List[AgentCapability]:
@@ -253,7 +268,8 @@ class CustomAgent(BaseAgent):
         return results
 ```
 
-2. **Add to Factory**:
+1. **Add to Factory**:
+
 ```python
 @staticmethod
 def create_agent(agent: Agent) -> BaseAgent:
@@ -264,7 +280,8 @@ def create_agent(agent: Agent) -> BaseAgent:
     # ... existing logic
 ```
 
-3. **Add Capability Enum**:
+1. **Add Capability Enum**:
+
 ```python
 class AgentCapability(str, Enum):
     CUSTOM_CAPABILITY = "custom_capability"
@@ -273,13 +290,15 @@ class AgentCapability(str, Enum):
 ### Adding New Data Sources
 
 1. **Extend Agent Implementation**:
+
 ```python
 async def _fetch_custom_source(self) -> List[AgentResult]:
     # Implement custom source fetching
     return results
 ```
 
-2. **Add to Configuration**:
+1. **Add to Configuration**:
+
 ```python
 custom_sources: List[str] = [
     "https://custom-source.com/feed",
@@ -321,17 +340,20 @@ gcloud run deploy living-twin-agent-worker \
 ## Monitoring and Observability
 
 ### Logging
+
 - Structured logging with correlation IDs
 - Agent execution logs
 - Error tracking and alerting
 
 ### Metrics
+
 - Execution success/failure rates
 - Response times
 - Resource utilization
 - Result counts
 
 ### Alerts
+
 - Agent health degradation
 - High error rates
 - Execution timeouts
@@ -340,16 +362,19 @@ gcloud run deploy living-twin-agent-worker \
 ## Security Considerations
 
 ### Tenant Isolation
+
 - Agents can only access their tenant's data
 - Shared agents have no tenant context
 - API-level tenant validation
 
 ### API Key Management
+
 - Secure storage of external API keys
 - Rotation capabilities
 - Usage monitoring
 
 ### Data Privacy
+
 - Result filtering by tenant
 - Data retention policies
 - Audit logging
@@ -357,16 +382,19 @@ gcloud run deploy living-twin-agent-worker \
 ## Performance Optimization
 
 ### Caching
+
 - Agent results cached in memory
 - Configurable retention periods
 - Query result caching
 
 ### Concurrency
+
 - Configurable concurrent executions
 - Resource limits per agent
 - Queue management
 
 ### Scaling
+
 - Horizontal scaling via Cloud Run
 - Auto-scaling based on demand
 - Resource allocation optimization
