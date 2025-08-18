@@ -3,3 +3,6 @@ apps/admin_web/node_modules
 apps/mobile/ios/Pods
 apps/mobile/macos/Pods
 docs/CONVERSATIONAL_EVOLUTION_GUIDE.md
+
+# Ignore presentation files (Marp presentations with specific formatting)
+presentations/*.md
