@@ -204,16 +204,10 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   }
 
   Future<void> _saveMessageLocally(String question, String answer) async {
-    final message = {
-      'id': DateTime.now().millisecondsSinceEpoch.toString(),
-      'question': question,
-      'answer': answer,
-      'timestamp': DateTime.now().millisecondsSinceEpoch,
-      'is_synced': false,
-      'is_local': true,
-    };
-    
-    await _storage.saveChatMessage(message);
+    await _storage.saveChatMessage(
+      question: question,
+      answer: answer,
+    );
   }
 
   void _listen() async {
