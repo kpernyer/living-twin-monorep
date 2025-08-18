@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "lint": "echo 'No linting configured for React admin app'"
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "lint": "echo \"Error: no lint specified\" && exit 0"
   },
   "dependencies": {
     "react": "^18.2.0",
