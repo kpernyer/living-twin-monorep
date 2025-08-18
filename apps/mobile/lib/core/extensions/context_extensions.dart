@@ -227,7 +227,7 @@ extension ContextX on BuildContext {
     double? desktopScale,
   }) {
     final scale = responsive<double>(
-      mobile: 1.0,
+      mobile: 1,
       tablet: tabletScale ?? 1.1,
       desktop: desktopScale ?? 1.2,
     );

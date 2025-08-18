@@ -17,11 +17,9 @@ class AuthSuccess extends AuthResult {
   const AuthSuccess({
     required this.uid,
     required this.email,
-    this.displayName,
-    required this.token,
+    required this.token, required this.isAnonymous, this.displayName,
     this.organizationId,
     this.organization,
-    required this.isAnonymous,
   });
 }
 

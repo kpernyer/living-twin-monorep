@@ -102,7 +102,7 @@ class OrganizationInvitation with _$OrganizationInvitation {
 }
 
 /// Helper functions for DateTime serialization
-DateTime? _dateTimeFromJson(dynamic json) {
+DateTime? _dateTimeFromJson(json) {
   if (json == null) return null;
   if (json is String) return DateTime.parse(json);
   if (json is int) return DateTime.fromMillisecondsSinceEpoch(json);

@@ -70,8 +70,7 @@ class ApiError<T> extends ApiResult<T> {
   
   const ApiError({
     required this.message,
-    this.statusCode,
-    required this.type,
+    required this.type, this.statusCode,
     this.details,
   });
   

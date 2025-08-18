@@ -10,6 +10,7 @@ import {
   User,
 } from 'firebase/auth'
 import { auth } from '../../shared/firebase.ts'
+import { setUser as setSentryUser, setOrganization as setSentryOrganization, addBreadcrumb, captureException } from '../../core/error/sentry'
 
 interface Organization {
   id: string
@@ -224,6 +225,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const signInWithEmail = async (email: string, password: string) => {
     try {
+      // Add breadcrumb for authentication attempt
+      addBreadcrumb({
+        message: 'User attempting to sign in',
+        category: 'authentication',
+        data: { email, method: 'email_password' },
+      })
+
       const result = await signInWithEmailAndPassword(auth, email, password)
 
       // Check for organization binding
@@ -233,8 +241,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
         localStorage.setItem(`org_${result.user.uid}`, JSON.stringify(org))
       }
 
+      // Set user context in Sentry
+      setSentryUser({
+        id: result.user.uid,
+        email: result.user.email || undefined,
+        username: result.user.displayName || undefined,
+        organization: org?.id,
+      })
+
+      if (org) {
+        setSentryOrganization(org.id)
+      }
+
+      // Add success breadcrumb
+      addBreadcrumb({
+        message: 'User successfully signed in',
+        category: 'authentication',
+        data: { user_id: result.user.uid, organization: org?.id },
+      })
+
       return { success: true, user: result.user, organization: org }
     } catch (error) {
+      // Track authentication errors
+      captureException(error as Error, {
+        extras: {
+          operation: 'sign_in_email_password',
+          email,
+        },
+        tags: { feature: 'authentication' },
+      })
+
       return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }

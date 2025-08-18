@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../core/error/sentry_config.dart';
 
 class AuthService {
   static const String _userKey = 'user_data';
@@ -16,14 +17,38 @@ class AuthService {
 
   // Initialize auth service
   Future<void> initialize() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userData = prefs.getString(_userKey);
-    final token = prefs.getString(_tokenKey);
-    
-    if (userData != null) {
-      _currentUser = jsonDecode(userData);
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final userData = prefs.getString(_userKey);
+      final token = prefs.getString(_tokenKey);
+      
+      if (userData != null) {
+        _currentUser = jsonDecode(userData);
+        _authToken = token;
+        
+        // Set user context in Sentry if authenticated
+        if (isAuthenticated) {
+          SentryConfig.setUser(
+            id: _currentUser!['uid'],
+            email: _currentUser!['email'],
+            username: _currentUser!['displayName'],
+          );
+          
+          if (_currentUser!['tenantId'] != null) {
+            SentryConfig.setOrganization(_currentUser!['tenantId']);
+          }
+        }
+      }
+    } catch (e, stackTrace) {
+      // Track initialization errors
+      await SentryConfig.captureException(
+        e,
+        stackTrace: stackTrace,
+        extras: {'operation': 'auth_initialize'},
+        tags: {'feature': 'authentication'},
+      );
+      rethrow;
     }
-    _authToken = token;
   }
 
   // Check if user is authenticated
@@ -78,6 +103,13 @@ class AuthService {
     required String password,
   }) async {
     try {
+      // Add breadcrumb for authentication attempt
+      SentryConfig.addBreadcrumb(
+        message: 'User attempting to sign in',
+        category: 'authentication',
+        data: {'email': email, 'method': 'email_password'},
+      );
+
       // Simple validation for demo
       if (email.isEmpty || password.isEmpty) {
         throw Exception('Email and password are required');
@@ -121,13 +153,42 @@ class AuthService {
       _currentUser = mockUser;
       _authToken = mockToken;
 
+      // Set user context in Sentry
+      SentryConfig.setUser(
+        id: mockUser['uid'],
+        email: mockUser['email'],
+        username: mockUser['displayName'],
+      );
+      
+      if (organization != null) {
+        SentryConfig.setOrganization(organization['id']);
+      }
+
+      // Add success breadcrumb
+      SentryConfig.addBreadcrumb(
+        message: 'User successfully signed in',
+        category: 'authentication',
+        data: {'user_id': mockUser['uid'], 'organization': organization?['id']},
+      );
+
       return {
         'success': true,
         'user': mockUser,
         'token': mockToken,
         'organization': organization,
       };
-    } catch (e) {
+    } catch (e, stackTrace) {
+      // Track authentication errors
+      await SentryConfig.captureException(
+        e,
+        stackTrace: stackTrace,
+        extras: {
+          'operation': 'sign_in_email_password',
+          'email': email,
+        },
+        tags: {'feature': 'authentication'},
+      );
+
       return {
         'success': false,
         'error': e.toString(),

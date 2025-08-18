@@ -274,7 +274,7 @@ mixin CategorizedErrorMixin<T extends StatefulWidget> on State<T> {
   /// Validate multiple fields
   @protected
   bool validateFields(Map<String, String? Function(String?)> validators, Map<String, String?> values) {
-    bool isValid = true;
+    var isValid = true;
     
     validators.forEach((field, validator) {
       final value = values[field];

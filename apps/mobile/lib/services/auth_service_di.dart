@@ -92,7 +92,7 @@ class AuthServiceDI {
       _authToken = token;
       
       return AuthSuccess(
-        uid: userData['uid'] as String,
+        uid: userData['uid']! as String,
         email: email,
         displayName: userData['displayName'] as String?,
         token: token,

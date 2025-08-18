@@ -3,7 +3,7 @@ marp: true
 theme: tech-solution
 title: "Living Twin: System Management"
 author: "The Living Twin Team"
-date: "2025-08-16"
+date: "2025-01-16"
 footer: <span class="title">Living Twin: System Management</span><span class="pagenumber"></span><span class="copyright">© 2025 Living Twin</span>
 ---
 
@@ -12,95 +12,199 @@ footer: <span class="title">Living Twin: System Management</span><span class="pa
 ![Logo](img/big-logo.jpeg)
 
 # **Living Twin**
-## System Management
-<div class="date">August 16, 2025</div>
+## System Management & Monitoring
+<div class="date">January 16, 2025</div>
 
 ---
 
-## Development Workflow with `uv`
+## Development Workflow with Modern Tools
 
-The development workflow is streamlined using a `Makefile` and `uv` for a fast and efficient experience.
+The development workflow is streamlined using modern tools for fast and efficient development.
 
-- **`uv` for Python**: We use `uv`, a next-generation Python package manager, to handle dependencies, virtual environments, and run scripts. This results in a significant speedup in CI/CD and local setup.
-- **`make docker-up`**: Starts the local development environment using Docker Compose.
-- **`make api-dev`**: Runs the FastAPI backend in development mode with hot reloading, powered by `uv`.
-- **`make web-dev`**: Runs the React admin web application in development mode.
-- **`make lint`**: Runs linters for Python, JavaScript, and Flutter code.
-- **`make test`**: Executes the test suite for all applications.
+- **`uv` for Python**: Next-generation Python package manager for fast dependency management
+- **`pnpm` for Web**: Fast, disk-efficient package manager for React applications
+- **`flutter` for Mobile**: Cross-platform development with hot reload
+- **`make` commands**: Simplified development commands for all services
+- **Docker Compose**: Local development environment with all services
 
 ---
 
 ## Infrastructure as Code with Terraform
 
-The entire cloud infrastructure is managed using Terraform, ensuring a consistent and reproducible environment.
+The entire cloud infrastructure is managed using Terraform, ensuring consistency and reproducibility.
 
-- **`terraform-plan`**: Plans infrastructure changes for a specific environment.
-- **`terraform-apply`**: Applies infrastructure changes to a specific environment.
-- **`terraform-destroy`**: Destroys the infrastructure for a specific environment.
-
-The Terraform configuration is organized into modules for reusability and clarity.
+- **Multi-environment Support**: Separate configurations for dev, staging, and production
+- **Google Cloud Platform**: Cloud Run, Secret Manager, Pub/Sub, and more
+- **Security by Design**: Non-root containers, HTTPS enforcement, vulnerability scanning
+- **Cost Optimization**: Auto-scaling with scale-to-zero capabilities
+- **Secret Management**: Google Secret Manager for secure credential storage
 
 ---
 
 ## CI/CD Pipeline with GitHub Actions
 
-A robust CI/CD pipeline is implemented using GitHub Actions to automate the testing and deployment process.
+A comprehensive CI/CD pipeline automates testing, building, and deployment.
 
-- **Automated Testing**: Linting, type checking, and unit tests are run on every push.
-- **Multi-environment Deployment**: Automated deployment to staging and production environments.
-- **Security Scanning**: Trivy is used to scan for vulnerabilities in Docker images.
-- **Performance Testing**: k6 is used for load testing the application.
-- **Notifications**: Deployment status is sent to the organization's communication platform.
+- **Multi-stage Testing**: Linting, type checking, unit tests, and integration tests
+- **Security Scanning**: Trivy vulnerability scanning on all Docker images
+- **Performance Testing**: k6 load testing for API endpoints
+- **Multi-environment Deployment**: Automated staging and production deployments
+- **Health Checks**: Automated rollback on deployment failures
+- **Cost Monitoring**: Built-in cost analysis and optimization
 
 ---
 
-## External Dependencies
+## Monitoring & Observability
 
-The system relies on several external services and APIs:
+Comprehensive monitoring and error tracking across all applications.
 
-- **Google Cloud Platform**: For hosting, database, storage, and other cloud services.
-- **OpenAI API**: For natural language processing and generation.
-- **Firebase**: For authentication and real-time database.
-- **GitHub**: For source code management and CI/CD.
-- **Communication Platforms**: For notifications.
+- **GlitchTip (Sentry-compatible)**: Full-stack error tracking and crash reporting
+- **User Context Tracking**: Associate errors with specific users and organizations
+- **Performance Monitoring**: Custom metrics and performance tracking
+- **Health Checks**: Automated health monitoring for all services
+- **Alerting**: Real-time notifications for critical issues
+- **Breadcrumb Tracking**: Debug user workflows and error contexts
+
+---
+
+## Security Architecture
+
+Enterprise-grade security with multiple layers of protection.
+
+- **Authentication**: Firebase Auth with JWT tokens and custom claims
+- **Authorization**: Role-based access control with multi-tenant isolation
+- **Data Protection**: TLS encryption, input validation, SQL injection protection
+- **Infrastructure Security**: Non-root containers, HTTPS enforcement, vulnerability scanning
+- **Secret Management**: Environment variables and Google Secret Manager
+- **Audit Logging**: Comprehensive audit trails for compliance
+
+---
+
+## External Dependencies & Integrations
+
+The system integrates with various external services and APIs.
+
+- **Google Cloud Platform**: Hosting, database, storage, and cloud services
+- **OpenAI API**: Natural language processing and generation
+- **Firebase**: Authentication and real-time database
+- **Neo4j**: Graph database for knowledge management
+- **GitHub**: Source code management and CI/CD
+- **Communication Platforms**: Email and notification services
 
 ---
 
 ## Configuration Management
 
-A clear strategy is in place for managing environment-specific configurations.
+Comprehensive configuration management across all environments.
 
-- **Environment Variables**: Used to store sensitive information and environment-specific settings.
-- **`.env` files**: Used for local development to store environment variables.
-- **Google Secret Manager**: Used to store secrets for staging and production environments.
-- **Configuration Files**: Separate configuration files for different environments.
-
----
-
-## Monitoring with Prometheus
-
-For advanced monitoring and alerting, the system is geared up to integrate with Prometheus.
-
-- **Metrics Exposition**: The FastAPI backend can be configured to expose Prometheus metrics.
-- **Dashboards**: Create Grafana dashboards to visualize key application and system metrics.
-- **Alerting**: Set up alerting rules in Prometheus to get notified of any issues.
+- **Environment Variables**: Secure storage of sensitive configuration
+- **Local Development**: `.env` files for local development
+- **Production Secrets**: Google Secret Manager for production environments
+- **Multi-environment**: Separate configurations for dev, staging, and production
+- **Type Safety**: Pydantic models for configuration validation
 
 ---
 
-## Ticketing System Integration
+## Error Tracking & Debugging
 
-The system can be integrated with ticketing systems like Jira and Linear to streamline workflows.
+Advanced error tracking and debugging capabilities.
 
-- **MCP Servers**: Standard MCP servers can be used to connect to Jira and Linear APIs.
-- **Automated Ticket Creation**: Automatically create tickets for issues, tasks, or user feedback.
-- **Two-way Sync**: Keep the system in sync with the ticketing system for real-time updates.
+- **Full-stack Monitoring**: Error tracking for web, mobile, and API applications
+- **User Context**: Associate errors with users, organizations, and actions
+- **Performance Insights**: Track application performance and bottlenecks
+- **Custom Error Capture**: Manual error reporting for business logic
+- **Breadcrumb Tracking**: Debug user workflows leading to errors
+- **Sensitive Data Filtering**: Automatic removal of sensitive information
 
 ---
 
-## Data Ingestion with Firecrawl and Puppeteer
+## Performance & Scalability
 
-To enhance the knowledge base of the system, we can use Firecrawl and Puppeteer for data ingestion.
+Optimized performance and scalable architecture.
 
-- **Firecrawl**: An open-source tool to crawl, scrape, and convert websites into LLM-ready data.
-- **Puppeteer**: A Node.js library to control a headless Chrome or Chromium browser for web scraping and automation.
-- **Automated Data Ingestion**: Set up automated pipelines to ingest data from various web sources.
+- **Auto-scaling**: Cloud Run auto-scaling based on demand
+- **Caching Strategy**: Multi-level caching (memory, Redis, CDN)
+- **Database Optimization**: Neo4j vector indexes and query optimization
+- **Load Balancing**: Geographic traffic distribution
+- **Performance Monitoring**: Real-time performance metrics and alerts
+- **Cost Optimization**: Scale-to-zero for cost efficiency
+
+---
+
+## Data Management & Storage
+
+Comprehensive data management and storage solutions.
+
+- **Multi-modal Storage**: Neo4j (graph), Firestore (document), Cloud Storage (files)
+- **Vector Search**: Native Neo4j vector indexes for semantic search
+- **Document Processing**: PDF, DOCX, and text document ingestion
+- **Data Retention**: Configurable data retention policies
+- **Backup Strategy**: Automated backups and disaster recovery
+- **Multi-tenant Isolation**: Complete data isolation between organizations
+
+---
+
+## Development Experience
+
+Modern development experience with comprehensive tooling.
+
+- **Hot Reload**: Live code updates for all applications
+- **Type Safety**: TypeScript, Dart, and Python type checking
+- **Code Quality**: ESLint, Prettier, Flutter Lints, Black, isort
+- **Testing**: Unit tests, integration tests, and E2E testing
+- **Documentation**: Comprehensive documentation and guides
+- **Debugging**: Advanced debugging tools and error tracking
+
+---
+
+## Production Readiness
+
+Production-ready platform with enterprise features.
+
+- **High Availability**: Multi-region deployment and failover
+- **Security Compliance**: Enterprise-grade security and compliance
+- **Monitoring**: Comprehensive monitoring and alerting
+- **Scalability**: Auto-scaling and performance optimization
+- **Cost Management**: Cost monitoring and optimization
+- **Support**: Documentation, guides, and troubleshooting tools
+
+---
+
+## Future Roadmap
+
+Planned enhancements and new features.
+
+- **Advanced AI Agents**: More sophisticated organizational simulation
+- **Real-time Collaboration**: Live document editing and commenting
+- **Advanced Integrations**: More third-party system connections
+- **Mobile Enhancement**: Full feature parity with web application
+- **Advanced Analytics**: Custom business intelligence dashboards
+- **Performance Optimization**: Advanced caching and optimization
+
+---
+
+## Getting Started
+
+Quick start guide for developers and operators.
+
+```bash
+# Clone and setup
+git clone https://github.com/your-org/living-twin-monorepo.git
+cd living-twin-monorepo
+make dev-setup
+
+# Start development environment
+make dev-full
+
+# Deploy to production
+make tf-apply-prod
+
+# Monitor applications
+make logs-api PROJECT=your-project
+```
+
+**Access Points:**
+- **Web App**: http://localhost:5173
+- **API**: http://localhost:8000
+- **Mobile**: `flutter run`
+- **Monitoring**: GlitchTip dashboard

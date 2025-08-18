@@ -31,6 +31,13 @@ dependencies:
   # Dependency injection
   get_it: ^7.6.4
   injectable: ^2.3.2
+  # Security & Performance
+  flutter_secure_storage: ^9.0.0
+  dio: ^5.4.0
+  retry: ^3.1.2
+  rxdart: ^0.27.7
+  # Crash reporting
+  sentry_flutter: ^7.14.0
 
 dev_dependencies:
   flutter_test:

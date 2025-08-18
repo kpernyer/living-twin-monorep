@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'config/app_config.dart';
+import 'core/error/sentry_config.dart';
 import 'features/auth/login_screen.dart';
 import 'features/chat/chat_screen.dart';
 import 'features/home/home_screen.dart';
@@ -9,6 +10,9 @@ import 'services/auth.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Sentry for crash reporting
+  await SentryConfig.init();
   
   // Initialize auth service
   await AuthService().initialize();

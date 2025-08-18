@@ -53,7 +53,7 @@ mixin LoadingMixin<T extends StatefulWidget> on State<T> {
         children: [
           child,
           Positioned.fill(
-            child: Container(
+            child: ColoredBox(
               color: Colors.black.withOpacity(0.3),
               child: loadingWidget ?? const Center(child: CircularProgressIndicator()),
             ),
@@ -76,7 +76,7 @@ mixin LoadingMixin<T extends StatefulWidget> on State<T> {
         child,
         if (isLoading)
           Positioned.fill(
-            child: Container(
+            child: ColoredBox(
               color: overlayColor ?? Colors.black.withOpacity(0.5),
               child: Center(
                 child: loadingIndicator ?? 
@@ -131,7 +131,7 @@ mixin MultiLoadingMixin<T extends StatefulWidget> on State<T> {
   @protected
   void clearAllLoading() {
     if (mounted) {
-      setState(() => _loadingStates.clear());
+      setState(_loadingStates.clear);
     }
   }
   

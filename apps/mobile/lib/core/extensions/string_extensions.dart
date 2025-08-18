@@ -12,9 +12,9 @@ extension StringX on String {
     // At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
     if (length < 8) return false;
     
-    final hasUpperCase = contains(RegExp(r'[A-Z]'));
-    final hasLowerCase = contains(RegExp(r'[a-z]'));
-    final hasDigit = contains(RegExp(r'[0-9]'));
+    final hasUpperCase = contains(RegExp('[A-Z]'));
+    final hasLowerCase = contains(RegExp('[a-z]'));
+    final hasDigit = contains(RegExp('[0-9]'));
     final hasSpecialChar = contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
     
     return hasUpperCase && hasLowerCase && hasDigit && hasSpecialChar;
@@ -24,10 +24,10 @@ extension StringX on String {
   bool get isMediumPassword {
     if (length < 6) return false;
     
-    int criteriaCount = 0;
-    if (contains(RegExp(r'[A-Z]'))) criteriaCount++;
-    if (contains(RegExp(r'[a-z]'))) criteriaCount++;
-    if (contains(RegExp(r'[0-9]'))) criteriaCount++;
+    var criteriaCount = 0;
+    if (contains(RegExp('[A-Z]'))) criteriaCount++;
+    if (contains(RegExp('[a-z]'))) criteriaCount++;
+    if (contains(RegExp('[0-9]'))) criteriaCount++;
     if (contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) criteriaCount++;
     
     return criteriaCount >= 2;
@@ -178,9 +178,9 @@ extension StringX on String {
   /// Converts camelCase to snake_case
   String get toSnakeCase {
     return replaceAllMapped(
-      RegExp(r'[A-Z]'),
+      RegExp('[A-Z]'),
       (match) => '_${match.group(0)!.toLowerCase()}',
-    ).replaceFirst(RegExp(r'^_'), '');
+    ).replaceFirst(RegExp('^_'), '');
   }
   
   /// Converts snake_case to camelCase
