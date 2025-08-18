@@ -14,5 +14,9 @@ export const auth = getAuth(app)
 if (import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_HOST) {
   const host = import.meta.env.VITE_FIREBASE_AUTH_EMULATOR_HOST
   const url = host.startsWith('http') ? host : `http://${host}`
-  try { connectAuthEmulator(auth, url) } catch {}
+  try { 
+    connectAuthEmulator(auth, url) 
+  } catch {
+    // Ignore connection errors
+  }
 }
