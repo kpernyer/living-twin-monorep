@@ -118,6 +118,8 @@ class AppCfg:
     rag_only: bool
     llm_provider: str  # "openai" | "ollama" | "stub"
     local_embeddings: bool
+    use_local_mock: bool
+    local_data_dir: str
 
     # Providers
     neo4j: Neo4jCfg
@@ -167,6 +169,8 @@ def load_config() -> AppCfg:
     local_embeddings = _env_bool("LOCAL_EMBEDDINGS", default=False)
     llm_provider = os.getenv("LLM_PROVIDER", "openai").lower()
     async_ingest = _env_bool("ASYNC_INGEST", default=False)
+    use_local_mock = _env_bool("USE_LOCAL_MOCK", default=s.use_local_mock)
+    local_data_dir = s.local_data_dir
 
     # Decide active embedding dimensions based on embedder
     active_dims = local.embedding_dimensions if local_embeddings else openai.embedding_dimensions
@@ -178,6 +182,8 @@ def load_config() -> AppCfg:
         rag_only=rag_only,
         llm_provider=llm_provider,
         local_embeddings=local_embeddings,
+        use_local_mock=use_local_mock,
+        local_data_dir=local_data_dir,
         neo4j=neo4j,
         openai=openai,
         local=local,

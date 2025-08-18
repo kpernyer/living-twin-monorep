@@ -1,12 +1,14 @@
 import os
-import pytest
-from fastapi.testclient import TestClient
-from app.main import app
 
-# Set test environment
+# Set test environment BEFORE any imports
 os.environ.setdefault("BYPASS_AUTH", "true")
 os.environ.setdefault("USE_LOCAL_MOCK", "true")
 os.environ.setdefault("LOCAL_EMBEDDINGS", "true")
+os.environ.setdefault("LLM_PROVIDER", "stub")  # Use stub LLM for tests
+
+import pytest
+from fastapi.testclient import TestClient
+from app.main import app
 
 client = TestClient(app)
 
