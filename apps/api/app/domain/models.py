@@ -1,12 +1,14 @@
 """Domain models for the Living Twin application."""
 
-from typing import Optional, List, Dict, Any
 from datetime import datetime
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel
 
 
 class Document(BaseModel):
     """Document model representing ingested content."""
+
     id: str
     title: str
     content: str
@@ -19,6 +21,7 @@ class Document(BaseModel):
 
 class Source(BaseModel):
     """Source model representing document sources."""
+
     id: str
     name: str
     type: str  # file, url, api, etc.
@@ -30,6 +33,7 @@ class Source(BaseModel):
 
 class Goal(BaseModel):
     """Goal model representing user objectives."""
+
     id: str
     title: str
     description: str
@@ -42,6 +46,7 @@ class Goal(BaseModel):
 
 class User(BaseModel):
     """User model."""
+
     id: str
     email: str
     name: Optional[str] = None
@@ -53,6 +58,7 @@ class User(BaseModel):
 
 class Tenant(BaseModel):
     """Tenant model for multi-tenancy."""
+
     id: str
     name: str
     domain: Optional[str] = None
@@ -64,6 +70,7 @@ class Tenant(BaseModel):
 
 class QueryRequest(BaseModel):
     """Request model for RAG queries."""
+
     query: str
     tenant_id: str
     user_id: str
@@ -73,6 +80,7 @@ class QueryRequest(BaseModel):
 
 class QueryResponse(BaseModel):
     """Response model for RAG queries."""
+
     answer: str
     sources: List[Document]
     confidence: Optional[float] = None
@@ -83,6 +91,7 @@ class QueryResponse(BaseModel):
 
 class ConversationMessage(BaseModel):
     """Message within a conversation."""
+
     id: str
     conversation_id: str
     role: str  # "user" | "assistant"
@@ -93,6 +102,7 @@ class ConversationMessage(BaseModel):
 
 class Conversation(BaseModel):
     """Conversation model for multi-turn interactions."""
+
     id: str
     tenant_id: str
     user_id: str
@@ -105,6 +115,7 @@ class Conversation(BaseModel):
 
 class ConversationalQueryRequest(BaseModel):
     """Request model for conversational RAG queries."""
+
     conversation_id: Optional[str] = None  # None for new conversation
     query: str
     tenant_id: str

@@ -1,19 +1,22 @@
 """AI Agent domain models for the Living Twin application."""
 
-from typing import Optional, List, Dict, Any, Union
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field
 
 
 class AgentType(str, Enum):
     """Types of AI agents."""
+
     TENANT_SPECIFIC = "tenant_specific"
     SHARED = "shared"
 
 
 class AgentStatus(str, Enum):
     """Agent status."""
+
     ACTIVE = "active"
     INACTIVE = "inactive"
     ERROR = "error"
@@ -22,6 +25,7 @@ class AgentStatus(str, Enum):
 
 class AgentCapability(str, Enum):
     """Agent capabilities."""
+
     NEWS_MONITORING = "news_monitoring"
     TREND_ANALYSIS = "trend_analysis"
     COMPETITOR_TRACKING = "competitor_tracking"
@@ -32,6 +36,7 @@ class AgentCapability(str, Enum):
 
 class AgentConfig(BaseModel):
     """Configuration for an AI agent."""
+
     keywords: List[str] = Field(default_factory=list, max_items=10)
     sources: List[str] = Field(default_factory=list)
     update_frequency_minutes: int = Field(default=60, ge=5)
@@ -44,6 +49,7 @@ class AgentConfig(BaseModel):
 
 class Agent(BaseModel):
     """AI Agent model."""
+
     id: str
     name: str
     description: str
@@ -61,6 +67,7 @@ class Agent(BaseModel):
 
 class AgentExecution(BaseModel):
     """Agent execution record."""
+
     id: str
     agent_id: str
     tenant_id: Optional[str] = None
@@ -75,6 +82,7 @@ class AgentExecution(BaseModel):
 
 class AgentResult(BaseModel):
     """Result from an agent execution."""
+
     id: str
     agent_id: str
     execution_id: str
@@ -93,6 +101,7 @@ class AgentResult(BaseModel):
 
 class AgentRequest(BaseModel):
     """Request to create or update an agent."""
+
     name: str
     description: str
     agent_type: AgentType
@@ -103,6 +112,7 @@ class AgentRequest(BaseModel):
 
 class AgentExecutionRequest(BaseModel):
     """Request to execute an agent."""
+
     agent_id: str
     tenant_id: Optional[str] = None
     force_run: bool = False
@@ -111,6 +121,7 @@ class AgentExecutionRequest(BaseModel):
 
 class AgentResultQuery(BaseModel):
     """Query for agent results."""
+
     agent_id: Optional[str] = None
     tenant_id: Optional[str] = None
     agent_type: Optional[AgentType] = None
@@ -123,6 +134,7 @@ class AgentResultQuery(BaseModel):
 
 class AgentHealthCheck(BaseModel):
     """Agent health check result."""
+
     agent_id: str
     status: AgentStatus
     last_run: Optional[datetime] = None

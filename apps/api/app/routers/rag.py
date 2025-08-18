@@ -1,20 +1,29 @@
-from fastapi import APIRouter, Request, HTTPException, UploadFile, File, Form, status, Query
+import os
+import tempfile
+from typing import Any, Dict, List, Optional
+
+from fastapi import APIRouter, File, Form, HTTPException, Query, Request, UploadFile
 from pydantic import BaseModel, Field
-from typing import Optional, List, Dict, Any
+
 from .. import di
 from ..config import load_config
-from ..domain.models import QueryRequest, QueryResponse, ConversationalQueryRequest
-import tempfile
-import os
+from ..domain.models import (
+    ConversationalQueryRequest,
+    ConversationsResponseSchema,
+    QueryRequest,
+)
 
 # All RAG-related routes are grouped under the /query prefix
 router = APIRouter(prefix="/query")
+
 
 # Request/Response Schemas
 class QueryRequestSchema(BaseModel):
     question: str = Field(..., description="The question to ask")
     k: int = Field(5, ge=1, le=20, description="Number of context chunks to retrieve")
-    tenantId: Optional[str] = Field(None, description="Target tenant ID (defaults to user's tenant)")
+    tenantId: Optional[str] = Field(
+        None, description="Target tenant ID (defaults to user's tenant)"
+    )
 
 
 class QueryResponseSchema(BaseModel):
@@ -78,10 +87,6 @@ class ConversationSchema(BaseModel):
     messageCount: int = Field(..., description="Number of messages")
 
 
-class ConversationsResponseSchema(BaseModel):
-    conversations: List[ConversationSchema] = Field(..., description="List of conversations")
-
-
 class MessageSchema(BaseModel):
     id: str = Field(..., description="Message ID")
     role: str = Field(..., description="Message role (user/assistant)")
@@ -121,26 +126,21 @@ def query(q: QueryRequestSchema, request: Request):
     """Query endpoint - thin HTTP layer delegating to domain service."""
     user = getattr(request.state, "user", {"tenantId": "demo", "role": "owner", "uid": "dev"})
     tenant = q.tenantId or user["tenantId"]
-    
+
     # Authorization check using domain service
     if not di.container.tenant_service.validate_cross_tenant_access(
-        user_role=user["role"],
-        user_tenant=user["tenantId"], 
-        target_tenant=tenant
+        user_role=user["role"], user_tenant=user["tenantId"], target_tenant=tenant
     ):
         raise HTTPException(403, "Cross-tenant access denied")
-    
+
     # Create domain request
     domain_request = QueryRequest(
-        query=q.question,
-        tenant_id=tenant,
-        user_id=user["uid"],
-        context_limit=q.k
+        query=q.question, tenant_id=tenant, user_id=user["uid"], context_limit=q.k
     )
-    
+
     # Delegate to domain service
     response = di.container.rag.query_documents(domain_request)
-    
+
     # Convert domain response to HTTP response
     return QueryResponseSchema(
         answer=response.answer,
@@ -149,12 +149,12 @@ def query(q: QueryRequestSchema, request: Request):
                 "id": doc.id,
                 "title": doc.title,
                 "content": doc.content,
-                "score": doc.metadata.get("score", 0.0)
+                "score": doc.metadata.get("score", 0.0),
             }
             for doc in response.sources
         ],
         confidence=response.confidence,
-        query_id=response.query_id
+        query_id=response.query_id,
     )
 
 
@@ -163,50 +163,61 @@ def ingest(payload: IngestRequestSchema, request: Request):
     """Ingest endpoint - thin HTTP layer delegating to domain service."""
     user = getattr(request.state, "user", {"tenantId": "demo", "role": "owner"})
     tenant = payload.tenantId or user["tenantId"]
-    
+
     # Authorization check using domain service
     if not di.container.tenant_service.validate_cross_tenant_access(
-        user_role=user["role"],
-        user_tenant=user["tenantId"],
-        target_tenant=tenant
+        user_role=user["role"], user_tenant=user["tenantId"], target_tenant=tenant
     ):
         raise HTTPException(403, "Cross-tenant access denied")
-    
+
     # Delegate to domain service
-    cfg = di.container.cfg if hasattr(di.container, 'cfg') else load_config()
-    if getattr(cfg, 'async_ingest', False):
+    cfg = di.container.cfg if hasattr(di.container, "cfg") else load_config()
+    if getattr(cfg, "async_ingest", False):
         # Fire-and-forget pattern with job tracking
-        import threading, time, uuid
+        import threading
+        import time
+        import uuid
+
         job_id = str(uuid.uuid4())
         now_ms = int(time.time() * 1000)
-        di.container.jobs.create_job({
-            "jobId": job_id,
-            "tenantId": tenant,
-            "userId": user["uid"],
-            "title": payload.title,
-            "status": "queued",
-            "createdAt": now_ms,
-            "updatedAt": now_ms,
-        })
+        di.container.jobs.create_job(
+            {
+                "jobId": job_id,
+                "tenantId": tenant,
+                "userId": user["uid"],
+                "title": payload.title,
+                "status": "queued",
+                "createdAt": now_ms,
+                "updatedAt": now_ms,
+            }
+        )
 
         def _worker():
             try:
-                di.container.jobs.update_job(job_id, {"status": "processing", "startedAt": int(time.time() * 1000)})
+                di.container.jobs.update_job(
+                    job_id, {"status": "processing", "startedAt": int(time.time() * 1000)}
+                )
                 start = time.time()
-                result = di.container.rag.ingest_text(title=payload.title, text=payload.text, tenant_id=tenant)
+                result = di.container.rag.ingest_text(
+                    title=payload.title, text=payload.text, tenant_id=tenant
+                )
                 duration_ms = int((time.time() - start) * 1000)
-                di.container.jobs.update_job(job_id, {
-                    "status": "completed",
-                    "sourceId": result.get("source_id"),
-                    "chunkCount": result.get("chunks_created", 0),
-                    "durationMs": duration_ms,
-                    "updatedAt": int(time.time() * 1000),
-                })
+                di.container.jobs.update_job(
+                    job_id,
+                    {
+                        "status": "completed",
+                        "sourceId": result.get("source_id"),
+                        "chunkCount": result.get("chunks_created", 0),
+                        "durationMs": duration_ms,
+                        "updatedAt": int(time.time() * 1000),
+                    },
+                )
                 # Emit domain event if event bus available
                 try:
-                    if getattr(di.container, 'event_bus', None):
+                    if getattr(di.container, "event_bus", None):
                         # Fire-and-forget; don't await in thread
                         import asyncio
+
                         asyncio.get_event_loop().create_task(
                             di.container.event_bus.publish_document_ingested(
                                 document_id=result.get("source_id", ""),
@@ -216,24 +227,23 @@ def ingest(payload: IngestRequestSchema, request: Request):
                 except Exception:
                     pass
             except Exception as e:
-                di.container.jobs.update_job(job_id, {
-                    "status": "failed",
-                    "error": str(e),
-                    "updatedAt": int(time.time() * 1000),
-                })
+                di.container.jobs.update_job(
+                    job_id,
+                    {
+                        "status": "failed",
+                        "error": str(e),
+                        "updatedAt": int(time.time() * 1000),
+                    },
+                )
 
         threading.Thread(target=_worker, daemon=True).start()
         return IngestAcceptedResponseSchema(ok=True, jobId=job_id, status="queued")
     else:
         result = di.container.rag.ingest_text(
-            title=payload.title,
-            text=payload.text,
-            tenant_id=tenant
+            title=payload.title, text=payload.text, tenant_id=tenant
         )
         return IngestResponseSchema(
-            ok=result["success"],
-            sourceId=result["source_id"],
-            chunks=result["chunks_created"]
+            ok=result["success"], sourceId=result["source_id"], chunks=result["chunks_created"]
         )
 
 
@@ -242,48 +252,43 @@ async def upload_file(
     request: Request,
     file: UploadFile = File(...),
     title: str = Form(...),
-    tenantId: Optional[str] = Form(None)
+    tenantId: Optional[str] = Form(None),
 ):
     """Upload and ingest a document file (PDF, DOCX, TXT, MD)."""
     user = getattr(request.state, "user", {"tenantId": "demo", "role": "owner"})
     tenant = tenantId or user["tenantId"]
-    
+
     # Authorization check
     if not di.container.tenant_service.validate_cross_tenant_access(
-        user_role=user["role"],
-        user_tenant=user["tenantId"],
-        target_tenant=tenant
+        user_role=user["role"], user_tenant=user["tenantId"], target_tenant=tenant
     ):
         raise HTTPException(403, "Cross-tenant access denied")
-    
+
     # Validate file type
-    allowed_extensions = {'.pdf', '.docx', '.doc', '.txt', '.md'}
-    file_ext = os.path.splitext(file.filename.lower())[1] if file.filename else ''
-    
+    allowed_extensions = {".pdf", ".docx", ".doc", ".txt", ".md"}
+    file_ext = os.path.splitext(file.filename.lower())[1] if file.filename else ""
+
     if file_ext not in allowed_extensions:
-        raise HTTPException(400, f"Unsupported file type: {file_ext}. Allowed: {', '.join(allowed_extensions)}")
-    
+        raise HTTPException(
+            400, f"Unsupported file type: {file_ext}. Allowed: {', '.join(allowed_extensions)}"
+        )
+
     # Save file temporarily
     with tempfile.NamedTemporaryFile(delete=False, suffix=file_ext) as tmp_file:
         content = await file.read()
         tmp_file.write(content)
         tmp_file_path = tmp_file.name
-    
+
     try:
         # Delegate to domain service for file processing
         result = di.container.rag.ingest_file(
-            file_path=tmp_file_path,
-            title=title,
-            tenant_id=tenant,
-            original_filename=file.filename
+            file_path=tmp_file_path, title=title, tenant_id=tenant, original_filename=file.filename
         )
-        
+
         return IngestResponseSchema(
-            ok=result["success"],
-            sourceId=result["source_id"],
-            chunks=result["chunks_created"]
+            ok=result["success"], sourceId=result["source_id"], chunks=result["chunks_created"]
         )
-        
+
     finally:
         # Clean up temporary file
         if os.path.exists(tmp_file_path):
@@ -295,18 +300,16 @@ def get_recent_documents(request: Request, tenantId: Optional[str] = None):
     """Get recently ingested documents."""
     user = getattr(request.state, "user", {"tenantId": "demo", "role": "owner"})
     tenant = tenantId or user["tenantId"]
-    
+
     # Authorization check
     if not di.container.tenant_service.validate_cross_tenant_access(
-        user_role=user["role"],
-        user_tenant=user["tenantId"],
-        target_tenant=tenant
+        user_role=user["role"], user_tenant=user["tenantId"], target_tenant=tenant
     ):
         raise HTTPException(403, "Cross-tenant access denied")
-    
+
     # Get recent documents from domain service
     documents = di.container.rag.get_recent_documents(tenant_id=tenant, limit=20)
-    
+
     return RecentDocumentsResponseSchema(
         items=[
             RecentDocumentSchema(
@@ -314,7 +317,7 @@ def get_recent_documents(request: Request, tenantId: Optional[str] = None):
                 title=doc["title"],
                 type=doc.get("type", "text"),
                 createdAt=doc.get("created_at", ""),
-                chunks=doc.get("chunk_count", 0)
+                chunks=doc.get("chunk_count", 0),
             )
             for doc in documents
         ]
@@ -326,22 +329,16 @@ def debug_rag(q: QueryRequestSchema, request: Request):
     """Debug RAG pipeline - returns detailed retrieval information."""
     user = getattr(request.state, "user", {"tenantId": "demo", "role": "owner", "uid": "dev"})
     tenant = q.tenantId or user["tenantId"]
-    
+
     # Authorization check
     if not di.container.tenant_service.validate_cross_tenant_access(
-        user_role=user["role"],
-        user_tenant=user["tenantId"],
-        target_tenant=tenant
+        user_role=user["role"], user_tenant=user["tenantId"], target_tenant=tenant
     ):
         raise HTTPException(403, "Cross-tenant access denied")
-    
+
     # Get debug information from domain service
-    debug_info = di.container.rag.debug_query(
-        query=q.question,
-        tenant_id=tenant,
-        k=q.k
-    )
-    
+    debug_info = di.container.rag.debug_query(query=q.question, tenant_id=tenant, k=q.k)
+
     return debug_info
 
 
@@ -351,15 +348,13 @@ def conversational_query(payload: ConversationalQueryRequestSchema, request: Req
     """Conversational query endpoint with memory."""
     user = getattr(request.state, "user", {"tenantId": "demo", "role": "owner", "uid": "dev"})
     tenant = payload.tenantId or user["tenantId"]
-    
+
     # Authorization check
     if not di.container.tenant_service.validate_cross_tenant_access(
-        user_role=user["role"],
-        user_tenant=user["tenantId"], 
-        target_tenant=tenant
+        user_role=user["role"], user_tenant=user["tenantId"], target_tenant=tenant
     ):
         raise HTTPException(403, "Cross-tenant access denied")
-    
+
     # Create domain request
     domain_request = ConversationalQueryRequest(
         conversation_id=payload.conversationId,
@@ -367,12 +362,12 @@ def conversational_query(payload: ConversationalQueryRequestSchema, request: Req
         tenant_id=tenant,
         user_id=user["uid"],
         context_limit=payload.k,
-        memory_window=payload.memoryWindow or 10
+        memory_window=payload.memoryWindow or 10,
     )
-    
+
     # Delegate to conversational service
     response = di.container.conversational_rag.conversational_query(domain_request)
-    
+
     return ConversationalQueryResponseSchema(
         answer=response.answer,
         sources=[
@@ -380,13 +375,13 @@ def conversational_query(payload: ConversationalQueryRequestSchema, request: Req
                 "id": doc.id,
                 "title": doc.title,
                 "content": doc.content,
-                "score": doc.metadata.get("score", 0.0)
+                "score": doc.metadata.get("score", 0.0),
             }
             for doc in response.sources
         ],
         confidence=response.confidence,
         conversationId=response.conversation_id,
-        queryId=response.query_id
+        queryId=response.query_id,
     )
 
 
@@ -394,13 +389,11 @@ def conversational_query(payload: ConversationalQueryRequestSchema, request: Req
 def list_conversations(request: Request, limit: int = Query(20, ge=1, le=100)):
     """List user's conversations."""
     user = getattr(request.state, "user", {"tenantId": "demo", "uid": "dev"})
-    
+
     conversations = di.container.conversation_store.list_conversations(
-        tenant_id=user["tenantId"],
-        user_id=user["uid"],
-        limit=limit
+        tenant_id=user["tenantId"], user_id=user["uid"], limit=limit
     )
-    
+
     return ConversationsResponseSchema(
         conversations=[
             ConversationSchema(
@@ -408,7 +401,7 @@ def list_conversations(request: Request, limit: int = Query(20, ge=1, le=100)):
                 title=conv.title,
                 createdAt=conv.created_at.isoformat(),
                 updatedAt=conv.updated_at.isoformat(),
-                messageCount=conv.metadata.get("message_count", 0)
+                messageCount=conv.metadata.get("message_count", 0),
             )
             for conv in conversations
         ]
@@ -419,19 +412,18 @@ def list_conversations(request: Request, limit: int = Query(20, ge=1, le=100)):
 def get_conversation(conversation_id: str, request: Request):
     """Get conversation with full message history."""
     user = getattr(request.state, "user", {"tenantId": "demo", "uid": "dev"})
-    
+
     conversation = di.container.conversation_store.get_conversation(
-        conversation_id, 
-        user["tenantId"]
+        conversation_id, user["tenantId"]
     )
-    
+
     if not conversation:
         raise HTTPException(404, "Conversation not found")
-    
+
     # Verify user owns this conversation
     if conversation.user_id != user["uid"]:
         raise HTTPException(403, "Access denied")
-    
+
     return ConversationDetailSchema(
         id=conversation.id,
         title=conversation.title,
@@ -443,10 +435,10 @@ def get_conversation(conversation_id: str, request: Request):
                 role=msg.role,
                 content=msg.content,
                 timestamp=msg.timestamp.isoformat(),
-                metadata=msg.metadata
+                metadata=msg.metadata,
             )
             for msg in conversation.messages
-        ]
+        ],
     )
 
 
@@ -454,25 +446,21 @@ def get_conversation(conversation_id: str, request: Request):
 def delete_conversation(conversation_id: str, request: Request):
     """Delete a conversation."""
     user = getattr(request.state, "user", {"tenantId": "demo", "uid": "dev"})
-    
+
     # First verify the conversation exists and user owns it
     conversation = di.container.conversation_store.get_conversation(
-        conversation_id, 
-        user["tenantId"]
+        conversation_id, user["tenantId"]
     )
-    
+
     if not conversation:
         raise HTTPException(404, "Conversation not found")
-    
+
     if conversation.user_id != user["uid"]:
         raise HTTPException(403, "Access denied")
-    
+
     # Delete the conversation
-    success = di.container.conversation_store.delete_conversation(
-        conversation_id, 
-        user["tenantId"]
-    )
-    
+    success = di.container.conversation_store.delete_conversation(conversation_id, user["tenantId"])
+
     return DeleteResponseSchema(success=success)
 
 

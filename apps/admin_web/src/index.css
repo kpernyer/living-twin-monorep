@@ -1,9 +1,9 @@
+/* Import UI component styles */
+@import './components/ui/ui.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Import UI component styles */
-@import './components/ui/ui.css';
 
 /* Custom styles */
 body {

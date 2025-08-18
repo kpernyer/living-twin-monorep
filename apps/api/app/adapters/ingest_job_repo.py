@@ -1,6 +1,3 @@
-import os
-import time
-import uuid
 from typing import Any, Dict, List, Optional
 
 
@@ -33,7 +30,11 @@ class InMemoryIngestJobRepo(IngestJobRepository):
         return self._jobs.get(job_id)
 
     def list_jobs(self, tenant_id: str, user_id: str, limit: int = 20) -> List[Dict[str, Any]]:
-        jobs = [j for j in self._jobs.values() if j.get("tenantId") == tenant_id and j.get("userId") == user_id]
+        jobs = [
+            j
+            for j in self._jobs.values()
+            if j.get("tenantId") == tenant_id and j.get("userId") == user_id
+        ]
         jobs.sort(key=lambda j: j.get("updatedAt", 0), reverse=True)
         return jobs[:limit]
 
@@ -63,5 +64,3 @@ class FirestoreIngestJobRepo(IngestJobRepository):
             .limit(limit)
         )
         return [d.to_dict() for d in q.stream()]
-
-

@@ -1,6 +1,9 @@
-from typing import List, Dict, Any
+from typing import Any, Dict, List
+
 from neo4j import GraphDatabase
+
 from ..ports.vector_store import IVectorStore
+
 
 class Neo4jStore(IVectorStore):
     def __init__(self, cfg):
@@ -19,34 +22,68 @@ class Neo4jStore(IVectorStore):
             out = []
             for r in res:
                 n = r["n"]
-                out.append({"id": n.element_id, "text": n.get("text",""), "source": n.get("source",""), "score": r["score"]})
+                out.append(
+                    {
+                        "id": n.element_id,
+                        "text": n.get("text", ""),
+                        "source": n.get("source", ""),
+                        "score": r["score"],
+                    }
+                )
             return out
 
-    def upsert_chunks(self, tenant_id: str, title: str, chunks: list[str], embeddings: list[list[float]]) -> str:
-        import uuid, datetime
+    def upsert_chunks(
+        self, tenant_id: str, title: str, chunks: list[str], embeddings: list[list[float]]
+    ) -> str:
+        import datetime
+        import uuid
+
         sid = str(uuid.uuid4())
-        now = datetime.datetime.utcnow().isoformat()+"Z"
+        now = datetime.datetime.utcnow().isoformat() + "Z"
+
         def _tx(tx):
-            tx.run("MERGE (s:Source {id:$sid}) SET s.title=$title, s.tenantId=$tenantId, s.createdAt=$now",
-                   sid=sid, title=title, tenantId=tenant_id, now=now)
+            tx.run(
+                "MERGE (s:Source {id:$sid}) SET s.title=$title, s.tenantId=$tenantId, "
+                "s.createdAt=$now",
+                sid=sid,
+                title=title,
+                tenantId=tenant_id,
+                now=now,
+            )
             for i, ch in enumerate(chunks):
                 tx.run(
                     """
                     MERGE (d:Doc {id:$id})
-                    SET d.text=$text, d.source=$title, d.embedding=$emb, d.tenantId=$tenantId, d.createdAt=$now
+                    SET d.text=$text, d.source=$title, d.embedding=$emb, d.tenantId=$tenantId,
+                        d.createdAt=$now
                     WITH d MATCH (s:Source {id:$sid}) MERGE (s)-[:HAS_CHUNK]->(d)
                     """,
-                    id=str(uuid.uuid4()), text=ch, emb=embeddings[i], tenantId=tenant_id, now=now, title=title, sid=sid
+                    id=str(uuid.uuid4()),
+                    text=ch,
+                    emb=embeddings[i],
+                    tenantId=tenant_id,
+                    now=now,
+                    title=title,
+                    sid=sid,
                 )
+
         with self.driver.session(database=self.db) as s:
             s.execute_write(_tx)
         return sid
 
-    def ensure_vector_index(self, label: str = "Doc", property_name: str = "embedding", dimensions: int = 1536, similarity: str = "cosine") -> None:
+    def ensure_vector_index(
+        self,
+        label: str = "Doc",
+        property_name: str = "embedding",
+        dimensions: int = 1536,
+        similarity: str = "cosine",
+    ) -> None:
         """Ensure the vector index exists with the expected dimensions and similarity function."""
         cypher = (
-            f"CREATE VECTOR INDEX {self.index} IF NOT EXISTS FOR (n:{label}) ON (n.{property_name}) "
-            f"OPTIONS {{indexConfig: {{ `vector.dimensions`: {dimensions}, `vector.similarity_function`: '" + similarity + "' }} }}"
+            f"CREATE VECTOR INDEX {self.index} IF NOT EXISTS FOR (n:{label}) "
+            f"ON (n.{property_name}) OPTIONS {{indexConfig: {{ "
+            f"`vector.dimensions`: {dimensions}, "
+            f"`vector.similarity_function`: '{similarity}' }} }}"
         )
         with self.driver.session(database=self.db) as session:
             session.run(cypher)
@@ -58,21 +95,23 @@ class Neo4jStore(IVectorStore):
         WHERE coalesce(s.tenantId, 'demo') = $tenant
         OPTIONAL MATCH (s)-[:HAS_CHUNK]->(d:Doc)
         WITH s, count(d) as chunk_count
-        RETURN s.id as id, s.title as title, s.createdAt as created_at, 
+        RETURN s.id as id, s.title as title, s.createdAt as created_at,
                chunk_count, 'document' as type
         ORDER BY s.createdAt DESC
         LIMIT $limit
         """
-        
+
         with self.driver.session(database=self.db) as session:
             result = session.run(q, tenant=tenant_id, limit=limit)
             sources = []
             for record in result:
-                sources.append({
-                    "id": record["id"],
-                    "title": record["title"],
-                    "created_at": record["created_at"],
-                    "chunk_count": record["chunk_count"],
-                    "type": record["type"]
-                })
+                sources.append(
+                    {
+                        "id": record["id"],
+                        "title": record["title"],
+                        "created_at": record["created_at"],
+                        "chunk_count": record["chunk_count"],
+                        "type": record["type"],
+                    }
+                )
             return sources

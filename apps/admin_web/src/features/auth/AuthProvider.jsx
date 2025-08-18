@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signInAnonymously } from 'firebase/auth'
-import { auth } from '../../shared/firebase'
+import { auth } from '../../shared/firebase.ts'
 
 const AuthContext = createContext({})
 

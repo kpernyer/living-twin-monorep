@@ -2,9 +2,10 @@
 
 import json
 import os
-from typing import Dict, Any, Optional, List
 from datetime import datetime
-from ..domain.models import Tenant, User
+from typing import Any, Dict, Optional
+
+from ..domain.models import Tenant
 
 
 class LocalMockRepository:
@@ -16,16 +17,16 @@ class LocalMockRepository:
         self.users_file = os.path.join(data_dir, "users.json")
         self.invitations_file = os.path.join(data_dir, "invitations.json")
         self.organizations_file = os.path.join(data_dir, "organizations.json")
-        
+
         # Ensure data directory exists
         os.makedirs(data_dir, exist_ok=True)
-        
+
         # Initialize with demo data if files don't exist
         self._init_demo_data()
 
     def _init_demo_data(self):
         """Initialize with demo organizations and users."""
-        
+
         # Demo organizations
         if not os.path.exists(self.organizations_file):
             demo_orgs = {
@@ -43,11 +44,11 @@ class LocalMockRepository:
                     "branding": {
                         "primaryColor": "#1976D2",
                         "logo": "https://acme.com/logo.png",
-                        "theme": "corporate"
+                        "theme": "corporate",
                     },
                     "emailDomains": ["acme.com"],
                     "autoBindNewUsers": True,
-                    "createdAt": "2024-01-01T00:00:00Z"
+                    "createdAt": "2024-01-01T00:00:00Z",
                 },
                 "aprio_org_techcorp": {
                     "id": "aprio_org_techcorp",
@@ -63,11 +64,11 @@ class LocalMockRepository:
                     "branding": {
                         "primaryColor": "#FF5722",
                         "logo": "https://techcorp.io/logo.png",
-                        "theme": "industrial"
+                        "theme": "industrial",
                     },
                     "emailDomains": ["techcorp.io"],
                     "autoBindNewUsers": True,
-                    "createdAt": "2024-01-15T00:00:00Z"
+                    "createdAt": "2024-01-15T00:00:00Z",
                 },
                 "demo": {
                     "id": "demo",
@@ -83,11 +84,11 @@ class LocalMockRepository:
                     "branding": {
                         "primaryColor": "#9C27B0",
                         "logo": "https://demo.aprioone.com/logo.png",
-                        "theme": "demo"
+                        "theme": "demo",
                     },
                     "emailDomains": [],
                     "autoBindNewUsers": False,
-                    "createdAt": "2024-01-01T00:00:00Z"
+                    "createdAt": "2024-01-01T00:00:00Z",
                 },
                 "aprio_org_bigcorp": {
                     "id": "aprio_org_bigcorp",
@@ -99,12 +100,19 @@ class LocalMockRepository:
                     "businessContact": "hr@bigcorp.com",
                     "adminPortalUrl": "https://admin.bigcorp.aprioone.com",
                     "status": "active",
-                    "features": ["chat", "pulse", "ingest", "analytics", "reporting", "integrations"],
+                    "features": [
+                        "chat",
+                        "pulse",
+                        "ingest",
+                        "analytics",
+                        "reporting",
+                        "integrations",
+                    ],
                     "branding": {
                         "primaryColor": "#2E7D32",
                         "secondaryColor": "#66BB6A",
                         "logo": "https://bigcorp.com/assets/logo.png",
-                        "theme": "enterprise"
+                        "theme": "enterprise",
                     },
                     "emailDomains": ["bigcorp.com"],
                     "autoBindNewUsers": True,
@@ -113,7 +121,7 @@ class LocalMockRepository:
                         "city": "San Jose",
                         "state": "CA",
                         "zipCode": "95110",
-                        "country": "USA"
+                        "country": "USA",
                     },
                     "offices": [
                         {
@@ -121,27 +129,27 @@ class LocalMockRepository:
                             "address": "2100 Innovation Blvd",
                             "city": "Austin",
                             "state": "TX",
-                            "country": "USA"
+                            "country": "USA",
                         },
                         {
                             "name": "New York Sales Office",
                             "address": "350 Fifth Avenue, Floor 32",
                             "city": "New York",
                             "state": "NY",
-                            "country": "USA"
+                            "country": "USA",
                         },
                         {
                             "name": "Chicago Regional Office",
                             "address": "233 S Wacker Drive, Suite 8400",
                             "city": "Chicago",
                             "state": "IL",
-                            "country": "USA"
-                        }
+                            "country": "USA",
+                        },
                     ],
                     "employeeCount": 1247,
                     "founded": "2018",
-                    "createdAt": "2024-02-01T00:00:00Z"
-                }
+                    "createdAt": "2024-02-01T00:00:00Z",
+                },
             }
             self._save_json(self.organizations_file, demo_orgs)
 
@@ -154,10 +162,10 @@ class LocalMockRepository:
                     "domain": "acme.com",
                     "settings": {
                         "features": ["chat", "pulse", "ingest", "analytics"],
-                        "branding": {"primaryColor": "#1976D2", "theme": "corporate"}
+                        "branding": {"primaryColor": "#1976D2", "theme": "corporate"},
                     },
                     "created_at": "2024-01-01T00:00:00Z",
-                    "is_active": True
+                    "is_active": True,
                 },
                 "aprio_org_techcorp": {
                     "id": "aprio_org_techcorp",
@@ -165,10 +173,10 @@ class LocalMockRepository:
                     "domain": "techcorp.io",
                     "settings": {
                         "features": ["chat", "pulse", "ingest"],
-                        "branding": {"primaryColor": "#FF5722", "theme": "industrial"}
+                        "branding": {"primaryColor": "#FF5722", "theme": "industrial"},
                     },
                     "created_at": "2024-01-15T00:00:00Z",
-                    "is_active": True
+                    "is_active": True,
                 },
                 "demo": {
                     "id": "demo",
@@ -176,22 +184,33 @@ class LocalMockRepository:
                     "domain": None,
                     "settings": {
                         "features": ["chat", "pulse", "ingest", "analytics", "debug"],
-                        "branding": {"primaryColor": "#9C27B0", "theme": "demo"}
+                        "branding": {"primaryColor": "#9C27B0", "theme": "demo"},
                     },
                     "created_at": "2024-01-01T00:00:00Z",
-                    "is_active": True
+                    "is_active": True,
                 },
                 "aprio_org_bigcorp": {
                     "id": "aprio_org_bigcorp",
                     "name": "BIG Corp Solutions",
                     "domain": "bigcorp.com",
                     "settings": {
-                        "features": ["chat", "pulse", "ingest", "analytics", "reporting", "integrations"],
-                        "branding": {"primaryColor": "#2E7D32", "secondaryColor": "#66BB6A", "theme": "enterprise"}
+                        "features": [
+                            "chat",
+                            "pulse",
+                            "ingest",
+                            "analytics",
+                            "reporting",
+                            "integrations",
+                        ],
+                        "branding": {
+                            "primaryColor": "#2E7D32",
+                            "secondaryColor": "#66BB6A",
+                            "theme": "enterprise",
+                        },
                     },
                     "created_at": "2024-02-01T00:00:00Z",
-                    "is_active": True
-                }
+                    "is_active": True,
+                },
             }
             self._save_json(self.tenants_file, demo_tenants)
 
@@ -207,7 +226,7 @@ class LocalMockRepository:
                         "roles": ["employee"],
                         "department": "Engineering",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-01-01T00:00:00Z"
+                        "created_at": "2024-01-01T00:00:00Z",
                     },
                     "admin@acme.com": {
                         "id": "user_admin_acme",
@@ -217,8 +236,8 @@ class LocalMockRepository:
                         "roles": ["admin", "employee"],
                         "department": "IT",
                         "permissions": ["read", "write", "admin"],
-                        "created_at": "2024-01-01T00:00:00Z"
-                    }
+                        "created_at": "2024-01-01T00:00:00Z",
+                    },
                 },
                 "aprio_org_techcorp": {
                     "bob@techcorp.io": {
@@ -229,7 +248,7 @@ class LocalMockRepository:
                         "roles": ["employee"],
                         "department": "Operations",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-01-15T00:00:00Z"
+                        "created_at": "2024-01-15T00:00:00Z",
                     }
                 },
                 "demo": {
@@ -241,7 +260,7 @@ class LocalMockRepository:
                         "roles": ["admin"],
                         "department": "Demo",
                         "permissions": ["read", "write", "admin", "debug"],
-                        "created_at": "2024-01-01T00:00:00Z"
+                        "created_at": "2024-01-01T00:00:00Z",
                     }
                 },
                 "aprio_org_bigcorp": {
@@ -256,7 +275,7 @@ class LocalMockRepository:
                         "title": "Chief Executive Officer",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write", "admin", "executive"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "marcus.johnson@bigcorp.com": {
                         "id": "user_marcus_johnson_bigcorp",
@@ -268,7 +287,7 @@ class LocalMockRepository:
                         "title": "VP of Engineering",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write", "admin"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "elena.rodriguez@bigcorp.com": {
                         "id": "user_elena_rodriguez_bigcorp",
@@ -280,7 +299,7 @@ class LocalMockRepository:
                         "title": "VP of Sales",
                         "location": "New York, NY",
                         "permissions": ["read", "write", "admin"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "david.kim@bigcorp.com": {
                         "id": "user_david_kim_bigcorp",
@@ -292,7 +311,7 @@ class LocalMockRepository:
                         "title": "VP of Marketing",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write", "admin"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "fatima.al-zahra@bigcorp.com": {
                         "id": "user_fatima_al_zahra_bigcorp",
@@ -304,7 +323,7 @@ class LocalMockRepository:
                         "title": "VP of Human Resources",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write", "admin"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "james.oconnor@bigcorp.com": {
                         "id": "user_james_oconnor_bigcorp",
@@ -316,9 +335,8 @@ class LocalMockRepository:
                         "title": "VP of Operations",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write", "admin"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Engineering - Platform Team (San Jose)
                     "priya.patel@bigcorp.com": {
                         "id": "user_priya_patel_bigcorp",
@@ -331,7 +349,7 @@ class LocalMockRepository:
                         "team": "Platform Engineering",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "alex.petrov@bigcorp.com": {
                         "id": "user_alex_petrov_bigcorp",
@@ -344,7 +362,7 @@ class LocalMockRepository:
                         "team": "Platform Engineering",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "maria.santos@bigcorp.com": {
                         "id": "user_maria_santos_bigcorp",
@@ -357,7 +375,7 @@ class LocalMockRepository:
                         "team": "Platform Engineering",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "yuki.tanaka@bigcorp.com": {
                         "id": "user_yuki_tanaka_bigcorp",
@@ -370,9 +388,8 @@ class LocalMockRepository:
                         "team": "Platform Engineering",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Engineering - Frontend Team (San Jose)
                     "ahmed.hassan@bigcorp.com": {
                         "id": "user_ahmed_hassan_bigcorp",
@@ -385,7 +402,7 @@ class LocalMockRepository:
                         "team": "Frontend Engineering",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "lisa.andersson@bigcorp.com": {
                         "id": "user_lisa_andersson_bigcorp",
@@ -398,7 +415,7 @@ class LocalMockRepository:
                         "team": "Frontend Engineering",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "carlos.mendoza@bigcorp.com": {
                         "id": "user_carlos_mendoza_bigcorp",
@@ -411,9 +428,8 @@ class LocalMockRepository:
                         "team": "Frontend Engineering",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Engineering - Backend Team (San Jose)
                     "raj.sharma@bigcorp.com": {
                         "id": "user_raj_sharma_bigcorp",
@@ -426,7 +442,7 @@ class LocalMockRepository:
                         "team": "Backend Engineering",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "jennifer.wong@bigcorp.com": {
                         "id": "user_jennifer_wong_bigcorp",
@@ -439,7 +455,7 @@ class LocalMockRepository:
                         "team": "Backend Engineering",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "mikhail.volkov@bigcorp.com": {
                         "id": "user_mikhail_volkov_bigcorp",
@@ -452,9 +468,8 @@ class LocalMockRepository:
                         "team": "Backend Engineering",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Engineering - Austin Team (Remote Location)
                     "robert.taylor@bigcorp.com": {
                         "id": "user_robert_taylor_bigcorp",
@@ -467,7 +482,7 @@ class LocalMockRepository:
                         "team": "Austin Engineering",
                         "location": "Austin, TX",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "aisha.okafor@bigcorp.com": {
                         "id": "user_aisha_okafor_bigcorp",
@@ -480,7 +495,7 @@ class LocalMockRepository:
                         "team": "Austin Engineering",
                         "location": "Austin, TX",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "thomas.mueller@bigcorp.com": {
                         "id": "user_thomas_mueller_bigcorp",
@@ -493,7 +508,7 @@ class LocalMockRepository:
                         "team": "Austin Engineering",
                         "location": "Austin, TX",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "grace.liu@bigcorp.com": {
                         "id": "user_grace_liu_bigcorp",
@@ -506,9 +521,8 @@ class LocalMockRepository:
                         "team": "Austin Engineering",
                         "location": "Austin, TX",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Sales - Pre-Sales Team
                     "michael.brown@bigcorp.com": {
                         "id": "user_michael_brown_bigcorp",
@@ -521,7 +535,7 @@ class LocalMockRepository:
                         "team": "Pre-Sales",
                         "location": "New York, NY",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "sofia.rossi@bigcorp.com": {
                         "id": "user_sofia_rossi_bigcorp",
@@ -534,7 +548,7 @@ class LocalMockRepository:
                         "team": "Pre-Sales",
                         "location": "New York, NY",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "daniel.cohen@bigcorp.com": {
                         "id": "user_daniel_cohen_bigcorp",
@@ -547,9 +561,8 @@ class LocalMockRepository:
                         "team": "Pre-Sales",
                         "location": "New York, NY",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Sales - Enterprise Sales
                     "patricia.williams@bigcorp.com": {
                         "id": "user_patricia_williams_bigcorp",
@@ -562,7 +575,7 @@ class LocalMockRepository:
                         "team": "Enterprise Sales",
                         "location": "New York, NY",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "omar.ibrahim@bigcorp.com": {
                         "id": "user_omar_ibrahim_bigcorp",
@@ -575,7 +588,7 @@ class LocalMockRepository:
                         "team": "Enterprise Sales",
                         "location": "New York, NY",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "anna.kowalski@bigcorp.com": {
                         "id": "user_anna_kowalski_bigcorp",
@@ -588,9 +601,8 @@ class LocalMockRepository:
                         "team": "Enterprise Sales",
                         "location": "New York, NY",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Sales - Key Account Management
                     "kevin.nakamura@bigcorp.com": {
                         "id": "user_kevin_nakamura_bigcorp",
@@ -603,7 +615,7 @@ class LocalMockRepository:
                         "team": "Key Account Management",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "rebecca.davis@bigcorp.com": {
                         "id": "user_rebecca_davis_bigcorp",
@@ -616,9 +628,8 @@ class LocalMockRepository:
                         "team": "Key Account Management",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Sales - Regional Offices
                     "stephanie.martin@bigcorp.com": {
                         "id": "user_stephanie_martin_bigcorp",
@@ -631,7 +642,7 @@ class LocalMockRepository:
                         "team": "Regional Sales",
                         "location": "Chicago, IL",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "hassan.ali@bigcorp.com": {
                         "id": "user_hassan_ali_bigcorp",
@@ -644,9 +655,8 @@ class LocalMockRepository:
                         "team": "Regional Sales",
                         "location": "Chicago, IL",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Sales - Customer Success (After-Sales)
                     "linda.garcia@bigcorp.com": {
                         "id": "user_linda_garcia_bigcorp",
@@ -659,7 +669,7 @@ class LocalMockRepository:
                         "team": "Customer Success",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "benjamin.lee@bigcorp.com": {
                         "id": "user_benjamin_lee_bigcorp",
@@ -672,7 +682,7 @@ class LocalMockRepository:
                         "team": "Customer Success",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "nadia.popov@bigcorp.com": {
                         "id": "user_nadia_popov_bigcorp",
@@ -685,9 +695,8 @@ class LocalMockRepository:
                         "team": "Customer Success",
                         "location": "New York, NY",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Marketing Team
                     "jessica.thompson@bigcorp.com": {
                         "id": "user_jessica_thompson_bigcorp",
@@ -700,7 +709,7 @@ class LocalMockRepository:
                         "team": "Digital Marketing",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "antonio.silva@bigcorp.com": {
                         "id": "user_antonio_silva_bigcorp",
@@ -713,7 +722,7 @@ class LocalMockRepository:
                         "team": "Digital Marketing",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "rachel.goldberg@bigcorp.com": {
                         "id": "user_rachel_goldberg_bigcorp",
@@ -726,9 +735,8 @@ class LocalMockRepository:
                         "team": "Digital Marketing",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Human Resources Team
                     "michelle.jones@bigcorp.com": {
                         "id": "user_michelle_jones_bigcorp",
@@ -741,7 +749,7 @@ class LocalMockRepository:
                         "team": "Talent Acquisition",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "hiroshi.yamamoto@bigcorp.com": {
                         "id": "user_hiroshi_yamamoto_bigcorp",
@@ -754,7 +762,7 @@ class LocalMockRepository:
                         "team": "HR Business Partners",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "samantha.white@bigcorp.com": {
                         "id": "user_samantha_white_bigcorp",
@@ -767,9 +775,8 @@ class LocalMockRepository:
                         "team": "People Operations",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
-                    
                     # Operations Team
                     "christopher.anderson@bigcorp.com": {
                         "id": "user_christopher_anderson_bigcorp",
@@ -782,7 +789,7 @@ class LocalMockRepository:
                         "team": "IT Operations",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write", "admin"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "fatou.diallo@bigcorp.com": {
                         "id": "user_fatou_diallo_bigcorp",
@@ -795,7 +802,7 @@ class LocalMockRepository:
                         "team": "IT Operations",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
+                        "created_at": "2024-02-01T00:00:00Z",
                     },
                     "erik.larsson@bigcorp.com": {
                         "id": "user_erik_larsson_bigcorp",
@@ -808,9 +815,9 @@ class LocalMockRepository:
                         "team": "Security Operations",
                         "location": "San Jose, CA",
                         "permissions": ["read", "write"],
-                        "created_at": "2024-02-01T00:00:00Z"
-                    }
-                }
+                        "created_at": "2024-02-01T00:00:00Z",
+                    },
+                },
             }
             self._save_json(self.users_file, demo_users)
 
@@ -827,7 +834,7 @@ class LocalMockRepository:
                     "expiresAt": "2024-12-31T23:59:59Z",
                     "maxUses": 50,
                     "usedCount": 0,
-                    "isActive": True
+                    "isActive": True,
                 },
                 "APRIO-TECHCORP-INVITE001": {
                     "code": "APRIO-TECHCORP-INVITE001",
@@ -839,7 +846,7 @@ class LocalMockRepository:
                     "expiresAt": "2024-12-31T23:59:59Z",
                     "maxUses": 25,
                     "usedCount": 0,
-                    "isActive": True
+                    "isActive": True,
                 },
                 "APRIO-BIGCORP-ENG2024": {
                     "code": "APRIO-BIGCORP-ENG2024",
@@ -851,7 +858,7 @@ class LocalMockRepository:
                     "expiresAt": "2024-12-31T23:59:59Z",
                     "maxUses": 100,
                     "usedCount": 0,
-                    "isActive": True
+                    "isActive": True,
                 },
                 "APRIO-BIGCORP-SALES2024": {
                     "code": "APRIO-BIGCORP-SALES2024",
@@ -863,7 +870,7 @@ class LocalMockRepository:
                     "expiresAt": "2024-12-31T23:59:59Z",
                     "maxUses": 75,
                     "usedCount": 0,
-                    "isActive": True
+                    "isActive": True,
                 },
                 "APRIO-BIGCORP-EXEC2024": {
                     "code": "APRIO-BIGCORP-EXEC2024",
@@ -875,22 +882,22 @@ class LocalMockRepository:
                     "expiresAt": "2024-12-31T23:59:59Z",
                     "maxUses": 10,
                     "usedCount": 0,
-                    "isActive": True
-                }
+                    "isActive": True,
+                },
             }
             self._save_json(self.invitations_file, demo_invitations)
 
     def _load_json(self, filepath: str) -> Dict[str, Any]:
         """Load JSON data from file."""
         try:
-            with open(filepath, 'r') as f:
+            with open(filepath, "r") as f:
                 return json.load(f)
         except (FileNotFoundError, json.JSONDecodeError):
             return {}
 
     def _save_json(self, filepath: str, data: Dict[str, Any]):
         """Save JSON data to file."""
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             json.dump(data, f, indent=2)
 
     # Organization methods
@@ -911,19 +918,19 @@ class LocalMockRepository:
         """Validate invitation code and return invitation data."""
         invitations = self._load_json(self.invitations_file)
         invitation = invitations.get(invitation_code)
-        
+
         if not invitation or not invitation.get("isActive"):
             return None
-            
+
         # Check expiration
-        expires_at = datetime.fromisoformat(invitation["expiresAt"].replace('Z', '+00:00'))
+        expires_at = datetime.fromisoformat(invitation["expiresAt"].replace("Z", "+00:00"))
         if datetime.now(expires_at.tzinfo) > expires_at:
             return None
-            
+
         # Check usage limit
         if invitation["usedCount"] >= invitation["maxUses"]:
             return None
-            
+
         return invitation
 
     async def use_invitation_code(self, invitation_code: str) -> bool:
@@ -940,16 +947,16 @@ class LocalMockRepository:
         """Get tenant by ID."""
         tenants = self._load_json(self.tenants_file)
         tenant_data = tenants.get(tenant_id)
-        
+
         if tenant_data:
             return Tenant(
                 id=tenant_data["id"],
                 name=tenant_data["name"],
                 domain=tenant_data.get("domain"),
                 settings=tenant_data.get("settings", {}),
-                created_at=datetime.fromisoformat(tenant_data["created_at"].replace('Z', '+00:00')),
+                created_at=datetime.fromisoformat(tenant_data["created_at"].replace("Z", "+00:00")),
                 updated_at=tenant_data.get("updated_at"),
-                is_active=tenant_data.get("is_active", True)
+                is_active=tenant_data.get("is_active", True),
             )
         return None
 
@@ -963,7 +970,7 @@ class LocalMockRepository:
             "settings": tenant.settings,
             "created_at": tenant.created_at.isoformat(),
             "updated_at": tenant.updated_at.isoformat() if tenant.updated_at else None,
-            "is_active": tenant.is_active
+            "is_active": tenant.is_active,
         }
         self._save_json(self.tenants_file, tenants)
         return True
@@ -975,50 +982,54 @@ class LocalMockRepository:
         tenant_users = users.get(tenant_id, {})
         return tenant_users.get(email)
 
-    async def create_user_from_invitation(self, email: str, invitation_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def create_user_from_invitation(
+        self, email: str, invitation_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Create user from invitation data."""
         users = self._load_json(self.users_file)
         tenant_id = invitation_data["organizationId"]
-        
+
         if tenant_id not in users:
             users[tenant_id] = {}
-            
+
         user_data = {
             "id": f"user_{email.split('@')[0]}_{tenant_id}",
             "email": email,
-            "name": email.split('@')[0].title(),
+            "name": email.split("@")[0].title(),
             "tenant_id": tenant_id,
             "roles": [invitation_data["role"]],
             "department": invitation_data["department"],
             "permissions": invitation_data["permissions"],
             "created_at": datetime.now().isoformat(),
-            "source": "aprioone_invitation"
+            "source": "aprioone_invitation",
         }
-        
+
         users[tenant_id][email] = user_data
         self._save_json(self.users_file, users)
         return user_data
 
-    async def create_user_from_email_domain(self, email: str, org_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def create_user_from_email_domain(
+        self, email: str, org_data: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Create user from email domain binding."""
         users = self._load_json(self.users_file)
         tenant_id = org_data["id"]
-        
+
         if tenant_id not in users:
             users[tenant_id] = {}
-            
+
         user_data = {
             "id": f"user_{email.split('@')[0]}_{tenant_id}",
             "email": email,
-            "name": email.split('@')[0].title(),
+            "name": email.split("@")[0].title(),
             "tenant_id": tenant_id,
             "roles": ["employee"],
             "department": "General",
             "permissions": ["read", "write"],
             "created_at": datetime.now().isoformat(),
-            "source": "email_domain_binding"
+            "source": "email_domain_binding",
         }
-        
+
         users[tenant_id][email] = user_data
         self._save_json(self.users_file, users)
         return user_data
