@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+
+import 'config/app_config.dart';
 import 'features/auth/login_screen.dart';
 import 'features/chat/chat_screen.dart';
 import 'features/home/home_screen.dart';
 import 'services/api_client_enhanced.dart';
-import 'config/app_config.dart';
 import 'services/auth.dart';
 
 void main() async {

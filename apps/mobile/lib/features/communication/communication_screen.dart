@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import '../../services/communication_service.dart';
+
+import '../../config/app_config.dart';
 import '../../services/api_client_enhanced.dart';
 import '../../services/auth.dart';
+import '../../services/communication_service.dart';
 import '../../services/local_storage.dart';
-import '../../config/app_config.dart';
 
 class CommunicationScreen extends StatefulWidget {
-  const CommunicationScreen({Key? key}) : super(key: key);
+  const CommunicationScreen({super.key});
 
   @override
   State<CommunicationScreen> createState() => _CommunicationScreenState();
@@ -361,7 +362,7 @@ class _CommunicationScreenState extends State<CommunicationScreen> {
   }
 
   void _showResponseDialog(Communication comm) {
-    ActionStatus selectedStatus = ActionStatus.pending;
+    var selectedStatus = ActionStatus.pending;
     final messageController = TextEditingController();
 
     showDialog(

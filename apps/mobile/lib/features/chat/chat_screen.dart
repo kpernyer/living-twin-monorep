@@ -1,13 +1,14 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+
+import '../../config/app_config.dart';
 import '../../personalization/personalization_layer.dart';
 import '../../personalization/personalization_service.dart';
 import '../../services/api_client_enhanced.dart';
-import '../../services/local_storage.dart';
 import '../../services/auth.dart';
-import '../../config/app_config.dart';
+import '../../services/local_storage.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -67,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
     }
   }
 
-  void _initSpeech() async {
+  Future<void> _initSpeech() async {
     await _speechToText.initialize();
     setState(() {});
   }
@@ -85,7 +86,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
     final isOnline = connectivityResult != ConnectivityResult.none;
     
     // Also check if the server is actually reachable
-    bool serverReachable = false;
+    var serverReachable = false;
     if (isOnline) {
       try {
         final response = await _apiClient.healthCheck();
@@ -178,7 +179,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               action: SnackBarAction(
                 label: 'Retry',
                 textColor: Colors.white,
-                onPressed: () => _sendMessage(),
+                onPressed: _sendMessage,
               ),
             ),
           );
@@ -210,9 +211,9 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
     );
   }
 
-  void _listen() async {
+  Future<void> _listen() async {
     if (!_isListening) {
-      bool available = await _speechToText.initialize(
+      final available = await _speechToText.initialize(
         onStatus: (val) => print('onStatus: $val'),
         onError: (val) => print('onError: $val'),
       );
@@ -533,7 +534,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                 FloatingActionButton(
                   onPressed: _isLoading ? null : _sendMessage,
                   mini: true,
-                  heroTag: "chat_send_button", // Add unique hero tag
+                  heroTag: 'chat_send_button', // Add unique hero tag
                   backgroundColor: Colors.blue[600],
                   child: _isLoading
                       ? const SizedBox(

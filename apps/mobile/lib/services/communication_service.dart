@@ -205,7 +205,7 @@ class CommunicationService extends ChangeNotifier {
         
         // Process new communications
         if (data['communications'] != null) {
-          for (var commData in data['communications']) {
+          for (final commData in data['communications']) {
             final communication = Communication.fromJson(commData);
             _addCommunication(communication);
           }
@@ -213,14 +213,14 @@ class CommunicationService extends ChangeNotifier {
 
         // Process pulse updates
         if (data['pulse_updates'] != null) {
-          for (var pulseData in data['pulse_updates']) {
+          for (final pulseData in data['pulse_updates']) {
             _pulseController.add(pulseData);
           }
         }
 
         // Process presence updates
         if (data['presence_updates'] != null) {
-          for (var presenceData in data['presence_updates']) {
+          for (final presenceData in data['presence_updates']) {
             _presenceController.add(presenceData);
           }
         }

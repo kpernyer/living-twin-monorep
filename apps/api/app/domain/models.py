@@ -123,3 +123,9 @@ class ConversationalQueryRequest(BaseModel):
     context_limit: Optional[int] = 5
     memory_window: Optional[int] = 10  # How many previous messages to consider
     filters: Optional[Dict[str, Any]] = None
+
+
+class ConversationsResponseSchema(BaseModel):
+    """Response model for listing conversations."""
+
+    conversations: List[Any] = []

@@ -1,11 +1,12 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../services/speech_service.dart';
-import '../../services/api_client_enhanced.dart';
-import '../../services/local_storage.dart';
-import '../../services/auth.dart';
+
 import '../../config/app_config.dart';
+import '../../services/api_client_enhanced.dart';
+import '../../services/auth.dart';
+import '../../services/local_storage.dart';
+import '../../services/speech_service.dart';
 
 class ConversationalChatScreen extends StatefulWidget {
   const ConversationalChatScreen({super.key});
@@ -85,8 +86,8 @@ class _ConversationalChatScreenState extends State<ConversationalChatScreen>
     ));
     
     _waveAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
+      begin: 0,
+      end: 1,
     ).animate(CurvedAnimation(
       parent: _waveController,
       curve: Curves.easeInOut,
@@ -99,7 +100,7 @@ class _ConversationalChatScreenState extends State<ConversationalChatScreen>
       if (messages.isNotEmpty) {
         setState(() {
           _messages.clear();
-          _messages.addAll(messages.map((msg) => ChatMessage.fromMap(msg)));
+          _messages.addAll(messages.map(ChatMessage.fromMap));
         });
         
         _scrollToBottom();
@@ -263,7 +264,7 @@ class _ConversationalChatScreenState extends State<ConversationalChatScreen>
       builder: (context, child) {
         return Transform.scale(
           scale: _isListening ? _pulseAnimation.value : 1.0,
-          child: Container(
+          child: DecoratedBox(
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: _isListening
@@ -273,13 +274,13 @@ class _ConversationalChatScreenState extends State<ConversationalChatScreen>
                         Colors.blue.withOpacity(0.1),
                         Colors.transparent,
                       ],
-                      stops: [0.3, 0.7, 1.0],
+                      stops: const [0.3, 0.7, 1.0],
                     )
                   : null,
             ),
             child: FloatingActionButton(
               onPressed: _isListening ? _stopListening : _startListening,
-              heroTag: "conversational_mic_button", // Add unique hero tag
+              heroTag: 'conversational_mic_button', // Add unique hero tag
               backgroundColor: _isListening ? Colors.red : Colors.blue,
               child: Icon(
                 _isListening ? Icons.mic : Icons.mic_none,
@@ -434,7 +435,7 @@ class _ConversationalChatScreenState extends State<ConversationalChatScreen>
                 const SizedBox(width: 8),
                 FloatingActionButton(
                   mini: true,
-                  heroTag: "conversational_send_button", // Add unique hero tag
+                  heroTag: 'conversational_send_button', // Add unique hero tag
                   onPressed: _isLoading || _isListening
                       ? null
                       : () => _sendMessage(_textController.text),
@@ -548,7 +549,7 @@ class ChatBubble extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isUser) ...[
-            CircleAvatar(
+            const CircleAvatar(
               backgroundColor: Colors.blue,
               child: Icon(
                 Icons.smart_toy,
@@ -617,7 +618,7 @@ class ChatBubble extends StatelessWidget {
           ),
           if (isUser) ...[
             const SizedBox(width: 12),
-            CircleAvatar(
+            const CircleAvatar(
               backgroundColor: Colors.green,
               child: Icon(
                 Icons.person,

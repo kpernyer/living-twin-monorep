@@ -1,8 +1,10 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'auth.dart';
-import 'dart:io' show SocketException;
 import 'dart:async' show TimeoutException;
+import 'dart:convert';
+import 'dart:io' show SocketException;
+
+import 'package:http/http.dart' as http;
+
+import 'auth.dart';
 
 class ApiClientEnhanced {
   final String baseUrl;
@@ -186,18 +188,18 @@ class ApiClientEnhanced {
           'error': 'Server error: ${response.statusCode}',
         };
       }
-    } on SocketException catch (e) {
+    } on SocketException {
       return {
         'success': false,
         'offline': true,
         'error': 'Server is not available. Please check your connection.',
       };
-    } on TimeoutException catch (e) {
+    } on TimeoutException {
       return {
         'success': false,
         'error': 'Request timed out. Please try again.',
       };
-    } on FormatException catch (e) {
+    } on FormatException {
       return {
         'success': false,
         'error': 'Invalid response from server.',
@@ -278,7 +280,7 @@ class ApiClientEnhanced {
   /// Generic GET request
   Future<http.Response> get(String endpoint) async {
     final headers = await _getHeaders();
-    return await http.get(
+    return http.get(
       Uri.parse('$baseUrl$endpoint'),
       headers: headers,
     );
@@ -287,7 +289,7 @@ class ApiClientEnhanced {
   /// Generic POST request
   Future<http.Response> post(String endpoint, {Map<String, dynamic>? body}) async {
     final headers = await _getHeaders();
-    return await http.post(
+    return http.post(
       Uri.parse('$baseUrl$endpoint'),
       headers: headers,
       body: body != null ? jsonEncode(body) : null,

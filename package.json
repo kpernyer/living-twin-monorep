@@ -10,5 +10,8 @@
     "build": "pnpm --filter admin_web build",
     "lint": "pnpm --filter admin_web lint",
     "test": "pnpm --filter admin_web test"
+  },
+  "devDependencies": {
+    "markdownlint-cli": "^0.32.2"
   }
 }

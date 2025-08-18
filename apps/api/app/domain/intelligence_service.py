@@ -6,8 +6,6 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, List
 
 from .intelligence_models import (
-    AgentResult,
-    AgentResultQuery,
     AnalysisDepth,
     CommunicationQuery,
     CommunicationQueue,
@@ -27,6 +25,7 @@ from .intelligence_models import (
     TruthCategory,
     TruthQuery,
 )
+from .agent_models import AgentResult, AgentResultQuery
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +117,9 @@ class IntelligenceService:
         for template in default_templates:
             self.templates[template.id] = template
 
-    async def generate_intelligence(self, request: IntelligenceRequest) -> IntelligenceResponse:
+    async def generate_intelligence(
+        self, request: IntelligenceRequest
+    ) -> IntelligenceResponse:
         """Generate strategic intelligence from market intelligence data using specified template."""
         start_time = time.time()
 
@@ -140,7 +141,9 @@ class IntelligenceService:
             )
 
             # Extract truths and reports
-            truths = await self._extract_truths(llm_response, request.tenant_id, template.category)
+            truths = await self._extract_truths(
+                llm_response, request.tenant_id, template.category
+            )
             reports = await self._extract_reports(llm_response, request.tenant_id, template)
 
             # Generate communications

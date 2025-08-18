@@ -27,7 +27,7 @@ class _IngestScreenState extends State<IngestScreen> with SingleTickerProviderSt
   // State
   List<Map<String, dynamic>> _recentDocuments = [];
   bool _isLoading = false;
-  bool _isOnline = true;
+  final bool _isOnline = true;
   Map<String, dynamic> _offlineStats = {};
 
   @override
@@ -56,7 +56,7 @@ class _IngestScreenState extends State<IngestScreen> with SingleTickerProviderSt
       // Load recent documents
       // final documentsResponse = await _apiClient.getRecentDocuments();
       final documentsResponse = {'items': []};
-      final documents = (documentsResponse['items'] as List? ?? []).map((item) => Map<String, dynamic>.from(item)).toList();
+      final documents = (documentsResponse['items'] ?? []).map((item) => Map<String, dynamic>.from(item)).toList();
       
       // Load offline stats
       // final stats = await _apiClient.getOfflineStats();

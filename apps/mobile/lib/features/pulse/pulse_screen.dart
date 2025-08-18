@@ -1,10 +1,11 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import '../../services/api_client_enhanced.dart';
-import '../../services/local_storage.dart';
-import '../../services/auth.dart';
+
 import '../../config/app_config.dart';
+import '../../services/api_client_enhanced.dart';
+import '../../services/auth.dart';
+import '../../services/local_storage.dart';
 
 class PulseScreen extends StatefulWidget {
   const PulseScreen({super.key});
@@ -57,8 +58,8 @@ class _PulseScreenState extends State<PulseScreen> {
       };
       
       final mockDocuments = [
-        {'title': 'Sample Document 1', 'created_at': DateTime.now().subtract(Duration(days: 1))},
-        {'title': 'Sample Document 2', 'created_at': DateTime.now().subtract(Duration(days: 2))},
+        {'title': 'Sample Document 1', 'created_at': DateTime.now().subtract(const Duration(days: 1))},
+        {'title': 'Sample Document 2', 'created_at': DateTime.now().subtract(const Duration(days: 2))},
       ];
       
       // Calculate stats
@@ -96,14 +97,14 @@ class _PulseScreenState extends State<PulseScreen> {
   }
 
   double _calculateAverageConfidence(List<Map<String, dynamic>> messages) {
-    if (messages.isEmpty) return 0.0;
+    if (messages.isEmpty) return 0;
     
     final confidenceValues = messages
         .where((m) => m['confidence'] != null)
         .map((m) => m['confidence'] as double)
         .toList();
     
-    if (confidenceValues.isEmpty) return 0.0;
+    if (confidenceValues.isEmpty) return 0;
     
     final sum = confidenceValues.reduce((a, b) => a + b);
     return sum / confidenceValues.length;

@@ -11,6 +11,7 @@ title: Living Twin - Strategic Alignment Platform
 ![Logo](img/small-logo.jpeg)
 
 # Living Twin
+
 ## Strategic Alignment Platform
 
 **Transform how organizations maintain strategic focus and alignment**
@@ -66,6 +67,7 @@ Market Intelligence → Strategic Insights → Priority Communications → Organ
 <div>
 
 ### **Core Platform**
+
 - **Organizational Twin** - AI-powered conversational interface
 - **Living Knowledge Base** - Dynamic strategic memory
 - **Strategic Intelligence Center** - Market intelligence processing
@@ -75,6 +77,7 @@ Market Intelligence → Strategic Insights → Priority Communications → Organ
 <div>
 
 ### **Intelligence System**
+
 - **External Trend Agents** - Continuous market monitoring
 - **Strategic Insights** - Core organizational insights
 - **Priority Communications** - Intelligent escalation system
@@ -162,6 +165,7 @@ Market Intelligence → Strategic Insights → Priority Communications → Organ
 <div>
 
 ### **Security & Compliance**
+
 - **Complete Isolation** - Each organization's data and insights are fully separated
 - **Secure Access** - Role-based permissions and audit trails
 - **Compliance Ready** - SOC2, GDPR, HIPAA compliant
@@ -171,6 +175,7 @@ Market Intelligence → Strategic Insights → Priority Communications → Organ
 <div>
 
 ### **Scalability & Flexibility**
+
 - **Scalable Infrastructure** - Cloud-native architecture for growth
 - **Customizable Templates** - Organization-specific strategic frameworks
 - **Multi-Cloud Support** - AWS, Azure, GCP deployment options
@@ -214,6 +219,7 @@ Market Intelligence → Strategic Insights → Priority Communications → Organ
 <div>
 
 ### **Alignment KPIs**
+
 - **Strategic Initiative Velocity** - % of strategic projects on track
 - **Goal Cascade Alignment** - % of team goals linked to strategic objectives
 - **Decision-Strategy Consistency** - % of major decisions aligned with strategy
@@ -224,6 +230,7 @@ Market Intelligence → Strategic Insights → Priority Communications → Organ
 <div>
 
 ### **Execution KPIs**
+
 - **Strategic Response Time** - Days to respond to strategic opportunities
 - **Cross-Functional Alignment** - % of departments working toward same goals
 - **Strategic Communication Effectiveness** - % of strategic messages understood
@@ -265,6 +272,7 @@ Market Intelligence → Strategic Insights → Priority Communications → Organ
 <div>
 
 ### **Strategic Health Indicators**
+
 - **Overall Alignment Score** - Composite of all strategic KPIs
 - **Strategic Velocity** - Speed of strategic execution
 - **Alignment Trend** - 30/60/90 day trend analysis
@@ -275,6 +283,7 @@ Market Intelligence → Strategic Insights → Priority Communications → Organ
 <div>
 
 ### **Actionable Insights**
+
 - **Priority Interventions** - Where to focus leadership attention
 - **Resource Reallocation** - Budget shifts for strategic impact
 - **Communication Gaps** - Strategic messaging opportunities
@@ -295,6 +304,7 @@ Market Intelligence → Strategic Insights → Priority Communications → Organ
 <div>
 
 ### **Core Setup**
+
 - Strategic intelligence system
 - Basic communication escalation
 - Multi-tenant architecture setup
@@ -304,6 +314,7 @@ Market Intelligence → Strategic Insights → Priority Communications → Organ
 <div>
 
 ### **User Experience**
+
 - Essential user interface
 - Role-based access control
 - Initial strategic framework

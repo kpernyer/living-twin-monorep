@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../services/auth.dart';
+
 import '../../main.dart';
+import '../../services/auth.dart';
 
 class OrganizationSetupScreen extends StatefulWidget {
   const OrganizationSetupScreen({super.key});

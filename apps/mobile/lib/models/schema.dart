@@ -1,6 +1,7 @@
 /// Living Twin - Consistent Schema Models for Flutter/Dart
 /// 
 /// These models ensure consistency with Neo4j, Firestore, and Pub/Sub schemas
+library;
 
 // =========================
 // Storage Keys
@@ -53,14 +54,13 @@ abstract class BaseEntity {
     required this.tenantId,
     required this.createdAt,
     required this.updatedAt,
-    this.createdBy,
-    required this.status,
+    required this.status, this.createdBy,
     this.metadata,
   });
 
   Map<String, dynamic> toJson();
   
-  static DateTime parseDateTime(dynamic value) {
+  static DateTime parseDateTime(value) {
     if (value is DateTime) return value;
     if (value is String) return DateTime.parse(value);
     throw ArgumentError('Invalid datetime value: $value');
@@ -228,13 +228,8 @@ class UserModel extends BaseEntity {
     required super.tenantId,
     required super.createdAt,
     required super.updatedAt,
-    super.createdBy,
-    required super.status,
+    required super.status, required this.email, required this.displayName, required this.role, required this.firebaseUid, super.createdBy,
     super.metadata,
-    required this.email,
-    required this.displayName,
-    required this.role,
-    required this.firebaseUid,
     this.lastLogin,
     this.avatarUrl,
     this.preferences,
@@ -329,10 +324,8 @@ class TeamModel extends BaseEntity {
     required super.tenantId,
     required super.createdAt,
     required super.updatedAt,
-    super.createdBy,
-    required super.status,
+    required super.status, required this.displayName, super.createdBy,
     super.metadata,
-    required this.displayName,
     this.description,
     this.color,
     this.memberCount,
@@ -397,13 +390,9 @@ class GoalModel extends BaseEntity {
     required super.tenantId,
     required super.createdAt,
     required super.updatedAt,
-    super.createdBy,
-    required super.status,
+    required super.status, required this.title, required this.goalStatus, required this.priority, super.createdBy,
     super.metadata,
-    required this.title,
     this.description,
-    required this.goalStatus,
-    required this.priority,
     this.dueDate,
     this.completionDate,
     this.progressPercentage,
@@ -489,17 +478,11 @@ class DocumentModel extends BaseEntity {
     required super.tenantId,
     required super.createdAt,
     required super.updatedAt,
-    super.createdBy,
-    required super.status,
+    required super.status, required this.title, required this.fileName, required this.fileType, required this.fileSize, required this.processingStatus, super.createdBy,
     super.metadata,
-    required this.title,
-    required this.fileName,
-    required this.fileType,
-    required this.fileSize,
     this.gcsPath,
     this.pageCount,
     this.chunkCount,
-    required this.processingStatus,
     this.processingError,
     this.tags,
     this.relatedGoalIds,
@@ -576,16 +559,9 @@ class ChunkModel extends BaseEntity {
     required super.tenantId,
     required super.createdAt,
     required super.updatedAt,
-    super.createdBy,
-    required super.status,
+    required super.status, required this.documentId, required this.content, required this.position, required this.startChar, required this.endChar, required this.tokenCount, super.createdBy,
     super.metadata,
-    required this.documentId,
-    required this.content,
-    required this.position,
     this.pageNumber,
-    required this.startChar,
-    required this.endChar,
-    required this.tokenCount,
     this.similarityScore,
   });
 
@@ -643,15 +619,14 @@ class ApiResponse<T> {
 
   ApiResponse({
     required this.success,
-    this.data,
+    required this.timestamp, this.data,
     this.error,
     this.message,
-    required this.timestamp,
   });
 
   factory ApiResponse.fromJson(
     Map<String, dynamic> json,
-    T Function(dynamic)? fromJsonT,
+    T Function()? fromJsonT,
   ) {
     return ApiResponse<T>(
       success: json['success'] ?? false,
@@ -711,16 +686,14 @@ class PaginatedResponse<T> {
 
   PaginatedResponse({
     required this.success,
-    this.data,
+    required this.timestamp, required this.pagination, this.data,
     this.error,
     this.message,
-    required this.timestamp,
-    required this.pagination,
   });
 
   factory PaginatedResponse.fromJson(
     Map<String, dynamic> json,
-    T Function(dynamic) fromJsonT,
+    T Function() fromJsonT,
   ) {
     return PaginatedResponse<T>(
       success: json['success'] ?? false,
@@ -882,13 +855,9 @@ class SearchResponse {
 
   SearchResponse({
     required this.success,
-    this.data,
+    required this.timestamp, required this.query, required this.totalResults, required this.processingTimeMs, this.data,
     this.error,
     this.message,
-    required this.timestamp,
-    required this.query,
-    required this.totalResults,
-    required this.processingTimeMs,
   });
 
   factory SearchResponse.fromJson(Map<String, dynamic> json) {
@@ -952,16 +921,12 @@ class PubSubMessage<T> {
   PubSubMessage({
     required this.eventType,
     required this.tenantId,
-    this.entityId,
-    required this.timestamp,
-    required this.correlationId,
-    required this.data,
-    required this.metadata,
+    required this.timestamp, required this.correlationId, required this.data, required this.metadata, this.entityId,
   });
 
   factory PubSubMessage.fromJson(
     Map<String, dynamic> json,
-    T Function(dynamic) fromJsonT,
+    T Function() fromJsonT,
   ) {
     return PubSubMessage<T>(
       eventType: json['event_type'],
@@ -1047,8 +1012,7 @@ class CreateGoalForm {
 
   CreateGoalForm({
     required this.title,
-    this.description,
-    required this.priority,
+    required this.priority, this.description,
     this.dueDate,
     this.teamId,
     this.parentGoalId,

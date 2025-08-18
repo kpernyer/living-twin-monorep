@@ -1,7 +1,8 @@
 import 'dart:convert';
-import 'package:sqflite/sqflite.dart';
+
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 import 'package:uuid/uuid.dart';
 
 class LocalStorageService {
@@ -20,8 +21,8 @@ class LocalStorageService {
   }
 
   Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), _dbName);
-    return await openDatabase(
+    final path = join(await getDatabasesPath(), _dbName);
+    return openDatabase(
       path,
       version: _dbVersion,
       onCreate: _onCreate,
@@ -182,8 +183,8 @@ class LocalStorageService {
     int limit = 20,
   }) async {
     final db = await database;
-    String where = 'tenant_id = ?';
-    List<dynamic> whereArgs = [tenantId];
+    var where = 'tenant_id = ?';
+    final whereArgs = <dynamic>[tenantId];
     
     if (type != null) {
       where += ' AND type = ?';
@@ -284,7 +285,7 @@ class LocalStorageService {
     
     return results.map((row) => {
       ...row,
-      'payload': jsonDecode(row['payload'] as String),
+      'payload': jsonDecode(row['payload']! as String),
     }).toList();
   }
 
@@ -309,7 +310,7 @@ class LocalStorageService {
   }
 
   // Preferences
-  Future<void> setPreference(String key, dynamic value) async {
+  Future<void> setPreference(String key, value) async {
     final prefs = await SharedPreferences.getInstance();
     if (value is String) {
       await prefs.setString(key, value);

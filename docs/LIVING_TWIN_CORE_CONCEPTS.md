@@ -6,52 +6,62 @@
 
 ## 🔑 **10 Key Components & Terminology**
 
-### **1. Organizational Twin** 
+### **1. Organizational Twin**
+
 - **What it is**: An AI-powered conversational interface that embodies your organization's strategic knowledge
 - **Why it matters**: Makes strategy accessible, actionable, and continuously relevant
 - **Business reference**: Like having a "Chief Strategy Officer" available 24/7
 
 ### **2. Living Knowledge Base**
+
 - **What it is**: Dynamic repository of organizational truths, insights, and context that evolves with new information
 - **Why it matters**: Ensures decisions are based on current, relevant information
 - **Business reference**: Think "living document" vs. static strategy documents
 
 ### **3. External Trend Agents**
+
 - **What it is**: AI agents that continuously monitor external factors (competitors, markets, technology, regulations)
 - **Why it matters**: Keeps the organization aware of changes that could impact strategy
 - **Business reference**: Like having dedicated market intelligence analysts
 
 ### **4. Strategic Truths**
+
 - **What it is**: Core insights distilled from agent data into actionable organizational knowledge
 - **Why it matters**: Converts information overload into clear, actionable insights
 - **Business reference**: Similar to "key insights" in management consulting
 
 ### **5. Communication Escalation (Nudge → Recommend → Order)**
+
 - **What it is**: Intelligent system that escalates communication based on importance and response
 - **Why it matters**: Ensures critical information gets appropriate attention
 - **Business reference**: Management by exception, but automated
 
 ### **6. Multi-Tenant Architecture**
+
 - **What it is**: System that serves multiple organizations while maintaining complete isolation
 - **Why it matters**: Enables scalable, secure deployment across different organizations
 - **Business reference**: Standard SaaS architecture pattern
 
 ### **7. Goal Hierarchy (Strategic → Tactical)**
+
 - **What it is**: Clear connection between high-level strategic objectives and day-to-day actions
 - **Why it matters**: Ensures everyone understands how their work contributes to bigger picture
 - **Business reference**: OKR (Objectives and Key Results) methodology
 
 ### **8. Catchball Process**
+
 - **What it is**: Two-way communication flow where strategy is refined through organizational feedback
 - **Why it matters**: Creates buy-in and improves strategy quality
 - **Business reference**: Hoshin Kanri (Policy Deployment) methodology
 
 ### **9. Feedback Loop**
+
 - **What it is**: Continuous cycle of strategy execution → measurement → learning → adjustment
 - **Why it matters**: Enables rapid adaptation and improvement
 - **Business reference**: PDCA (Plan-Do-Check-Act) cycle
 
 ### **10. Priority Intelligence**
+
 - **What it is**: System that surfaces the most relevant information for each role and context
 - **Why it matters**: Reduces information overload and focuses attention on what matters
 - **Business reference**: Management by priority
@@ -59,6 +69,7 @@
 ## 📚 **Recommended Business Terminology**
 
 ### **System Components (Internal)**
+
 - **Intelligence Hub** (not "AI Agent Dashboard")
 - **Communication Queue** (not "Message System")
 - **Strategic Memory** (not "Knowledge Graph")
@@ -66,6 +77,7 @@
 - **Escalation Manager** (not "Alert System")
 
 ### **User-Facing Terminology**
+
 - **Strategic Insights** (not "AI-generated truths")
 - **Priority Communications** (not "nudges/recommendations/orders")
 - **Market Intelligence** (not "external agent data")
@@ -75,12 +87,14 @@
 ## 🎯 **System Boundaries**
 
 ### **What Living Twin IS:**
+
 - A strategic alignment and communication platform
 - A living knowledge management system
 - An intelligent escalation and prioritization system
 - A multi-tenant SaaS platform
 
 ### **What Living Twin is NOT:**
+
 - A project management tool
 - A CRM or sales system
 - A general AI assistant
@@ -96,6 +110,7 @@
 Your system should focus on **strategic KPIs** rather than operational metrics:
 
 ### **Strategic KPIs to Track:**
+
 - **Strategy Adoption Rate**: How many employees actively engage with strategic insights
 - **Goal Alignment Score**: Percentage of actions aligned with strategic objectives
 - **Response Time to Strategic Changes**: How quickly organization adapts to new insights

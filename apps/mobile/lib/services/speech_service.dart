@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:speech_to_text/speech_to_text.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:noise_meter/noise_meter.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 enum SpeechState {
   idle,
@@ -45,7 +45,7 @@ class SpeechService extends ChangeNotifier {
   SpeechState _state = SpeechState.idle;
   VoiceActivityState _voiceActivity = VoiceActivityState.silence;
   String _currentTranscription = '';
-  double _confidence = 0.0;
+  double _confidence = 0;
   bool _isInitialized = false;
   Timer? _silenceTimer;
   Timer? _listeningTimer;
@@ -54,7 +54,7 @@ class SpeechService extends ChangeNotifier {
   // Configuration
   static const Duration _silenceTimeout = Duration(seconds: 2);
   static const Duration _maxListeningDuration = Duration(seconds: 30);
-  static const double _voiceThreshold = 20.0; // dB threshold for voice activity
+  static const double _voiceThreshold = 20; // dB threshold for voice activity
   static const double _confidenceThreshold = 0.7;
 
   // Getters
@@ -128,7 +128,7 @@ class SpeechService extends ChangeNotifier {
         'locale': 'en-US'
       });
       await _flutterTts.setSpeechRate(0.5); // Natural pace
-      await _flutterTts.setPitch(1.0);
+      await _flutterTts.setPitch(1);
       await _flutterTts.setVolume(0.8);
       
       // iOS-specific settings for better quality
@@ -142,7 +142,7 @@ class SpeechService extends ChangeNotifier {
       // Use Android Neural Network TTS
       await _flutterTts.setEngine('com.google.android.tts');
       await _flutterTts.setSpeechRate(0.5);
-      await _flutterTts.setPitch(1.0);
+      await _flutterTts.setPitch(1);
       await _flutterTts.setVolume(0.8);
       
       // Android-specific optimizations
@@ -295,7 +295,7 @@ class SpeechService extends ChangeNotifier {
   /// Get available languages for speech recognition
   Future<List<LocaleName>> getAvailableLanguages() async {
     if (!_isInitialized) return [];
-    return await _speechToText.locales();
+    return _speechToText.locales();
   }
 
   /// Get available voices for text-to-speech
@@ -417,9 +417,9 @@ class SpeechService extends ChangeNotifier {
     if (text.length <= maxChunkLength) return [text];
     
     final chunks = <String>[];
-    final sentences = text.split(RegExp(r'[.!?]+'));
+    final sentences = text.split(RegExp('[.!?]+'));
     
-    String currentChunk = '';
+    var currentChunk = '';
     for (final sentence in sentences) {
       if (sentence.trim().isEmpty) continue;
       
