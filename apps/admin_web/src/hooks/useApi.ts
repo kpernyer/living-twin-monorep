@@ -12,9 +12,7 @@ interface UseApiReturn<T> extends UseApiState<T> {
   reset: () => void
 }
 
-export function useApi<T = any>(
-  apiCall: (..._args: any[]) => Promise<Response>
-): UseApiReturn<T> {
+export function useApi<T = any>(apiCall: (..._args: any[]) => Promise<Response>): UseApiReturn<T> {
   const [state, setState] = useState<UseApiState<T>>({
     data: null,
     loading: false,
@@ -23,16 +21,16 @@ export function useApi<T = any>(
 
   const execute = useCallback(
     async (..._args: any[]) => {
-      setState(prev => ({ ...prev, loading: true, error: null }))
-      
+      setState((prev) => ({ ...prev, loading: true, error: null }))
+
       try {
         const response = await apiCall(..._args)
-        
+
         if (!response.ok) {
           const errorData = await response.json().catch(() => ({}))
           throw new Error(errorData.detail || `HTTP ${response.status}`)
         }
-        
+
         const data = await response.json()
         setState({ data, loading: false, error: null })
       } catch (error) {
@@ -43,7 +41,7 @@ export function useApi<T = any>(
         })
       }
     },
-    [apiCall]
+    [apiCall],
   )
 
   const reset = useCallback(() => {
@@ -63,6 +61,6 @@ export function useMutation<T = any>(_endpoint: string) {
     apiFetch(_endpoint, {
       method: 'POST',
       body: JSON.stringify(_data),
-    })
+    }),
   )
 }

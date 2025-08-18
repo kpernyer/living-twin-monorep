@@ -1,10 +1,84 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import { onAuthStateChanged, signOut, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signInAnonymously } from 'firebase/auth'
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import {
+  onAuthStateChanged,
+  signOut,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+  signInAnonymously,
+  User,
+} from 'firebase/auth'
 import { auth } from '../../shared/firebase.ts'
 
-const AuthContext = createContext({})
+interface Organization {
+  id: string
+  name: string
+  webUrl: string
+  industry: string
+  size: string
+  techContact: string
+  businessContact: string
+  adminPortalUrl: string
+  status: string
+  features: string[]
+  branding: {
+    primaryColor: string
+    logo: string
+    theme: string
+  }
+  emailDomains?: string[]
+  autoBindNewUsers?: boolean
+  createdBy?: string
+}
 
-export function useAuth() {
+interface AuthContextType {
+  user: User | null
+  organization: Organization | null
+  loading: boolean
+  logout: () => Promise<void>
+  signInWithEmail: (
+    email: string,
+    password: string,
+  ) => Promise<{
+    success: boolean
+    user?: User
+    organization?: Organization | null
+    error?: string
+  }>
+  signUpWithEmail: (
+    email: string,
+    password: string,
+  ) => Promise<{
+    success: boolean
+    user?: User
+    organization?: Organization | null
+    error?: string
+  }>
+  signInWithGoogle: () => Promise<{
+    success: boolean
+    user?: User
+    organization?: Organization | null
+    error?: string
+  }>
+  signInAsGuest: () => Promise<{ success: boolean; user?: User; error?: string }>
+  acceptInvitation: (invitationCode: string) => Promise<{
+    success: boolean
+    user?: User
+    organization?: Organization
+    message?: string
+    error?: string
+  }>
+  getUserRole: () => string | null
+  getUserPermissions: () => string[]
+  isOrganizationAdmin: () => boolean
+  getTenantId: () => string
+  isAuthenticated: boolean
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext)
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider')
@@ -14,14 +88,14 @@ export function useAuth() {
 
 // Mock AprioOne service for organization management
 class AprioOneService {
-  static async checkEmailDomainOrganization(email) {
+  static async checkEmailDomainOrganization(email: string): Promise<Organization | null> {
     const domain = email.split('@')[1]?.toLowerCase()
-    
+
     // Mock API call to AprioOne system
-    await new Promise(resolve => setTimeout(resolve, 500))
-    
+    await new Promise((resolve) => setTimeout(resolve, 500))
+
     // Mock registered domains
-    const registeredDomains = {
+    const registeredDomains: Record<string, Organization> = {
       'acme.com': {
         id: 'aprio_org_acme',
         name: 'Acme Corporation',
@@ -36,7 +110,7 @@ class AprioOneService {
         branding: {
           primaryColor: '#1976D2',
           logo: 'https://acme.com/logo.png',
-          theme: 'corporate'
+          theme: 'corporate',
         },
         emailDomains: ['acme.com'],
         autoBindNewUsers: true,
@@ -55,32 +129,32 @@ class AprioOneService {
         branding: {
           primaryColor: '#4CAF50',
           logo: 'https://techcorp.io/logo.png',
-          theme: 'modern'
+          theme: 'modern',
         },
         emailDomains: ['techcorp.io'],
         autoBindNewUsers: true,
-      }
+      },
     }
-    
+
     return registeredDomains[domain] || null
   }
 
-  static async validateInvitationCode(invitationCode) {
+  static async validateInvitationCode(invitationCode: string) {
     if (!invitationCode.startsWith('APRIO-') || invitationCode.length < 15) {
       throw new Error('Invalid invitation code format. Please check with your organization admin.')
     }
 
     // Mock API call to AprioOne system
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+
     const parts = invitationCode.split('-')
     if (parts.length < 3) {
       throw new Error('Invalid invitation code format')
     }
-    
+
     const orgCode = parts[1]
     const inviteId = parts[2]
-    
+
     // Mock organization data from AprioOne system
     return {
       organization: {
@@ -98,20 +172,24 @@ class AprioOneService {
         branding: {
           primaryColor: '#1976D2',
           logo: 'https://acme.com/logo.png',
-          theme: 'corporate'
-        }
+          theme: 'corporate',
+        },
       },
       userRole: 'employee',
       department: 'Engineering',
       permissions: ['read', 'write'],
-      inviteId
+      inviteId,
     }
   }
 }
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
-  const [organization, setOrganization] = useState(null)
+interface AuthProviderProps {
+  children: ReactNode
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [user, setUser] = useState<User | null>(null)
+  const [organization, setOrganization] = useState<Organization | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -124,7 +202,7 @@ export function AuthProvider({ children }) {
         } else {
           // Check email domain for automatic organization binding
           try {
-            const org = await AprioOneService.checkEmailDomainOrganization(firebaseUser.email)
+            const org = await AprioOneService.checkEmailDomainOrganization(firebaseUser.email || '')
             if (org) {
               setOrganization(org)
               localStorage.setItem(`org_${firebaseUser.uid}`, JSON.stringify(org))
@@ -136,7 +214,7 @@ export function AuthProvider({ children }) {
       } else {
         setOrganization(null)
       }
-      
+
       setUser(firebaseUser)
       setLoading(false)
     })
@@ -144,37 +222,37 @@ export function AuthProvider({ children }) {
     return unsubscribe
   }, [])
 
-  const signInWithEmail = async (email, password) => {
+  const signInWithEmail = async (email: string, password: string) => {
     try {
       const result = await signInWithEmailAndPassword(auth, email, password)
-      
+
       // Check for organization binding
       const org = await AprioOneService.checkEmailDomainOrganization(email)
       if (org) {
         setOrganization(org)
         localStorage.setItem(`org_${result.user.uid}`, JSON.stringify(org))
       }
-      
+
       return { success: true, user: result.user, organization: org }
     } catch (error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }
 
-  const signUpWithEmail = async (email, password) => {
+  const signUpWithEmail = async (email: string, password: string) => {
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password)
-      
+
       // Check for organization binding
       const org = await AprioOneService.checkEmailDomainOrganization(email)
       if (org) {
         setOrganization(org)
         localStorage.setItem(`org_${result.user.uid}`, JSON.stringify(org))
       }
-      
+
       return { success: true, user: result.user, organization: org }
     } catch (error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }
 
@@ -182,17 +260,17 @@ export function AuthProvider({ children }) {
     try {
       const provider = new GoogleAuthProvider()
       const result = await signInWithPopup(auth, provider)
-      
+
       // Check for organization binding
-      const org = await AprioOneService.checkEmailDomainOrganization(result.user.email)
+      const org = await AprioOneService.checkEmailDomainOrganization(result.user.email || '')
       if (org) {
         setOrganization(org)
         localStorage.setItem(`org_${result.user.uid}`, JSON.stringify(org))
       }
-      
+
       return { success: true, user: result.user, organization: org }
     } catch (error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }
 
@@ -201,36 +279,39 @@ export function AuthProvider({ children }) {
       const result = await signInAnonymously(auth)
       return { success: true, user: result.user }
     } catch (error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }
 
-  const acceptInvitation = async (invitationCode) => {
+  const acceptInvitation = async (invitationCode: string) => {
     try {
       const inviteData = await AprioOneService.validateInvitationCode(invitationCode)
-      
+
       // For invitation flow, we create an anonymous user first, then bind to organization
       const result = await signInAnonymously(auth)
-      
+
       // Bind user to organization
       setOrganization(inviteData.organization)
       localStorage.setItem(`org_${result.user.uid}`, JSON.stringify(inviteData.organization))
-      localStorage.setItem(`invite_${result.user.uid}`, JSON.stringify({
-        invitationCode,
-        role: inviteData.userRole,
-        department: inviteData.department,
-        permissions: inviteData.permissions,
-        inviteId: inviteData.inviteId
-      }))
-      
-      return { 
-        success: true, 
-        user: result.user, 
+      localStorage.setItem(
+        `invite_${result.user.uid}`,
+        JSON.stringify({
+          invitationCode,
+          role: inviteData.userRole,
+          department: inviteData.department,
+          permissions: inviteData.permissions,
+          inviteId: inviteData.inviteId,
+        }),
+      )
+
+      return {
+        success: true,
+        user: result.user,
         organization: inviteData.organization,
-        message: `Successfully joined ${inviteData.organization.name}!`
+        message: `Successfully joined ${inviteData.organization.name}!`,
       }
     } catch (error) {
-      return { success: false, error: error.message }
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
     }
   }
 
@@ -249,26 +330,26 @@ export function AuthProvider({ children }) {
 
   const getUserRole = () => {
     if (!user) return null
-    
+
     const inviteData = localStorage.getItem(`invite_${user.uid}`)
     if (inviteData) {
       const data = JSON.parse(inviteData)
       return data.role
     }
-    
+
     // Default role for email domain binding
     return organization ? 'employee' : 'user'
   }
 
   const getUserPermissions = () => {
     if (!user) return []
-    
+
     const inviteData = localStorage.getItem(`invite_${user.uid}`)
     if (inviteData) {
       const data = JSON.parse(inviteData)
       return data.permissions
     }
-    
+
     // Default permissions for email domain binding
     return organization ? ['read', 'write'] : ['read']
   }
@@ -282,7 +363,7 @@ export function AuthProvider({ children }) {
     return organization?.id || 'demo'
   }
 
-  const value = {
+  const value: AuthContextType = {
     user,
     organization,
     loading,
@@ -296,12 +377,8 @@ export function AuthProvider({ children }) {
     getUserPermissions,
     isOrganizationAdmin,
     getTenantId,
-    isAuthenticated: !!user
+    isAuthenticated: !!user,
   }
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

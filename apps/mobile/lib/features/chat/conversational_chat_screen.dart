@@ -178,16 +178,16 @@ class _ConversationalChatScreenState extends State<ConversationalChatScreen>
         conversationId: _currentConversationId,
       );
 
-      if (response['success']) {
-        _currentConversationId = response['conversationId'];
+      if (response['success'] == true) {
+        _currentConversationId = response['conversationId']?.toString();
         
         final assistantMessage = ChatMessage(
           id: DateTime.now().millisecondsSinceEpoch.toString(),
-          text: response['answer'],
+          text: response['answer']?.toString() ?? '',
           isUser: false,
           timestamp: DateTime.now(),
-          sources: List<String>.from(response['sources'] ?? []),
-          confidence: response['confidence']?.toDouble() ?? 0.0,
+          sources: response['sources'] != null ? List<String>.from(response['sources'] as List<dynamic>) : [],
+          confidence: (response['confidence'] as num?)?.toDouble() ?? 0.0,
         );
 
         setState(() {
@@ -197,19 +197,19 @@ class _ConversationalChatScreenState extends State<ConversationalChatScreen>
         // Save conversation locally
         await _localStorage.saveChatMessage(
           question: text.trim(),
-          answer: response['answer'],
-          confidence: response['confidence']?.toDouble(),
-          sources: response['sources'] != null ? List<String>.from(response['sources']) : null,
+          answer: response['answer']?.toString() ?? '',
+          confidence: (response['confidence'] as num?)?.toDouble(),
+          sources: response['sources'] != null ? List<String>.from(response['sources'] as List<dynamic>) : null,
         );
 
         // Speak the response if speech is enabled
         if (_speechService.isInitialized) {
-          await _speechService.speak(response['answer']);
+          await _speechService.speak(response['answer']?.toString() ?? '');
         }
 
         _scrollToBottom();
       } else {
-        _showError(response['error'] ?? 'Failed to get response');
+        _showError(response['error']?.toString() ?? 'Failed to get response');
       }
     } catch (e) {
       _showError('Network error: $e');
@@ -479,12 +479,12 @@ class ChatMessage {
 
   factory ChatMessage.fromMap(Map<String, dynamic> map) {
     return ChatMessage(
-      id: map['id'] ?? '',
-      text: map['text'] ?? '',
-      isUser: map['is_user'] ?? false,
-      timestamp: DateTime.fromMillisecondsSinceEpoch(map['timestamp'] ?? 0),
-      sources: map['sources'] != null ? List<String>.from(map['sources']) : null,
-      confidence: map['confidence']?.toDouble(),
+      id: map['id']?.toString() ?? '',
+      text: map['text']?.toString() ?? '',
+      isUser: map['is_user'] == true,
+      timestamp: DateTime.fromMillisecondsSinceEpoch((map['timestamp'] as int?) ?? 0),
+      sources: map['sources'] != null ? List<String>.from(map['sources'] as List<dynamic>) : null,
+      confidence: (map['confidence'] as num?)?.toDouble(),
     );
   }
 }

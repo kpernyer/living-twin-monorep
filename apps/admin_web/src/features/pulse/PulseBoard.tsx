@@ -7,7 +7,7 @@ export default function PulseBoard() {
   const [stats, setStats] = useState({
     totalQueries: 0,
     totalDocuments: 0,
-    avgConfidence: 0
+    avgConfidence: 0,
   })
   const [loading, setLoading] = useState(true)
 
@@ -18,12 +18,12 @@ export default function PulseBoard() {
   async function loadPulseData() {
     try {
       setLoading(true)
-      
+
       // Load recent documents (we already have this endpoint)
       const recentResp = await apiFetch('/ingest/recent')
       const recentData = await recentResp.json()
       setTopSources(recentData.items || [])
-      
+
       // Mock data for now - in real implementation, these would be separate endpoints
       setRecentAnswers([
         {
@@ -32,24 +32,23 @@ export default function PulseBoard() {
           answer: 'Based on Q3 strategy, we need to fix bug X and raise NPS by 5 points.',
           confidence: 0.85,
           timestamp: new Date().toISOString(),
-          sources: ['Retention Strategy Q3']
+          sources: ['Retention Strategy Q3'],
         },
         {
-          id: '2', 
+          id: '2',
           question: 'What are our main priorities?',
           answer: 'Focus on customer satisfaction and product stability improvements.',
           confidence: 0.78,
           timestamp: new Date(Date.now() - 3600000).toISOString(),
-          sources: ['Strategic Plan 2024']
-        }
+          sources: ['Strategic Plan 2024'],
+        },
       ])
-      
+
       setStats({
         totalQueries: 42,
         totalDocuments: recentData.items?.length || 0,
-        avgConfidence: 0.82
+        avgConfidence: 0.82,
       })
-      
     } catch (error) {
       console.error('Failed to load pulse data:', error)
     } finally {
@@ -116,7 +115,9 @@ export default function PulseBoard() {
               <div className="ml-5 w-0 flex-1">
                 <dl>
                   <dt className="text-sm font-medium text-gray-500 truncate">Avg Confidence</dt>
-                  <dd className="text-lg font-medium text-gray-900">{Math.round(stats.avgConfidence * 100)}%</dd>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {Math.round(stats.avgConfidence * 100)}%
+                  </dd>
                 </dl>
               </div>
             </div>
@@ -154,7 +155,10 @@ export default function PulseBoard() {
           <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Recent Sources</h3>
           <div className="space-y-3">
             {topSources.slice(0, 5).map((source) => (
-              <div key={source.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0">
+              <div
+                key={source.id}
+                className="flex items-center justify-between py-2 border-b border-gray-100 last:border-b-0"
+              >
                 <div className="flex-1">
                   <p className="text-sm font-medium text-gray-900">{source.title}</p>
                   <p className="text-xs text-gray-500">

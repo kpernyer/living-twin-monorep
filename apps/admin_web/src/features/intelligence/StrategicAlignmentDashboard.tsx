@@ -1,82 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { Card } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
+import React, { useState, useEffect } from 'react'
+import { Card } from '../../components/ui/card'
+import { Button } from '../../components/ui/button'
+import { Badge } from '../../components/ui/badge'
 
 const StrategicAlignmentDashboard = () => {
-  const [scorecard, setScorecard] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [scorecard, setScorecard] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
-    loadStrategicAlignmentScorecard();
-  }, []);
+    loadStrategicAlignmentScorecard()
+  }, [])
 
   const loadStrategicAlignmentScorecard = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('/api/intelligence/alignment/scorecard');
+      setLoading(true)
+      const response = await fetch('/api/intelligence/alignment/scorecard')
       if (!response.ok) {
-        throw new Error('Failed to load strategic alignment scorecard');
+        throw new Error('Failed to load strategic alignment scorecard')
       }
-      const data = await response.json();
-      setScorecard(data);
+      const data = await response.json()
+      setScorecard(data)
     } catch (err) {
-      setError(err.message);
+      setError(err.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const calculateAlignment = async () => {
     try {
-      setLoading(true);
+      setLoading(true)
       const response = await fetch('/api/intelligence/alignment/calculate', {
         method: 'POST',
-      });
+      })
       if (!response.ok) {
-        throw new Error('Failed to calculate strategic alignment');
+        throw new Error('Failed to calculate strategic alignment')
       }
-      await loadStrategicAlignmentScorecard();
+      await loadStrategicAlignmentScorecard()
     } catch (err) {
-      setError(err.message);
+      setError(err.message)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const getZoneColor = (zone) => {
     switch (zone) {
       case 'green':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-100 text-green-800 border-green-200'
       case 'yellow':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200'
       case 'red':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 text-red-800 border-red-200'
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-gray-800 border-gray-200'
     }
-  };
+  }
 
   const getZoneIcon = (zone) => {
     switch (zone) {
       case 'green':
-        return '✅';
+        return '✅'
       case 'yellow':
-        return '⚠️';
+        return '⚠️'
       case 'red':
-        return '🚨';
+        return '🚨'
       default:
-        return '❓';
+        return '❓'
     }
-  };
+  }
 
   if (loading) {
     return (
       <div className="p-6">
         <div className="text-center">Loading strategic alignment data...</div>
       </div>
-    );
+    )
   }
 
   if (error) {
@@ -87,7 +87,7 @@ const StrategicAlignmentDashboard = () => {
           Retry
         </Button>
       </div>
-    );
+    )
   }
 
   if (!scorecard) {
@@ -98,7 +98,7 @@ const StrategicAlignmentDashboard = () => {
           Calculate Strategic Alignment
         </Button>
       </div>
-    );
+    )
   }
 
   return (
@@ -118,7 +118,7 @@ const StrategicAlignmentDashboard = () => {
             {getZoneIcon(scorecard.alignment_zone)} {scorecard.alignment_zone.toUpperCase()}
           </Badge>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="text-center">
             <div className="text-3xl font-bold text-blue-600">
@@ -126,14 +126,14 @@ const StrategicAlignmentDashboard = () => {
             </div>
             <div className="text-sm text-gray-600">Overall Score</div>
           </div>
-          
+
           <div className="text-center">
             <div className="text-3xl font-bold text-green-600">
               {scorecard.strategic_velocity.toFixed(1)}%
             </div>
             <div className="text-sm text-gray-600">Strategic Velocity</div>
           </div>
-          
+
           <div className="text-center">
             <div className="text-3xl font-bold text-purple-600">
               {scorecard.risk_indicators.length}
@@ -150,50 +150,58 @@ const StrategicAlignmentDashboard = () => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm font-medium">Strategic Initiative Velocity</span>
-              <span className="text-sm font-bold">{scorecard.strategic_initiative_velocity.toFixed(1)}%</span>
+              <span className="text-sm font-bold">
+                {scorecard.strategic_initiative_velocity.toFixed(1)}%
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full" 
+              <div
+                className="bg-blue-600 h-2 rounded-full"
                 style={{ width: `${scorecard.strategic_initiative_velocity}%` }}
               ></div>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm font-medium">Goal Cascade Alignment</span>
-              <span className="text-sm font-bold">{scorecard.goal_cascade_alignment.toFixed(1)}%</span>
+              <span className="text-sm font-bold">
+                {scorecard.goal_cascade_alignment.toFixed(1)}%
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-green-600 h-2 rounded-full" 
+              <div
+                className="bg-green-600 h-2 rounded-full"
                 style={{ width: `${scorecard.goal_cascade_alignment}%` }}
               ></div>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm font-medium">Decision-Strategy Consistency</span>
-              <span className="text-sm font-bold">{scorecard.decision_strategy_consistency.toFixed(1)}%</span>
+              <span className="text-sm font-bold">
+                {scorecard.decision_strategy_consistency.toFixed(1)}%
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-purple-600 h-2 rounded-full" 
+              <div
+                className="bg-purple-600 h-2 rounded-full"
                 style={{ width: `${scorecard.decision_strategy_consistency}%` }}
               ></div>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm font-medium">Resource Allocation Efficiency</span>
-              <span className="text-sm font-bold">{scorecard.resource_allocation_efficiency.toFixed(1)}%</span>
+              <span className="text-sm font-bold">
+                {scorecard.resource_allocation_efficiency.toFixed(1)}%
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-orange-600 h-2 rounded-full" 
+              <div
+                className="bg-orange-600 h-2 rounded-full"
                 style={{ width: `${scorecard.resource_allocation_efficiency}%` }}
               ></div>
             </div>
@@ -208,50 +216,56 @@ const StrategicAlignmentDashboard = () => {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm font-medium">Strategic Response Time</span>
-              <span className="text-sm font-bold">{scorecard.strategic_response_time.toFixed(1)}%</span>
+              <span className="text-sm font-bold">
+                {scorecard.strategic_response_time.toFixed(1)}%
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full" 
+              <div
+                className="bg-blue-600 h-2 rounded-full"
                 style={{ width: `${scorecard.strategic_response_time}%` }}
               ></div>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm font-medium">Cross-Functional Alignment</span>
-              <span className="text-sm font-bold">{scorecard.cross_functional_alignment.toFixed(1)}%</span>
+              <span className="text-sm font-bold">
+                {scorecard.cross_functional_alignment.toFixed(1)}%
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-green-600 h-2 rounded-full" 
+              <div
+                className="bg-green-600 h-2 rounded-full"
                 style={{ width: `${scorecard.cross_functional_alignment}%` }}
               ></div>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm font-medium">Communication Effectiveness</span>
-              <span className="text-sm font-bold">{scorecard.strategic_communication_effectiveness.toFixed(1)}%</span>
+              <span className="text-sm font-bold">
+                {scorecard.strategic_communication_effectiveness.toFixed(1)}%
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-purple-600 h-2 rounded-full" 
+              <div
+                className="bg-purple-600 h-2 rounded-full"
                 style={{ width: `${scorecard.strategic_communication_effectiveness}%` }}
               ></div>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <div className="flex justify-between">
               <span className="text-sm font-medium">Adaptation Speed</span>
               <span className="text-sm font-bold">{scorecard.adaptation_speed.toFixed(1)}%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-orange-600 h-2 rounded-full" 
+              <div
+                className="bg-orange-600 h-2 rounded-full"
                 style={{ width: `${scorecard.adaptation_speed}%` }}
               ></div>
             </div>
@@ -299,7 +313,7 @@ const StrategicAlignmentDashboard = () => {
         </div>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default StrategicAlignmentDashboard;
+export default StrategicAlignmentDashboard

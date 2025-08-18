@@ -4,8 +4,13 @@ import { AuthProvider } from './features/auth/AuthProvider'
 import App from './ui/App'
 import './index.css'
 
-createRoot(document.getElementById('root')).render(
+const rootElement = document.getElementById('root')
+if (!rootElement) {
+  throw new Error('Root element not found')
+}
+
+createRoot(rootElement).render(
   <AuthProvider>
     <App />
-  </AuthProvider>
+  </AuthProvider>,
 )

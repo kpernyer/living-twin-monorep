@@ -7,7 +7,7 @@ import StrategicAlignmentDashboard from '../features/intelligence/StrategicAlign
 import DocumentInjection from '../features/document_injection/DocumentInjection'
 
 export default function Dashboard() {
-  const { user, organization, logout, getUserRole, getTenantId, isOrganizationAdmin } = useAuth()
+  const { user, organization, logout, getUserRole, getTenantId } = useAuth()
   const [activeTab, setActiveTab] = useState('document_injection')
   const [question, setQuestion] = useState('How are we doing on retention?')
   const [answer, setAnswer] = useState('')
@@ -21,7 +21,7 @@ export default function Dashboard() {
     try {
       const resp = await apiFetch('/query', {
         method: 'POST',
-        body: JSON.stringify({ question, k: 5, tenantId: getTenantId() })
+        body: JSON.stringify({ question, k: 5, tenantId: getTenantId() }),
       })
       const data = await resp.json()
       setAnswer(resp.ok ? data.answer : `Error ${resp.status}: ${JSON.stringify(data)}`)
@@ -34,7 +34,7 @@ export default function Dashboard() {
     try {
       const resp = await apiFetch('/query/ingest/text', {
         method: 'POST',
-        body: JSON.stringify({ title, text: ingestText, tenantId: getTenantId() })
+        body: JSON.stringify({ title, text: ingestText, tenantId: getTenantId() }),
       })
       const data = await resp.json()
       await loadRecent()
@@ -58,7 +58,7 @@ export default function Dashboard() {
     try {
       const resp = await apiFetch('/query/debug/rag', {
         method: 'POST',
-        body: JSON.stringify({ question, k: 5, tenantId: getTenantId() })
+        body: JSON.stringify({ question, k: 5, tenantId: getTenantId() }),
       })
       const data = await resp.json()
       setAnswer(JSON.stringify(data, null, 2))
@@ -81,10 +81,10 @@ export default function Dashboard() {
     try {
       const resp = await apiFetch('/query/ingest/upload', {
         method: 'POST',
-        body: formData
+        body: formData,
       })
       const data = await resp.json()
-      
+
       if (resp.ok) {
         await loadRecent()
         alert(`File uploaded successfully!\nType: ${data.fileType}\nChunks: ${data.chunks}`)
@@ -92,7 +92,7 @@ export default function Dashboard() {
         setUploadTitle('')
         // Reset file input
         const fileInput = document.getElementById('fileInput')
-        if (fileInput) fileInput.value = ''
+        if (fileInput) (fileInput as HTMLInputElement).value = ''
       } else {
         alert(`Upload failed: ${data.detail || 'Unknown error'}`)
       }
@@ -109,7 +109,9 @@ export default function Dashboard() {
     }
   }
 
-  useEffect(() => { loadRecent() }, [])
+  useEffect(() => {
+    loadRecent()
+  }, [])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -132,9 +134,9 @@ export default function Dashboard() {
                     {organization.adminPortalUrl && (
                       <>
                         <span>•</span>
-                        <a 
-                          href={organization.adminPortalUrl} 
-                          target="_blank" 
+                        <a
+                          href={organization.adminPortalUrl}
+                          target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:text-blue-500"
                         >
@@ -150,7 +152,9 @@ export default function Dashboard() {
               {organization && (
                 <div className="text-right text-sm">
                   <div className="font-medium text-gray-900">{organization.name}</div>
-                  <div className="text-gray-500">{organization.industry} • {organization.size}</div>
+                  <div className="text-gray-500">
+                    {organization.industry} • {organization.size}
+                  </div>
                 </div>
               )}
               <button
@@ -235,132 +239,139 @@ export default function Dashboard() {
             <DocumentInjection />
           ) : (
             <div className="grid grid-cols-1 gap-6">
-            
-            {/* Ask the Twin */}
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Ask the Twin</h3>
-                <div className="space-y-4">
-                  <input 
-                    value={question} 
-                    onChange={e => setQuestion(e.target.value)} 
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Enter your question..."
-                  />
-                  <div className="flex space-x-3">
-                    <button 
-                      onClick={askTwin}
-                      className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+              {/* Ask the Twin */}
+              <div className="bg-white overflow-hidden shadow rounded-lg">
+                <div className="px-4 py-5 sm:p-6">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Ask the Twin</h3>
+                  <div className="space-y-4">
+                    <input
+                      value={question}
+                      onChange={(e) => setQuestion(e.target.value)}
+                      className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Enter your question..."
+                    />
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={askTwin}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        Ask
+                      </button>
+                      <button
+                        onClick={debugRag}
+                        className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+                      >
+                        Debug RAG
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ingest Text */}
+              <div className="bg-white overflow-hidden shadow rounded-lg">
+                <div className="px-4 py-5 sm:p-6">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    Ingest Domain Knowledge (Text)
+                  </h3>
+                  <div className="space-y-4">
+                    <input
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                      placeholder="Title"
+                      className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                    <textarea
+                      value={ingestText}
+                      onChange={(e) => setIngestText(e.target.value)}
+                      rows={6}
+                      className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                      placeholder="Paste your domain knowledge here..."
+                    />
+                    <button
+                      onClick={doIngest}
+                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
                     >
-                      Ask
-                    </button>
-                    <button 
-                      onClick={debugRag}
-                      className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                    >
-                      Debug RAG
+                      Ingest
                     </button>
                   </div>
                 </div>
               </div>
-            </div>
 
-            {/* Ingest Text */}
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Ingest Domain Knowledge (Text)</h3>
-                <div className="space-y-4">
-                  <input 
-                    value={title} 
-                    onChange={e => setTitle(e.target.value)} 
-                    placeholder="Title" 
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                  <textarea 
-                    value={ingestText} 
-                    onChange={e => setIngestText(e.target.value)} 
-                    rows={6} 
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                    placeholder="Paste your domain knowledge here..."
-                  />
-                  <button 
-                    onClick={doIngest}
-                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    Ingest
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* File Upload */}
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Upload Documents (PDF, DOCX, TXT)</h3>
-                <div className="space-y-4">
-                  <input 
-                    value={uploadTitle} 
-                    onChange={e => setUploadTitle(e.target.value)} 
-                    placeholder="Document title (optional)" 
-                    className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                  <input 
-                    id="fileInput"
-                    type="file" 
-                    accept=".pdf,.docx,.doc,.txt,.md" 
-                    onChange={handleFileSelect}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                  />
-                  {selectedFile && (
-                    <div className="p-3 bg-gray-50 rounded-md">
-                      Selected: <strong>{selectedFile.name}</strong> ({(selectedFile.size / 1024).toFixed(1)} KB)
-                    </div>
-                  )}
-                  <button 
-                    onClick={doFileUpload} 
-                    disabled={!selectedFile}
-                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium"
-                  >
-                    Upload Document
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Recently Ingested */}
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="px-4 py-5 sm:p-6">
-                <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Recently Ingested</h3>
-                <ul className="divide-y divide-gray-200">
-                  {recent.map((r) => (
-                    <li key={r.id} className="py-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">{r.title}</p>
-                          <p className="text-sm text-gray-500">{r.createdAt} — {r.type}</p>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                {recent.length === 0 && (
-                  <p className="text-gray-500 text-sm">No documents ingested yet.</p>
-                )}
-              </div>
-            </div>
-
-            {/* Answer Display */}
-            {answer && (
+              {/* File Upload */}
               <div className="bg-white overflow-hidden shadow rounded-lg">
                 <div className="px-4 py-5 sm:p-6">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Response</h3>
-                  <pre className="bg-gray-50 p-4 rounded-md text-sm overflow-auto whitespace-pre-wrap">
-                    {answer}
-                  </pre>
+                  <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    Upload Documents (PDF, DOCX, TXT)
+                  </h3>
+                  <div className="space-y-4">
+                    <input
+                      value={uploadTitle}
+                      onChange={(e) => setUploadTitle(e.target.value)}
+                      placeholder="Document title (optional)"
+                      className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    />
+                    <input
+                      id="fileInput"
+                      type="file"
+                      accept=".pdf,.docx,.doc,.txt,.md"
+                      onChange={handleFileSelect}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                    />
+                    {selectedFile && (
+                      <div className="p-3 bg-gray-50 rounded-md">
+                        Selected: <strong>{selectedFile.name}</strong> (
+                        {(selectedFile.size / 1024).toFixed(1)} KB)
+                      </div>
+                    )}
+                    <button
+                      onClick={doFileUpload}
+                      disabled={!selectedFile}
+                      className="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md text-sm font-medium"
+                    >
+                      Upload Document
+                    </button>
+                  </div>
                 </div>
               </div>
-            )}
 
+              {/* Recently Ingested */}
+              <div className="bg-white overflow-hidden shadow rounded-lg">
+                <div className="px-4 py-5 sm:p-6">
+                  <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    Recently Ingested
+                  </h3>
+                  <ul className="divide-y divide-gray-200">
+                    {recent.map((r) => (
+                      <li key={r.id} className="py-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">{r.title}</p>
+                            <p className="text-sm text-gray-500">
+                              {r.createdAt} — {r.type}
+                            </p>
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                  {recent.length === 0 && (
+                    <p className="text-gray-500 text-sm">No documents ingested yet.</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Answer Display */}
+              {answer && (
+                <div className="bg-white overflow-hidden shadow rounded-lg">
+                  <div className="px-4 py-5 sm:p-6">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Response</h3>
+                    <pre className="bg-gray-50 p-4 rounded-md text-sm overflow-auto whitespace-pre-wrap">
+                      {answer}
+                    </pre>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>

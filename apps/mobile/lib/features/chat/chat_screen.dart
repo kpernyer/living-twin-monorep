@@ -83,7 +83,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
 
   Future<void> _checkConnectivity() async {
     final connectivityResult = await Connectivity().checkConnectivity();
-    final isOnline = connectivityResult != ConnectivityResult.none;
+    final isOnline = !connectivityResult.contains(ConnectivityResult.none);
     
     // Also check if the server is actually reachable
     var serverReachable = false;
@@ -132,14 +132,14 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
       final response = await _apiClient.query(question: question);
       
       // Debug: Print the response to see what we're getting
-      print('API Response: $response');
+      debugPrint('API Response: $response');
       
       // Handle null safety for response fields
-      final success = response['success'] as bool? ?? false;
-      final isOffline = response['offline'] as bool? ?? false;
-      final error = response['error'] as String?;
+      final success = response['success'] == true;
+      final isOffline = response['offline'] == true;
+      final error = response['error']?.toString();
       
-      print('Parsed values - success: $success, isOffline: $isOffline, error: $error');
+      debugPrint('Parsed values - success: $success, isOffline: $isOffline, error: $error');
       
       if (success) {
         // Message was successfully processed
@@ -214,8 +214,8 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   Future<void> _listen() async {
     if (!_isListening) {
       final available = await _speechToText.initialize(
-        onStatus: (val) => print('onStatus: $val'),
-        onError: (val) => print('onError: $val'),
+        onStatus: (val) => debugPrint('onStatus: $val'),
+        onError: (val) => debugPrint('onError: $val'),
       );
       if (available) {
         setState(() => _isListening = true);
@@ -245,9 +245,10 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
 
   Widget _buildMessage(Map<String, dynamic> message) {
     final isUser = message['answer'] == null;
-    final timestamp = DateTime.fromMillisecondsSinceEpoch(message['timestamp']);
-    final isSynced = message['is_synced'] as bool? ?? true;
-    final isLocal = message['is_local'] as bool? ?? false;
+    final timestampValue = message['timestamp'] as int? ?? 0;
+    final timestamp = DateTime.fromMillisecondsSinceEpoch(timestampValue);
+    final isSynced = message['is_synced'] == true;
+    final isLocal = message['is_local'] == true;
     
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
@@ -267,7 +268,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isUser ? message['question'] : (message['answer'] ?? 'Processing...'),
+                  isUser ? (message['question']?.toString() ?? '') : (message['answer']?.toString() ?? 'Processing...'),
                   style: TextStyle(
                     color: isUser ? Colors.white : Colors.black87,
                     fontSize: 16,
@@ -276,24 +277,30 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                 if (!isUser && message['confidence'] != null) ...[
                   const SizedBox(height: 4),
                   Text(
-                    'Confidence: ${(message['confidence'] * 100).toInt()}%',
+                    'Confidence: ${((message['confidence'] as num? ?? 0) * 100).toInt()}%',
                     style: TextStyle(
                       color: Colors.grey[600],
                       fontSize: 12,
                     ),
                   ),
                 ],
-                if (!isUser && message['sources'] != null && (message['sources'] as List).isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    'Sources: ${(message['sources'] as List).join(', ')}',
-                    style: TextStyle(
-                      color: Colors.grey[600],
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
+                if (!isUser && message['sources'] != null) ...() {
+                  final sources = message['sources'] as List<dynamic>?;
+                  if (sources != null && sources.isNotEmpty) {
+                    return [
+                      const SizedBox(height: 4),
+                      Text(
+                        'Sources: ${sources.join(', ')}',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ];
+                  }
+                  return [];
+                }(),
               ],
             ),
           ),
@@ -351,7 +358,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               ),
             ),
           ),
-          if (_offlineStats['pendingRetries'] != null && _offlineStats['pendingRetries'] > 0)
+          if (_offlineStats['pendingRetries'] != null && (_offlineStats['pendingRetries'] as int? ?? 0) > 0)
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
@@ -564,7 +571,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Status: ${_offlineStats['isOnline'] ? 'Online' : 'Offline'}'),
+            Text('Status: ${_offlineStats['isOnline'] == true ? 'Online' : 'Offline'}'),
             const SizedBox(height: 8),
             Text('Total Messages: ${_offlineStats['totalMessages'] ?? 0}'),
             Text('Unsynced Messages: ${_offlineStats['unsyncedMessages'] ?? 0}'),

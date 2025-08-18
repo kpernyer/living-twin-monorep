@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
 
-      if (result['success']) {
+      if (result['success'] == true) {
         if (mounted) {
           // Check if user has organization setup
           final user = result['user'] as Map<String, dynamic>;
@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result['error'] ?? 'Authentication failed'),
+              content: Text(result['error']?.toString() ?? 'Authentication failed'),
               backgroundColor: Colors.red,
             ),
           );
@@ -105,18 +105,18 @@ class _LoginScreenState extends State<LoginScreen> {
       // Mock Google Sign-In for demo
       final result = await _authService.signInWithGoogle();
       
-      if (result['success']) {
+      if (result['success'] == true) {
         if (mounted) {
           final user = result['user'] as Map<String, dynamic>;
           final hasOrganization = user['organizationId'] != null;
           
           if (hasOrganization) {
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const MainScreen()),
+              MaterialPageRoute<void>(builder: (context) => const MainScreen()),
             );
           } else {
             Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const OrganizationSetupScreen()),
+              MaterialPageRoute<void>(builder: (context) => const OrganizationSetupScreen()),
             );
           }
         }
@@ -124,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result['error'] ?? 'Google Sign-In failed'),
+              content: Text(result['error']?.toString() ?? 'Google Sign-In failed'),
               backgroundColor: Colors.red,
             ),
           );
@@ -156,17 +156,17 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final result = await _authService.signInAnonymously();
       
-      if (result['success']) {
+      if (result['success'] == true) {
         if (mounted) {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MainScreen()),
+            MaterialPageRoute<void>(builder: (context) => const MainScreen()),
           );
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result['error'] ?? 'Anonymous sign-in failed'),
+              content: Text(result['error']?.toString() ?? 'Anonymous sign-in failed'),
               backgroundColor: Colors.red,
             ),
           );
@@ -392,7 +392,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextButton.icon(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(
+                    MaterialPageRoute<void>(
                       builder: (context) => const InvitationScreen(),
                     ),
                   );
@@ -448,17 +448,17 @@ class _InvitationScreenState extends State<InvitationScreen> {
     try {
       final result = await _authService.acceptInvitation(invitationCode);
       
-      if (result['success']) {
+      if (result['success'] == true) {
         if (mounted) {
           Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const MainScreen()),
+            MaterialPageRoute<void>(builder: (context) => const MainScreen()),
           );
         }
       } else {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(result['error'] ?? 'Invalid invitation code'),
+              content: Text(result['error']?.toString() ?? 'Invalid invitation code'),
               backgroundColor: Colors.red,
             ),
           );

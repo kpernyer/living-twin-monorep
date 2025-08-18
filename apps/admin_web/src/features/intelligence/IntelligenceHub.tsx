@@ -1,57 +1,48 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
-import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs';
-import { 
-  Brain, 
-  TrendingUp, 
-  MessageSquare, 
-  Target, 
-  AlertTriangle,
-  CheckCircle,
-  Clock,
-  BarChart3
-} from 'lucide-react';
-import { apiFetch } from '../../shared/api';
+import React, { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card'
+import { Button } from '../../components/ui/button'
+import { Badge } from '../../components/ui/badge'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../components/ui/tabs'
+import { Brain, MessageSquare, Target, AlertTriangle, CheckCircle, Clock } from 'lucide-react'
+import { apiFetch } from '../../shared/api'
 
 const IntelligenceHub = () => {
-  const [dashboardData, setDashboardData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [dashboardData, setDashboardData] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('overview')
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    loadDashboardData()
+  }, [])
 
   const loadDashboardData = async () => {
     try {
-      setLoading(true);
-      const response = await apiFetch('/intelligence/dashboard');
-      const data = await response.json();
-      setDashboardData(data);
+      setLoading(true)
+      const response = await apiFetch('/intelligence/dashboard')
+      const data = await response.json()
+      setDashboardData(data)
     } catch (error) {
-      console.error('Failed to load dashboard data:', error);
+      console.error('Failed to load dashboard data:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleSetupDemo = async () => {
     try {
-      await apiFetch('/intelligence/setup-demo', { method: 'POST' });
-      await loadDashboardData();
+      await apiFetch('/intelligence/setup-demo', { method: 'POST' })
+      await loadDashboardData()
     } catch (error) {
-      console.error('Failed to setup demo:', error);
+      console.error('Failed to setup demo:', error)
     }
-  };
+  }
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
       </div>
-    );
+    )
   }
 
   return (
@@ -102,7 +93,9 @@ const IntelligenceHub = () => {
               <AlertTriangle className="h-4 w-4 text-orange-500" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">High Impact</p>
-                <p className="text-2xl font-bold">{dashboardData?.high_impact_truths?.length || 0}</p>
+                <p className="text-2xl font-bold">
+                  {dashboardData?.high_impact_truths?.length || 0}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -114,7 +107,9 @@ const IntelligenceHub = () => {
               <Clock className="h-4 w-4 text-purple-500" />
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Pending</p>
-                <p className="text-2xl font-bold">{dashboardData?.pending_communications?.length || 0}</p>
+                <p className="text-2xl font-bold">
+                  {dashboardData?.pending_communications?.length || 0}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -147,8 +142,8 @@ const IntelligenceHub = () => {
         </TabsContent>
       </Tabs>
     </div>
-  );
-};
+  )
+}
 
 // Overview Tab Component
 const OverviewTab = ({ dashboardData }) => {
@@ -168,9 +163,7 @@ const OverviewTab = ({ dashboardData }) => {
               <div key={truth.id} className="p-3 border rounded-lg">
                 <div className="flex items-start justify-between">
                   <p className="text-sm font-medium">{truth.statement}</p>
-                  <Badge variant={getImpactVariant(truth.impact_level)}>
-                    {truth.impact_level}
-                  </Badge>
+                  <Badge variant={getImpactVariant(truth.impact_level)}>{truth.impact_level}</Badge>
                 </div>
                 <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
                   <span>Confidence: {(truth.confidence * 100).toFixed(0)}%</span>
@@ -204,9 +197,7 @@ const OverviewTab = ({ dashboardData }) => {
                     <p className="text-xs text-muted-foreground mt-1">{comm.content}</p>
                   </div>
                   <div className="flex flex-col items-end gap-1">
-                    <Badge variant={getCommunicationVariant(comm.type)}>
-                      {comm.type}
-                    </Badge>
+                    <Badge variant={getCommunicationVariant(comm.type)}>{comm.type}</Badge>
                     <span className="text-xs text-muted-foreground">
                       Priority: {comm.priority}/10
                     </span>
@@ -214,8 +205,11 @@ const OverviewTab = ({ dashboardData }) => {
                 </div>
               </div>
             ))}
-            {(!dashboardData?.pending_communications || dashboardData.pending_communications.length === 0) && (
-              <p className="text-muted-foreground text-center py-4">No pending priority communications</p>
+            {(!dashboardData?.pending_communications ||
+              dashboardData.pending_communications.length === 0) && (
+              <p className="text-muted-foreground text-center py-4">
+                No pending priority communications
+              </p>
             )}
           </div>
         </CardContent>
@@ -244,40 +238,43 @@ const OverviewTab = ({ dashboardData }) => {
                 </div>
               </div>
             ))}
-            {(!dashboardData?.high_impact_truths || dashboardData.high_impact_truths.length === 0) && (
-              <p className="text-muted-foreground text-center py-4 col-span-2">No high impact strategic insights</p>
+            {(!dashboardData?.high_impact_truths ||
+              dashboardData.high_impact_truths.length === 0) && (
+              <p className="text-muted-foreground text-center py-4 col-span-2">
+                No high impact strategic insights
+              </p>
             )}
           </div>
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}
 
 // Truths Tab Component
 const TruthsTab = () => {
-  const [truths, setTruths] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [truths, setTruths] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadTruths();
-  }, []);
+    loadTruths()
+  }, [])
 
   const loadTruths = async () => {
     try {
-      setLoading(true);
-      const response = await apiFetch('/intelligence/truths');
-      const data = await response.json();
-      setTruths(data);
+      setLoading(true)
+      const response = await apiFetch('/intelligence/truths')
+      const data = await response.json()
+      setTruths(data)
     } catch (error) {
-      console.error('Failed to load truths:', error);
+      console.error('Failed to load truths:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   if (loading) {
-    return <div>Loading truths...</div>;
+    return <div>Loading truths...</div>
   }
 
   return (
@@ -299,9 +296,7 @@ const TruthsTab = () => {
                     <span>Created: {new Date(truth.created_at).toLocaleDateString()}</span>
                   </div>
                 </div>
-                <Badge variant={getImpactVariant(truth.impact_level)}>
-                  {truth.impact_level}
-                </Badge>
+                <Badge variant={getImpactVariant(truth.impact_level)}>{truth.impact_level}</Badge>
               </div>
             </div>
           ))}
@@ -311,42 +306,44 @@ const TruthsTab = () => {
         </div>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
 // Communications Tab Component
 const CommunicationsTab = () => {
-  const [communications, setCommunications] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [communications, setCommunications] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    loadCommunications();
-  }, []);
+    loadCommunications()
+  }, [])
 
   const loadCommunications = async () => {
     try {
-      setLoading(true);
-      const response = await apiFetch('/intelligence/communications');
-      const data = await response.json();
-      setCommunications(data);
+      setLoading(true)
+      const response = await apiFetch('/intelligence/communications')
+      const data = await response.json()
+      setCommunications(data)
     } catch (error) {
-      console.error('Failed to load communications:', error);
+      console.error('Failed to load communications:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleAcknowledge = async (communicationId) => {
     try {
-      await apiFetch(`/intelligence/communications/${communicationId}/acknowledge`, { method: 'POST' });
-      await loadCommunications();
+      await apiFetch(`/intelligence/communications/${communicationId}/acknowledge`, {
+        method: 'POST',
+      })
+      await loadCommunications()
     } catch (error) {
-      console.error('Failed to acknowledge communication:', error);
+      console.error('Failed to acknowledge communication:', error)
     }
-  };
+  }
 
   if (loading) {
-    return <div>Loading communications...</div>;
+    return <div>Loading communications...</div>
   }
 
   return (
@@ -362,12 +359,8 @@ const CommunicationsTab = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <p className="font-medium">{comm.topic}</p>
-                    <Badge variant={getCommunicationVariant(comm.type)}>
-                      {comm.type}
-                    </Badge>
-                    {comm.acknowledged && (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
-                    )}
+                    <Badge variant={getCommunicationVariant(comm.type)}>{comm.type}</Badge>
+                    {comm.acknowledged && <CheckCircle className="h-4 w-4 text-green-500" />}
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">{comm.content}</p>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -377,10 +370,7 @@ const CommunicationsTab = () => {
                   </div>
                 </div>
                 {!comm.acknowledged && (
-                  <Button 
-                    size="sm" 
-                    onClick={() => handleAcknowledge(comm.id)}
-                  >
+                  <Button size="sm" onClick={() => handleAcknowledge(comm.id)}>
                     Acknowledge
                   </Button>
                 )}
@@ -388,42 +378,44 @@ const CommunicationsTab = () => {
             </div>
           ))}
           {communications.length === 0 && (
-            <p className="text-muted-foreground text-center py-8">No priority communications found</p>
+            <p className="text-muted-foreground text-center py-8">
+              No priority communications found
+            </p>
           )}
         </div>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
 // Generate Tab Component
 const GenerateTab = ({ onGenerated }) => {
-  const [templates, setTemplates] = useState([]);
-  const [selectedTemplate, setSelectedTemplate] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [templates, setTemplates] = useState([])
+  const [selectedTemplate, setSelectedTemplate] = useState('')
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    loadTemplates();
-  }, []);
+    loadTemplates()
+  }, [])
 
   const loadTemplates = async () => {
     try {
-      const response = await apiFetch('/intelligence/templates');
-      const data = await response.json();
-      setTemplates(data);
+      const response = await apiFetch('/intelligence/templates')
+      const data = await response.json()
+      setTemplates(data)
       if (data.length > 0) {
-        setSelectedTemplate(data[0].id);
+        setSelectedTemplate(data[0].id)
       }
     } catch (error) {
-      console.error('Failed to load templates:', error);
+      console.error('Failed to load templates:', error)
     }
-  };
+  }
 
   const handleGenerate = async () => {
-    if (!selectedTemplate) return;
+    if (!selectedTemplate) return
 
     try {
-      setLoading(true);
+      setLoading(true)
       await apiFetch('/intelligence/generate', {
         method: 'POST',
         body: JSON.stringify({
@@ -432,17 +424,17 @@ const GenerateTab = ({ onGenerated }) => {
           analysis_depth: 'weekly',
           variables: {
             industry: 'technology',
-            company_size: 'mid-size'
-          }
-        })
-      });
-      onGenerated();
+            company_size: 'mid-size',
+          },
+        }),
+      })
+      onGenerated()
     } catch (error) {
-      console.error('Failed to generate intelligence:', error);
+      console.error('Failed to generate intelligence:', error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <Card>
@@ -453,7 +445,7 @@ const GenerateTab = ({ onGenerated }) => {
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium">Select Template</label>
-            <select 
+            <select
               value={selectedTemplate}
               onChange={(e) => setSelectedTemplate(e.target.value)}
               className="w-full mt-1 p-2 border rounded-md"
@@ -469,18 +461,27 @@ const GenerateTab = ({ onGenerated }) => {
           {selectedTemplate && (
             <div className="p-4 border rounded-lg bg-muted">
               <h4 className="font-medium mb-2">Template Details</h4>
-              {templates.find(t => t.id === selectedTemplate) && (
+              {templates.find((t) => t.id === selectedTemplate) && (
                 <div className="text-sm text-muted-foreground">
-                  <p><strong>Description:</strong> {templates.find(t => t.id === selectedTemplate).description}</p>
-                  <p><strong>Category:</strong> {templates.find(t => t.id === selectedTemplate).category}</p>
-                  <p><strong>Analysis Depth:</strong> {templates.find(t => t.id === selectedTemplate).analysis_depth}</p>
+                  <p>
+                    <strong>Description:</strong>{' '}
+                    {templates.find((t) => t.id === selectedTemplate).description}
+                  </p>
+                  <p>
+                    <strong>Category:</strong>{' '}
+                    {templates.find((t) => t.id === selectedTemplate).category}
+                  </p>
+                  <p>
+                    <strong>Analysis Depth:</strong>{' '}
+                    {templates.find((t) => t.id === selectedTemplate).analysis_depth}
+                  </p>
                 </div>
               )}
             </div>
           )}
 
-          <Button 
-            onClick={handleGenerate} 
+          <Button
+            onClick={handleGenerate}
             disabled={!selectedTemplate || loading}
             className="w-full"
           >
@@ -489,27 +490,36 @@ const GenerateTab = ({ onGenerated }) => {
         </div>
       </CardContent>
     </Card>
-  );
-};
+  )
+}
 
 // Helper functions
 const getImpactVariant = (impactLevel) => {
   switch (impactLevel) {
-    case 'critical': return 'destructive';
-    case 'high': return 'default';
-    case 'medium': return 'secondary';
-    case 'low': return 'outline';
-    default: return 'outline';
+    case 'critical':
+      return 'destructive'
+    case 'high':
+      return 'default'
+    case 'medium':
+      return 'secondary'
+    case 'low':
+      return 'outline'
+    default:
+      return 'outline'
   }
-};
+}
 
 const getCommunicationVariant = (type) => {
   switch (type) {
-    case 'order': return 'destructive';
-    case 'recommendation': return 'default';
-    case 'nudge': return 'secondary';
-    default: return 'outline';
+    case 'order':
+      return 'destructive'
+    case 'recommendation':
+      return 'default'
+    case 'nudge':
+      return 'secondary'
+    default:
+      return 'outline'
   }
-};
+}
 
-export default IntelligenceHub;
+export default IntelligenceHub
