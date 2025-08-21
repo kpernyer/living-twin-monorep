@@ -1,0 +1,119 @@
+# Regional Factor: Asia Demographics
+# Affects all industries within Asia Pacific region
+
+name: "Asia Pacific Demographics"
+description: "Demographic changes affecting all industries in Asia Pacific region"
+scope: "regional"
+impact: "cross_industry"
+region: "Asia Pacific"
+factor_type: "demographics"
+urgency: "high"
+
+key_demographic_shifts:
+  - "Rapid aging in Japan, South Korea, China"
+  - "Youth population boom in India, Indonesia"
+  - "Urbanization in China and Southeast Asia"
+  - "Declining birth rates across the region"
+  - "Labor force changes and skill gaps"
+
+regional_breakdown:
+  Japan:
+    - "Aging crisis - 28% population over 65"
+    - "Declining workforce"
+    - "High healthcare costs"
+    - "Technology adoption for elderly care"
+  
+  South_Korea:
+    - "World's lowest birth rate"
+    - "Rapid aging population"
+    - "High education costs"
+    - "Work-life balance challenges"
+  
+  China:
+    - "One-child policy aftermath"
+    - "Urban vs rural demographic divide"
+    - "Middle class expansion"
+    - "Aging population starting to impact"
+  
+  India:
+    - "Youth demographic dividend"
+    - "Urban migration"
+    - "Education and skill development needs"
+    - "Digital adoption among young population"
+  
+  Southeast_Asia:
+    - "Young populations in Indonesia, Philippines"
+    - "Rapid urbanization"
+    - "Middle class growth"
+    - "Digital-first consumer behavior"
+
+industry_impacts:
+  fintech:
+    opportunities:
+      - "Digital banking for young populations"
+      - "Retirement planning for aging populations"
+      - "Microfinance for emerging middle class"
+      - "Mobile payment adoption"
+    threats:
+      - "Regulatory complexity across countries"
+      - "Cultural resistance to digital finance"
+      - "Infrastructure limitations in rural areas"
+  
+  healthcare:
+    opportunities:
+      - "Elderly care services and technology"
+      - "Telemedicine for rural populations"
+      - "Preventive healthcare for young populations"
+      - "Medical tourism development"
+    threats:
+      - "Healthcare cost inflation"
+      - "Workforce shortages"
+      - "Infrastructure gaps"
+  
+  retail:
+    opportunities:
+      - "E-commerce growth with young populations"
+      - "Luxury goods for growing middle class"
+      - "Localization for diverse cultures"
+      - "Social commerce platforms"
+    threats:
+      - "Cultural differences across markets"
+      - "Logistics challenges in rural areas"
+      - "Regulatory variations"
+
+strategic_signals:
+  - title: "Japan's Aging Crisis Deepens"
+    keywords: ["Japan", "aging population", "demographics", "elderly care", "workforce shortage"]
+    impact: "regional"
+    urgency: "high"
+  
+  - title: "India's Youth Demographic Dividend"
+    keywords: ["India", "youth population", "demographic dividend", "education", "employment"]
+    impact: "regional"
+    urgency: "medium"
+  
+  - title: "China's Population Decline"
+    keywords: ["China", "population decline", "birth rate", "demographics", "economic impact"]
+    impact: "regional"
+    urgency: "high"
+  
+  - title: "Southeast Asia Urbanization"
+    keywords: ["Southeast Asia", "urbanization", "middle class", "consumer behavior", "digital adoption"]
+    impact: "regional"
+    urgency: "medium"
+
+data_sources:
+  - name: "UN World Population Prospects"
+    url: "https://population.un.org/wpp"
+    update_frequency: "yearly"
+    credibility: 1.0
+  
+  - name: "Asian Development Bank"
+    url: "https://www.adb.org"
+    update_frequency: "quarterly"
+    credibility: 0.95
+  
+  - name: "Pew Research Center"
+    url: "https://www.pewresearch.org"
+    update_frequency: "monthly"
+    credibility: 0.9

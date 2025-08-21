@@ -1,0 +1,90 @@
+# Fintech Porter's Five Forces Analysis Test Data
+# Q1 2024 Competitive Landscape for Digital Payments Industry
+
+name: "Q1 2024 Fintech Competitive Landscape"
+description: "Porter's Five Forces analysis for digital payments industry"
+industry: "fintech"
+market_position: "emerging challenger"
+geographic_scope: ["North America", "Europe", "Southeast Asia"]
+
+competitive_rivalry:
+  - title: "Big Tech Dominance"
+    description: "Apple Pay and Google Pay control 85% of mobile payments market"
+    intensity: "very_high"
+    impact_score: 0.9
+    keywords: ["Apple Pay", "Google Pay", "market dominance", "mobile payments", "big tech"]
+    factors: ["brand recognition", "user base", "ecosystem integration"]
+
+  - title: "Traditional Banks"
+    description: "Major banks launching their own digital payment solutions"
+    intensity: "high"
+    impact_score: 0.7
+    keywords: ["traditional banks", "digital payments", "banking apps", "financial institutions"]
+    factors: ["customer trust", "regulatory advantage", "existing relationships"]
+
+  - title: "Startup Competition"
+    description: "Numerous fintech startups competing for market share"
+    intensity: "medium"
+    impact_score: 0.5
+    keywords: ["fintech startups", "market competition", "startup rivalry", "new players"]
+    factors: ["innovation", "agility", "funding"]
+
+new_entrants:
+  - title: "Tech Giants"
+    description: "Amazon, Meta, and other tech companies entering payments"
+    intensity: "high"
+    impact_score: 0.8
+    keywords: ["Amazon", "Meta", "tech giants", "new entrants", "market entry"]
+    factors: ["capital resources", "user base", "technology expertise"]
+
+  - title: "International Players"
+    description: "Alipay, WeChat Pay expanding globally"
+    intensity: "medium"
+    impact_score: 0.6
+    keywords: ["Alipay", "WeChat Pay", "international expansion", "global players"]
+    factors: ["market experience", "capital", "technology"]
+
+substitute_products:
+  - title: "Cryptocurrency Payments"
+    description: "Bitcoin, Ethereum, and stablecoins as payment alternatives"
+    intensity: "medium"
+    impact_score: 0.6
+    keywords: ["cryptocurrency", "Bitcoin", "Ethereum", "stablecoins", "crypto payments"]
+    factors: ["decentralization", "lower fees", "global access"]
+
+  - title: "Traditional Payment Methods"
+    description: "Cash, credit cards, and bank transfers still dominant"
+    intensity: "low"
+    impact_score: 0.3
+    keywords: ["cash", "credit cards", "bank transfers", "traditional payments"]
+    factors: ["familiarity", "acceptance", "simplicity"]
+
+supplier_power:
+  - title: "Payment Processors"
+    description: "Stripe, Square, and other processors control payment infrastructure"
+    intensity: "high"
+    impact_score: 0.7
+    keywords: ["Stripe", "Square", "payment processors", "infrastructure", "processing fees"]
+    factors: ["market concentration", "switching costs", "technology dependency"]
+
+  - title: "Cloud Providers"
+    description: "AWS, Google Cloud, Azure control cloud infrastructure"
+    intensity: "medium"
+    impact_score: 0.5
+    keywords: ["AWS", "Google Cloud", "Azure", "cloud providers", "infrastructure"]
+    factors: ["market concentration", "switching costs", "reliability"]
+
+buyer_power:
+  - title: "Large Merchants"
+    description: "Walmart, Amazon, and other large retailers have bargaining power"
+    intensity: "high"
+    impact_score: 0.8
+    keywords: ["Walmart", "Amazon", "large merchants", "bargaining power", "retailers"]
+    factors: ["volume", "alternatives", "brand power"]
+
+  - title: "Consumer Choice"
+    description: "Consumers have multiple payment options and low switching costs"
+    intensity: "medium"
+    impact_score: 0.6
+    keywords: ["consumer choice", "switching costs", "payment options", "user preferences"]
+    factors: ["alternatives", "low switching costs", "price sensitivity"]

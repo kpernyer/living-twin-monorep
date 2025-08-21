@@ -53,6 +53,11 @@ dependencies = [
     "redis[hiredis]>=5.0.0",
     "slowapi>=0.1.9",
     "psutil>=5.9.0",
+    "aiohttp>=3.9.0",
+    "beautifulsoup4>=4.12.0",
+    "python-dateutil>=2.8.0",
+    "google-auth>=2.40.3",
+    "strawberry-graphql[fastapi]>=0.215.0",
 ]
 
 [project.optional-dependencies]

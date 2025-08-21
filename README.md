@@ -48,7 +48,7 @@ This is the development stack for **Living Twin** — a RAG-enabled, Neo4j-backe
 
 - OpenAI account with API key (if using OpenAI models)
 
-> 📋 **New to the project?** Check out our [**Development Environment Setup Guide**](docs/DEVELOPMENT_ENVIRONMENT_SETUP.md) for automated installation scripts and containerization strategies for macOS and Linux.
+> 📋 **New to the project?** Check out our [**Complete Documentation Index**](DOCUMENTATION.md) for comprehensive guides and [**Getting Started**](docs/getting-started/) for automated installation scripts and containerization strategies for macOS and Linux.
 
 ## 2️⃣ One-time setup
 

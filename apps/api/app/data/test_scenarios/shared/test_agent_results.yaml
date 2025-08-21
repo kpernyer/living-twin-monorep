@@ -1,0 +1,67 @@
+# Test Agent Results for Strategic Signal Detection
+# Realistic news articles for testing SWOT + Porter's signal detection
+
+agent_results:
+  - title: "Apple Pay Expands to 15 New Countries"
+    content: "Apple announced today that Apple Pay will be available in 15 new countries including South Korea, Brazil, and South Africa. This expansion significantly increases Apple's global reach in mobile payments and puts pressure on local competitors."
+    keywords_matched: ["Apple Pay", "expansion", "mobile payments", "global reach"]
+    sentiment: "neutral"
+    source_name: "TechCrunch"
+    source_url: "https://techcrunch.com/apple-pay-expansion"
+    published_at: "2024-01-15T10:30:00Z"
+
+  - title: "New AI Security Regulations Proposed for Financial Services"
+    content: "Federal regulators proposed new AI security requirements for financial institutions. The regulations would require enhanced cybersecurity measures and AI governance frameworks, potentially increasing compliance costs for fintech companies."
+    keywords_matched: ["AI security", "regulation", "compliance", "financial services", "cybersecurity"]
+    sentiment: "negative"
+    source_name: "Reuters"
+    source_url: "https://reuters.com/ai-security-regulation"
+    published_at: "2024-01-15T14:20:00Z"
+
+  - title: "Digital Payment Adoption Soars in Emerging Markets"
+    content: "Mobile payment adoption in emerging markets grew 45% year-over-year, with Southeast Asia and Latin America leading the growth. This presents significant opportunities for fintech companies looking to expand internationally."
+    keywords_matched: ["emerging markets", "digital payments", "growth", "Southeast Asia", "Latin America"]
+    sentiment: "positive"
+    source_name: "Financial Times"
+    source_url: "https://ft.com/emerging-markets-payments"
+    published_at: "2024-01-15T16:45:00Z"
+
+  - title: "Stripe Raises Processing Fees for Small Businesses"
+    content: "Payment processor Stripe announced a 0.5% increase in processing fees for small businesses, citing rising infrastructure costs. This could impact fintech companies that rely on Stripe's payment infrastructure."
+    keywords_matched: ["Stripe", "processing fees", "payment processors", "infrastructure costs"]
+    sentiment: "negative"
+    source_name: "TechCrunch"
+    source_url: "https://techcrunch.com/stripe-fee-increase"
+    published_at: "2024-01-16T09:15:00Z"
+
+  - title: "South Korea's Digital Payment Market Grows 60%"
+    content: "South Korea's digital payment market experienced 60% growth in 2023, driven by government initiatives and changing consumer preferences. The market is now valued at $45 billion, creating opportunities for international fintech players."
+    keywords_matched: ["South Korea", "digital payments", "growth", "market opportunity", "government initiatives"]
+    sentiment: "positive"
+    source_name: "Financial Times"
+    source_url: "https://ft.com/south-korea-payments"
+    published_at: "2024-01-16T11:30:00Z"
+
+  - title: "Amazon Launches New Payment Service"
+    content: "Amazon announced Amazon Pay Plus, a new payment service that integrates with existing bank accounts. This move intensifies competition in the digital payments space and could impact market share for existing players."
+    keywords_matched: ["Amazon", "payment service", "competition", "market share", "digital payments"]
+    sentiment: "negative"
+    source_name: "Reuters"
+    source_url: "https://reuters.com/amazon-pay-plus"
+    published_at: "2024-01-16T13:45:00Z"
+
+  - title: "Open Banking Regulations Take Effect in Europe"
+    content: "New open banking regulations came into effect across Europe, requiring banks to share customer data with authorized third-party providers. This creates opportunities for fintech companies to develop new services."
+    keywords_matched: ["open banking", "regulation", "Europe", "fintech opportunity", "banking data"]
+    sentiment: "positive"
+    source_name: "Financial Times"
+    source_url: "https://ft.com/open-banking-europe"
+    published_at: "2024-01-17T08:20:00Z"
+
+  - title: "Major Data Breach Affects Payment Processors"
+    content: "A sophisticated cyber attack targeted multiple payment processors, compromising customer data from over 100 million accounts. This highlights the growing cybersecurity threats facing the financial services industry."
+    keywords_matched: ["cybersecurity", "data breach", "payment processors", "cyber attacks", "financial services"]
+    sentiment: "negative"
+    source_name: "Reuters"
+    source_url: "https://reuters.com/payment-processor-breach"
+    published_at: "2024-01-17T15:10:00Z"

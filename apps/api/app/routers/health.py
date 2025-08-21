@@ -247,6 +247,18 @@ async def health_check():
     )
 
 
+@router.get("/healthz")
+async def healthz():
+    """Simple health check endpoint (Kubernetes style)."""
+    return {"ok": True, "timestamp": datetime.utcnow().isoformat()}
+
+
+@router.get("/readyz")
+async def readyz():
+    """Simple readiness check endpoint (Kubernetes style)."""
+    return {"ready": True, "timestamp": datetime.utcnow().isoformat()}
+
+
 @router.get("/health/live", response_model=HealthStatus)
 async def liveness_probe():
     """Kubernetes liveness probe endpoint."""

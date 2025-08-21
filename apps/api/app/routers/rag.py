@@ -17,32 +17,111 @@ from ..domain.models import (
 router = APIRouter(prefix="/query")
 
 
-# Request/Response Schemas
+# Request/Response Schemas with enhanced examples and descriptions
 class QueryRequestSchema(BaseModel):
-    question: str = Field(..., description="The question to ask")
-    k: int = Field(5, ge=1, le=20, description="Number of context chunks to retrieve")
-    tenantId: Optional[str] = Field(
-        None, description="Target tenant ID (defaults to user's tenant)"
+    question: str = Field(
+        ..., 
+        description="The question to ask about your documents",
+        example="What are the key risks mentioned in our quarterly report?"
     )
+    k: int = Field(
+        5, 
+        ge=1, 
+        le=20, 
+        description="Number of context chunks to retrieve for generating the answer",
+        example=5
+    )
+    tenantId: Optional[str] = Field(
+        None, 
+        description="Target tenant ID (defaults to user's tenant)",
+        example="tenant_123"
+    )
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "question": "What are the main competitive advantages mentioned in our strategy documents?",
+                "k": 10,
+                "tenantId": "acme_corp"
+            }
+        }
 
 
 class QueryResponseSchema(BaseModel):
-    answer: str = Field(..., description="Generated answer")
-    sources: List[Dict[str, Any]] = Field(..., description="Source documents used")
-    confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Confidence score")
-    query_id: str = Field(..., description="Unique query identifier")
+    answer: str = Field(
+        ..., 
+        description="AI-generated answer based on retrieved document context",
+        example="Based on the strategy documents, the main competitive advantages are: 1) Advanced AI technology, 2) Strong brand recognition, 3) Extensive distribution network..."
+    )
+    sources: List[Dict[str, Any]] = Field(
+        ..., 
+        description="Source documents and chunks used to generate the answer, including relevance scores",
+        example=[
+            {
+                "id": "doc_123",
+                "title": "Q3 Strategy Document",
+                "content": "Our competitive advantages include...",
+                "score": 0.92
+            }
+        ]
+    )
+    confidence: Optional[float] = Field(
+        None, 
+        ge=0.0, 
+        le=1.0, 
+        description="Confidence score for the generated answer (0.0 = low, 1.0 = high)",
+        example=0.85
+    )
+    query_id: str = Field(
+        ..., 
+        description="Unique identifier for this query, used for tracking and debugging",
+        example="query_abc123def456"
+    )
 
 
 class IngestRequestSchema(BaseModel):
-    title: str = Field(..., description="Document title")
-    text: str = Field(..., description="Document content")
-    tenantId: Optional[str] = Field(None, description="Target tenant ID")
+    title: str = Field(
+        ..., 
+        description="Human-readable title for the document",
+        example="Q4 2024 Strategic Plan"
+    )
+    text: str = Field(
+        ..., 
+        description="Full text content of the document to be ingested and indexed",
+        example="Strategic Plan 2024\n\nExecutive Summary: This document outlines our strategic priorities for Q4 2024..."
+    )
+    tenantId: Optional[str] = Field(
+        None, 
+        description="Target tenant ID for document storage (defaults to user's tenant)",
+        example="acme_corp"
+    )
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "title": "Market Analysis Report - AI Industry 2024",
+                "text": "Market Analysis Report\n\nThe AI industry has experienced unprecedented growth in 2024...",
+                "tenantId": "acme_corp"
+            }
+        }
 
 
 class IngestResponseSchema(BaseModel):
-    ok: bool = Field(..., description="Success status")
-    sourceId: str = Field(..., description="Generated source ID")
-    chunks: int = Field(..., description="Number of chunks created")
+    ok: bool = Field(
+        ..., 
+        description="Whether the ingestion completed successfully",
+        example=True
+    )
+    sourceId: str = Field(
+        ..., 
+        description="Unique identifier for the ingested document",
+        example="doc_abc123def456"
+    )
+    chunks: int = Field(
+        ..., 
+        description="Number of text chunks created from the document for retrieval",
+        example=15
+    )
 
 
 class IngestAcceptedResponseSchema(BaseModel):
@@ -121,9 +200,32 @@ class IngestJobStatusSchema(BaseModel):
     updatedAt: int | None = None
 
 
-@router.post("", response_model=QueryResponseSchema)
+@router.post(
+    "",
+    response_model=QueryResponseSchema,
+    summary="Query Documents",
+    description="""
+    Perform a semantic search across your ingested documents and get an AI-generated answer.
+    
+    This endpoint uses RAG (Retrieval-Augmented Generation) to:
+    1. Search through your document collection using semantic similarity
+    2. Retrieve the most relevant content chunks
+    3. Generate a comprehensive answer using AI with the retrieved context
+    
+    **Use Cases:**
+    - Ask questions about your business documents
+    - Research specific topics across your knowledge base
+    - Get insights from reports, policies, and documentation
+    
+    **Example Questions:**
+    - "What are our key strategic priorities for 2024?"
+    - "What risks were identified in the quarterly review?"
+    - "How does our pricing compare to competitors?"
+    """,
+    response_description="AI-generated answer with source citations and confidence score"
+)
 def query(q: QueryRequestSchema, request: Request):
-    """Query endpoint - thin HTTP layer delegating to domain service."""
+    """Query documents using semantic search and AI generation."""
     user = getattr(request.state, "user", {"tenantId": "demo", "role": "owner", "uid": "dev"})
     tenant = q.tenantId or user["tenantId"]
 

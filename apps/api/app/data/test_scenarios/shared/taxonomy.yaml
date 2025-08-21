@@ -1,0 +1,133 @@
+# Strategic Intelligence Taxonomy
+# Hierarchical structure for organizing strategic data by scope and impact
+
+taxonomy:
+  # Level 1: Global Megatrends (affect all regions, all industries)
+  megatrends:
+    description: "Global megatrends that span all regions and industries"
+    scope: "global"
+    impact: "universal"
+    examples:
+      - "Climate Change & Global Warming"
+      - "Resource Scarcity (rare earth minerals, oil)"
+      - "Demographic Shifts (aging populations)"
+      - "Technology Acceleration (AI, automation)"
+      - "Geopolitical Tensions"
+      - "Economic Globalization"
+    
+  # Level 2: Regional Factors (affect specific regions, all industries)
+  regional:
+    description: "Regional factors that affect all industries within a specific geography"
+    scope: "regional"
+    impact: "cross_industry"
+    regions:
+      - name: "North America"
+        examples:
+          - "Aging population in US/Canada"
+          - "Immigration policy changes"
+          - "Trade tensions with China"
+      - name: "Europe"
+        examples:
+          - "EU regulatory harmonization"
+          - "Brexit aftermath"
+          - "Energy transition policies"
+      - name: "Asia Pacific"
+        examples:
+          - "Rapid urbanization in China"
+          - "Aging crisis in Japan/Korea"
+          - "ASEAN economic integration"
+      - name: "Latin America"
+        examples:
+          - "Political instability"
+          - "Natural resource dependency"
+          - "Digital transformation lag"
+      - name: "Middle East & Africa"
+        examples:
+          - "Youth population boom"
+          - "Oil price volatility"
+          - "Infrastructure development"
+    
+  # Level 3: Industry Dynamics (affect specific industries, may be global or regional)
+  industry:
+    description: "Industry-specific factors that affect companies within that industry"
+    scope: "industry"
+    impact: "industry_specific"
+    industries:
+      - name: "fintech"
+        global_factors:
+          - "Digital payment adoption"
+          - "Cryptocurrency regulation"
+          - "Open banking standards"
+        regional_factors:
+          - "North America": ["Regulatory compliance", "Big tech competition"]
+          - "Europe": ["GDPR compliance", "PSD2 implementation"]
+          - "Asia": ["Mobile-first markets", "Government digital initiatives"]
+      - name: "healthcare"
+        global_factors:
+          - "AI in medical diagnostics"
+          - "Telemedicine adoption"
+          - "Drug pricing pressures"
+        regional_factors:
+          - "North America": ["Healthcare cost crisis", "Insurance complexity"]
+          - "Europe": ["Universal healthcare", "Medical tourism"]
+          - "Asia": ["Traditional medicine integration", "Medical tourism"]
+      - name: "retail"
+        global_factors:
+          - "E-commerce growth"
+          - "Supply chain disruption"
+          - "Consumer behavior shifts"
+        regional_factors:
+          - "North America": ["Mall decline", "Direct-to-consumer"]
+          - "Europe": ["Sustainability focus", "Local sourcing"]
+          - "Asia": ["Social commerce", "Super-app ecosystems"]
+    
+  # Level 4: Company-Specific (affect individual companies)
+  company:
+    description: "Company-specific factors within an industry and region"
+    scope: "company"
+    impact: "company_specific"
+    examples:
+      - "Market position and share"
+      - "Brand recognition"
+      - "Technology capabilities"
+      - "Financial resources"
+      - "Organizational structure"
+      - "Strategic partnerships"
+
+# File naming conventions for each level
+file_structure:
+  megatrends:
+    pattern: "megatrends_{trend_name}.yaml"
+    examples:
+      - "megatrends_climate_change.yaml"
+      - "megatrends_resource_scarcity.yaml"
+      - "megatrends_demographic_shifts.yaml"
+  
+  regional:
+    pattern: "regional_{region_name}_{factor_type}.yaml"
+    examples:
+      - "regional_north_america_demographics.yaml"
+      - "regional_europe_regulations.yaml"
+      - "regional_asia_urbanization.yaml"
+  
+  industry:
+    pattern: "{industry_name}_{scope}_{analysis_type}.yaml"
+    examples:
+      - "fintech_global_swot.yaml"
+      - "fintech_regional_porters.yaml"
+      - "healthcare_global_swot.yaml"
+      - "healthcare_regional_porters.yaml"
+  
+  company:
+    pattern: "{company_name}_{analysis_type}.yaml"
+    examples:
+      - "startup_fintech_swot.yaml"
+      - "startup_fintech_porters.yaml"
+
+# Directory structure
+directories:
+  megatrends: "megatrends/"
+  regional: "regional/"
+  industry: "industry/"
+  company: "company/"
+  shared: "shared/"  # For common data like agent results, sources

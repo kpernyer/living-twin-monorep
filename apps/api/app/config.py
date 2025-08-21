@@ -13,6 +13,21 @@ class Settings(BaseSettings):
     # Environment
     environment: str = os.getenv("ENVIRONMENT", "development")
     debug: bool = os.getenv("DEBUG", "false").lower() == "true"
+    
+    # GCP Configuration (adding missing fields)
+    project_id: Optional[str] = os.getenv("PROJECT_ID")
+    region: Optional[str] = os.getenv("REGION")
+    gcp_access_token: Optional[str] = os.getenv("GCP_ACCESS_TOKEN")
+    
+    # LLM Configuration (adding missing fields)
+    llm_provider: Optional[str] = os.getenv("LLM_PROVIDER")
+    llm_model: Optional[str] = os.getenv("LLM_MODEL")
+    embeddings_model: Optional[str] = os.getenv("EMBEDDINGS_MODEL")
+    local_embeddings: Optional[str] = os.getenv("LOCAL_EMBEDDINGS")
+    local_embeddings_model: Optional[str] = os.getenv("LOCAL_EMBEDDINGS_MODEL")
+    rag_only: Optional[str] = os.getenv("RAG_ONLY")
+    ollama_base: Optional[str] = os.getenv("OLLAMA_BASE")
+    github_token: Optional[str] = os.getenv("GITHUB_TOKEN")
 
     # API Settings
     api_title: str = "Living Twin API"
@@ -81,6 +96,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"  # Allow extra fields to be ignored
 
 
 # Global settings instance

@@ -1,0 +1,3388 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Living Twin API",
+    "description": "\n# Living Twin Strategic Intelligence Platform\n\nA comprehensive API for strategic intelligence, competitive analysis, and AI-powered business insights.\n\n## Key Capabilities\n\n* **Strategic Intelligence**: SWOT analysis, Porter's Five Forces, competitive intelligence\n* **RAG System**: Document ingestion, semantic search, conversational AI\n* **Health Monitoring**: Comprehensive system health and performance monitoring  \n* **Testing Framework**: End-to-end testing for strategic intelligence workflows\n\n## Authentication\n\nAll endpoints require Firebase authentication via the `Authorization` header:\n```\nAuthorization: Bearer <firebase-jwt-token>\n```\n\nDevelopment environments support bypass mode for testing.\n\n## Tenant Isolation\n\nAll data is isolated by tenant. Cross-tenant access is controlled by role-based permissions.\n",
+    "contact": {
+      "name": "Living Twin API Support",
+      "url": "https://github.com/kpernyer/living-twin-monorep",
+      "email": "support@livingtwin.com"
+    },
+    "license": {
+      "name": "Proprietary",
+      "url": "https://livingtwin.com/license"
+    },
+    "version": "2.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://api.livingtwin.com",
+      "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.livingtwin.com",
+      "description": "Staging server"
+    },
+    {
+      "url": "http://localhost:8000",
+      "description": "Development server"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health Check",
+        "description": "Basic health check endpoint for load balancers.",
+        "operationId": "health_check_health_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/healthz": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Healthz",
+        "description": "Simple health check endpoint (Kubernetes style).",
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/readyz": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Readyz",
+        "description": "Simple readiness check endpoint (Kubernetes style).",
+        "operationId": "readyz_readyz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/live": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Liveness Probe",
+        "description": "Kubernetes liveness probe endpoint.",
+        "operationId": "liveness_probe_health_live_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Readiness Probe",
+        "description": "Kubernetes readiness probe with detailed service checks.",
+        "operationId": "readiness_probe_health_ready_get",
+        "parameters": [
+          {
+            "name": "request",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "title": "Request"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DetailedHealthResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/metrics": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Get Metrics",
+        "description": "Get detailed system and application metrics.",
+        "operationId": "get_metrics_health_metrics_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health/shutdown": {
+      "post": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Shutdown",
+        "description": "Graceful shutdown endpoint (should be protected in production).",
+        "operationId": "shutdown_health_shutdown_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query": {
+      "post": {
+        "summary": "Query Documents",
+        "description": "Perform a semantic search across your ingested documents and get an AI-generated answer.\n    \n    This endpoint uses RAG (Retrieval-Augmented Generation) to:\n    1. Search through your document collection using semantic similarity\n    2. Retrieve the most relevant content chunks\n    3. Generate a comprehensive answer using AI with the retrieved context\n    \n    **Use Cases:**\n    - Ask questions about your business documents\n    - Research specific topics across your knowledge base\n    - Get insights from reports, policies, and documentation\n    \n    **Example Questions:**\n    - \"What are our key strategic priorities for 2024?\"\n    - \"What risks were identified in the quarterly review?\"\n    - \"How does our pricing compare to competitors?\"",
+        "operationId": "query_query_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequestSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "AI-generated answer with source citations and confidence score",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QueryResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/ingest/text": {
+      "post": {
+        "summary": "Ingest",
+        "description": "Ingest endpoint - thin HTTP layer delegating to domain service.",
+        "operationId": "ingest_query_ingest_text_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IngestRequestSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/IngestAcceptedResponseSchema"
+                    },
+                    {
+                      "$ref": "#/components/schemas/IngestResponseSchema"
+                    }
+                  ],
+                  "title": "Response Ingest Query Ingest Text Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/ingest/upload": {
+      "post": {
+        "summary": "Upload File",
+        "description": "Upload and ingest a document file (PDF, DOCX, TXT, MD).",
+        "operationId": "upload_file_query_ingest_upload_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_upload_file_query_ingest_upload_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/ingest/recent": {
+      "get": {
+        "summary": "Get Recent Documents",
+        "description": "Get recently ingested documents.",
+        "operationId": "get_recent_documents_query_ingest_recent_get",
+        "parameters": [
+          {
+            "name": "tenantId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Tenantid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RecentDocumentsResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/debug/rag": {
+      "post": {
+        "summary": "Debug Rag",
+        "description": "Debug RAG pipeline - returns detailed retrieval information.",
+        "operationId": "debug_rag_query_debug_rag_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QueryRequestSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "title": "Response Debug Rag Query Debug Rag Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/conversation/query": {
+      "post": {
+        "summary": "Conversational Query",
+        "description": "Conversational query endpoint with memory.",
+        "operationId": "conversational_query_query_conversation_query_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConversationalQueryRequestSchema"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationalQueryResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/conversations": {
+      "get": {
+        "summary": "List Conversations",
+        "description": "List user's conversations.",
+        "operationId": "list_conversations_query_conversations_get",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationsResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/conversations/{conversation_id}": {
+      "get": {
+        "summary": "Get Conversation",
+        "description": "Get conversation with full message history.",
+        "operationId": "get_conversation_query_conversations__conversation_id__get",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationDetailSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete Conversation",
+        "description": "Delete a conversation.",
+        "operationId": "delete_conversation_query_conversations__conversation_id__delete",
+        "parameters": [
+          {
+            "name": "conversation_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Conversation Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponseSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/query/ingest/status": {
+      "get": {
+        "summary": "Get Ingest Status",
+        "description": "Get ingest job status by jobId.",
+        "operationId": "get_ingest_status_query_ingest_status_get",
+        "parameters": [
+          {
+            "name": "jobId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Jobid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestJobStatusSchema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/generate": {
+      "post": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Generate Strategic Intelligence",
+        "description": "Generate comprehensive strategic intelligence reports from agent-collected market data.\n    \n    This endpoint orchestrates the strategic intelligence pipeline to:\n    1. Collect data from specified intelligence agents\n    2. Apply strategic analysis frameworks (SWOT, Porter's Forces)\n    3. Generate actionable insights and recommendations\n    4. Create priority communications for stakeholders\n    \n    **Strategic Analysis Capabilities:**\n    - Market trend analysis and competitive intelligence\n    - Risk assessment and opportunity identification\n    - Strategic alignment scoring and recommendations\n    - Executive briefings and priority alerts\n    \n    **Agent Integration:**\n    - News monitoring and sentiment analysis\n    - Competitor tracking and benchmarking\n    - Regulatory change detection\n    - Technology trend analysis\n    \n    **Output Formats:**\n    - Strategic truths and organizational insights\n    - Executive reports and briefings\n    - Priority communication queue\n    - Strategic alignment scorecards",
+        "operationId": "generate_strategic_intelligence_intelligence_generate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IntelligenceRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Generated strategic intelligence with insights, reports, and communications",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntelligenceResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/truths": {
+      "get": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Get Strategic Insights",
+        "description": "Get strategic insights based on query criteria.",
+        "operationId": "get_strategic_insights_intelligence_truths_get",
+        "parameters": [
+          {
+            "name": "categories",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TruthCategory"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Categories"
+            }
+          },
+          {
+            "name": "impact_levels",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ImpactLevel"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Impact Levels"
+            }
+          },
+          {
+            "name": "confidence_min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "number",
+                  "maximum": 1.0,
+                  "minimum": 0.0
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Confidence Min"
+            }
+          },
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OrganizationalTruth"
+                  },
+                  "title": "Response Get Strategic Insights Intelligence Truths Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/communications": {
+      "get": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Get Priority Communications",
+        "description": "Get priority communications for the current user.",
+        "operationId": "get_priority_communications_intelligence_communications_get",
+        "parameters": [
+          {
+            "name": "types",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommunicationType"
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Types"
+            }
+          },
+          {
+            "name": "priority_min",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "maximum": 10,
+                  "minimum": 1
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Priority Min"
+            }
+          },
+          {
+            "name": "delivered",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Delivered"
+            }
+          },
+          {
+            "name": "acknowledged",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "boolean"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Acknowledged"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 20,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CommunicationQueue"
+                  },
+                  "title": "Response Get Priority Communications Intelligence Communications Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/communications/{communication_id}/acknowledge": {
+      "post": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Acknowledge Priority Communication",
+        "description": "Acknowledge a priority communication.",
+        "operationId": "acknowledge_priority_communication_intelligence_communications__communication_id__acknowledge_post",
+        "parameters": [
+          {
+            "name": "communication_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Communication Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/templates": {
+      "get": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Get Templates",
+        "description": "Get available prompt templates.",
+        "operationId": "get_templates_intelligence_templates_get",
+        "parameters": [
+          {
+            "name": "role",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Role"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Category"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PromptTemplate"
+                  },
+                  "title": "Response Get Templates Intelligence Templates Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Create Template",
+        "description": "Create a new prompt template.",
+        "operationId": "create_template_intelligence_templates_post",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PromptTemplate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PromptTemplate"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/dashboard": {
+      "get": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Get Strategic Intelligence Dashboard",
+        "description": "Get strategic intelligence dashboard data.",
+        "operationId": "get_strategic_intelligence_dashboard_intelligence_dashboard_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/process-escalations": {
+      "post": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Process Escalations",
+        "description": "Process escalation rules for communications.",
+        "operationId": "process_escalations_intelligence_process_escalations_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/metrics": {
+      "get": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Get Intelligence Metrics",
+        "description": "Get intelligence system metrics.",
+        "operationId": "get_intelligence_metrics_intelligence_metrics_get",
+        "parameters": [
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/setup-demo": {
+      "post": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Setup Demo Strategic Intelligence",
+        "description": "Setup demo strategic intelligence data.",
+        "operationId": "setup_demo_strategic_intelligence_intelligence_setup_demo_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/alignment/scorecard": {
+      "get": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Get Strategic Alignment Scorecard",
+        "description": "Get strategic alignment scorecard for the current tenant.",
+        "operationId": "get_strategic_alignment_scorecard_intelligence_alignment_scorecard_get",
+        "parameters": [
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            }
+          },
+          {
+            "name": "include_details",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "default": false,
+              "title": "Include Details"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StrategicAlignmentScorecard"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/alignment/history": {
+      "get": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Get Strategic Alignment History",
+        "description": "Get historical strategic alignment data.",
+        "operationId": "get_strategic_alignment_history_intelligence_alignment_history_get",
+        "parameters": [
+          {
+            "name": "date_from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date From"
+            }
+          },
+          {
+            "name": "date_to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Date To"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 30,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "default": 0,
+              "title": "Offset"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StrategicAlignmentScorecard"
+                  },
+                  "title": "Response Get Strategic Alignment History Intelligence Alignment History Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/intelligence/alignment/calculate": {
+      "post": {
+        "tags": [
+          "intelligence"
+        ],
+        "summary": "Calculate Strategic Alignment",
+        "description": "Calculate and update strategic alignment scorecard.",
+        "operationId": "calculate_strategic_alignment_intelligence_alignment_calculate_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/strategic-test/setup": {
+      "post": {
+        "tags": [
+          "Strategic Test"
+        ],
+        "summary": "Setup Test Data",
+        "description": "Set up comprehensive test data for strategic signal detection.",
+        "operationId": "setup_test_data_strategic_test_setup_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestSetupRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/strategic-test/signal-detection": {
+      "post": {
+        "tags": [
+          "Strategic Test"
+        ],
+        "summary": "Test Signal Detection",
+        "description": "Test the complete signal detection pipeline.",
+        "operationId": "test_signal_detection_strategic_test_signal_detection_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestSignalDetectionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/strategic-test/sources": {
+      "get": {
+        "tags": [
+          "Strategic Test"
+        ],
+        "summary": "Get Test Sources",
+        "description": "Get strategic test sources with different update frequencies.",
+        "operationId": "get_test_sources_strategic_test_sources_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/strategic-test/taxonomy": {
+      "get": {
+        "tags": [
+          "Strategic Test"
+        ],
+        "summary": "Get Taxonomy",
+        "description": "Get the strategic intelligence taxonomy structure.",
+        "operationId": "get_taxonomy_strategic_test_taxonomy_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/strategic-test/scenarios": {
+      "get": {
+        "tags": [
+          "Strategic Test"
+        ],
+        "summary": "Get Available Scenarios",
+        "description": "Get list of available test scenarios.",
+        "operationId": "get_available_scenarios_strategic_test_scenarios_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/strategic-test/megatrend/{trend_name}": {
+      "get": {
+        "tags": [
+          "Strategic Test"
+        ],
+        "summary": "Get Megatrend",
+        "description": "Get a specific megatrend analysis.",
+        "operationId": "get_megatrend_strategic_test_megatrend__trend_name__get",
+        "parameters": [
+          {
+            "name": "trend_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Trend Name"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/strategic-test/regional/{region_name}/{factor_type}": {
+      "get": {
+        "tags": [
+          "Strategic Test"
+        ],
+        "summary": "Get Regional Factor",
+        "description": "Get a specific regional factor analysis.",
+        "operationId": "get_regional_factor_strategic_test_regional__region_name___factor_type__get",
+        "parameters": [
+          {
+            "name": "region_name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Region Name"
+            }
+          },
+          {
+            "name": "factor_type",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Factor Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResult"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/strategic-test/agent-results": {
+      "get": {
+        "tags": [
+          "Strategic Test"
+        ],
+        "summary": "Get Test Agent Results",
+        "description": "Get test agent results for signal detection.",
+        "operationId": "get_test_agent_results_strategic_test_agent_results_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/strategic-test/round-trip": {
+      "post": {
+        "tags": [
+          "Strategic Test"
+        ],
+        "summary": "Test Complete Round Trip",
+        "description": "Test the complete round-trip: setup → signal detection → analysis.",
+        "operationId": "test_complete_round_trip_strategic_test_round_trip_post",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AnalysisDepth": {
+        "type": "string",
+        "enum": [
+          "shallow",
+          "deep",
+          "comprehensive"
+        ],
+        "title": "AnalysisDepth",
+        "description": "Analysis depth levels."
+      },
+      "Body_upload_file_query_ingest_upload_post": {
+        "properties": {
+          "file": {
+            "type": "string",
+            "format": "binary",
+            "title": "File"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenantid"
+          }
+        },
+        "type": "object",
+        "required": [
+          "file",
+          "title"
+        ],
+        "title": "Body_upload_file_query_ingest_upload_post"
+      },
+      "CommunicationQueue": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "topic": {
+            "type": "string",
+            "title": "Topic"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content"
+          },
+          "type": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CommunicationType"
+              }
+            ],
+            "default": "nudge"
+          },
+          "priority": {
+            "type": "integer",
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Priority",
+            "description": "Priority 1-10, higher = more important",
+            "default": 5
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "scheduled_for": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Scheduled For"
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Attempts",
+            "default": 0
+          },
+          "escalation_level": {
+            "type": "integer",
+            "maximum": 2.0,
+            "minimum": 0.0,
+            "title": "Escalation Level",
+            "description": "0=nudge, 1=recommendation, 2=order",
+            "default": 0
+          },
+          "related_truths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Related Truths"
+          },
+          "related_goals": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Related Goals"
+          },
+          "source_report": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Report"
+          },
+          "delivered": {
+            "type": "boolean",
+            "title": "Delivered",
+            "default": false
+          },
+          "acknowledged": {
+            "type": "boolean",
+            "title": "Acknowledged",
+            "default": false
+          },
+          "acknowledged_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Acknowledged At"
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user_id",
+          "tenant_id",
+          "topic",
+          "content"
+        ],
+        "title": "CommunicationQueue",
+        "description": "Priority communication item in the queue."
+      },
+      "CommunicationType": {
+        "type": "string",
+        "enum": [
+          "nudge",
+          "recommendation",
+          "order"
+        ],
+        "title": "CommunicationType",
+        "description": "Types of priority communications."
+      },
+      "CompiledReport": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "summary": {
+            "type": "string",
+            "title": "Summary"
+          },
+          "insights": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Insights"
+          },
+          "recommendations": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Recommendations"
+          },
+          "data_sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Data Sources"
+          },
+          "analysis_depth": {
+            "$ref": "#/components/schemas/AnalysisDepth"
+          },
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires At"
+          },
+          "priority": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PriorityLevel"
+              }
+            ],
+            "default": "medium"
+          },
+          "related_truths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Related Truths"
+          },
+          "agent_results": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Agent Results"
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "summary",
+          "analysis_depth",
+          "tenant_id"
+        ],
+        "title": "CompiledReport",
+        "description": "Compiled analysis report based on agent results."
+      },
+      "ConversationDetailSchema": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Conversation ID"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Conversation title"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Createdat",
+            "description": "Creation timestamp"
+          },
+          "updatedAt": {
+            "type": "string",
+            "title": "Updatedat",
+            "description": "Last update timestamp"
+          },
+          "messages": {
+            "items": {
+              "$ref": "#/components/schemas/MessageSchema"
+            },
+            "type": "array",
+            "title": "Messages",
+            "description": "Conversation messages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "createdAt",
+          "updatedAt",
+          "messages"
+        ],
+        "title": "ConversationDetailSchema"
+      },
+      "ConversationalQueryRequestSchema": {
+        "properties": {
+          "conversationId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversationid",
+            "description": "Existing conversation ID"
+          },
+          "question": {
+            "type": "string",
+            "title": "Question",
+            "description": "The question to ask"
+          },
+          "k": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "K",
+            "description": "Number of context chunks",
+            "default": 5
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenantid",
+            "description": "Target tenant ID"
+          },
+          "memoryWindow": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 50.0,
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Memorywindow",
+            "description": "Memory window size",
+            "default": 10
+          }
+        },
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "ConversationalQueryRequestSchema"
+      },
+      "ConversationalQueryResponseSchema": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "title": "Answer",
+            "description": "Generated answer"
+          },
+          "sources": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Sources",
+            "description": "Source documents used"
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence",
+            "description": "Confidence score"
+          },
+          "conversationId": {
+            "type": "string",
+            "title": "Conversationid",
+            "description": "Conversation ID"
+          },
+          "queryId": {
+            "type": "string",
+            "title": "Queryid",
+            "description": "Query ID"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answer",
+          "sources",
+          "conversationId",
+          "queryId"
+        ],
+        "title": "ConversationalQueryResponseSchema"
+      },
+      "ConversationsResponseSchema": {
+        "properties": {
+          "conversations": {
+            "items": {},
+            "type": "array",
+            "title": "Conversations",
+            "default": []
+          }
+        },
+        "type": "object",
+        "title": "ConversationsResponseSchema",
+        "description": "Response model for listing conversations."
+      },
+      "DeleteResponseSchema": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success",
+            "description": "Deletion success status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success"
+        ],
+        "title": "DeleteResponseSchema"
+      },
+      "DetailedHealthResponse": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Overall health status"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "Timestamp of health check"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "API version"
+          },
+          "environment": {
+            "type": "string",
+            "title": "Environment",
+            "description": "Environment (dev/staging/prod)"
+          },
+          "uptime_seconds": {
+            "type": "number",
+            "title": "Uptime Seconds",
+            "description": "Service uptime in seconds"
+          },
+          "services": {
+            "items": {
+              "$ref": "#/components/schemas/ServiceHealth"
+            },
+            "type": "array",
+            "title": "Services",
+            "description": "Individual service health"
+          },
+          "system": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/SystemMetrics"
+              }
+            ],
+            "description": "System metrics"
+          },
+          "checks_passed": {
+            "type": "integer",
+            "title": "Checks Passed",
+            "description": "Number of health checks passed"
+          },
+          "checks_failed": {
+            "type": "integer",
+            "title": "Checks Failed",
+            "description": "Number of health checks failed"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "timestamp",
+          "version",
+          "environment",
+          "uptime_seconds",
+          "services",
+          "system",
+          "checks_passed",
+          "checks_failed"
+        ],
+        "title": "DetailedHealthResponse",
+        "description": "Detailed health check response."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "HealthStatus": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Overall health status"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "Timestamp of health check"
+          },
+          "version": {
+            "type": "string",
+            "title": "Version",
+            "description": "API version"
+          },
+          "uptime_seconds": {
+            "type": "number",
+            "title": "Uptime Seconds",
+            "description": "Service uptime in seconds"
+          }
+        },
+        "type": "object",
+        "required": [
+          "status",
+          "timestamp",
+          "version",
+          "uptime_seconds"
+        ],
+        "title": "HealthStatus",
+        "description": "Health status model."
+      },
+      "ImpactLevel": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "critical"
+        ],
+        "title": "ImpactLevel",
+        "description": "Impact levels for strategic insights."
+      },
+      "IngestAcceptedResponseSchema": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok"
+          },
+          "jobId": {
+            "type": "string",
+            "title": "Jobid"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "jobId",
+          "status"
+        ],
+        "title": "IngestAcceptedResponseSchema"
+      },
+      "IngestJobStatusSchema": {
+        "properties": {
+          "jobId": {
+            "type": "string",
+            "title": "Jobid"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenantid"
+          },
+          "userId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userid"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "sourceId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sourceid"
+          },
+          "chunkCount": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Chunkcount"
+          },
+          "durationMs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Durationms"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "createdAt": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Createdat"
+          },
+          "updatedAt": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Updatedat"
+          }
+        },
+        "type": "object",
+        "required": [
+          "jobId",
+          "status"
+        ],
+        "title": "IngestJobStatusSchema"
+      },
+      "IngestRequestSchema": {
+        "properties": {
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Human-readable title for the document",
+            "example": "Q4 2024 Strategic Plan"
+          },
+          "text": {
+            "type": "string",
+            "title": "Text",
+            "description": "Full text content of the document to be ingested and indexed",
+            "example": "Strategic Plan 2024\n\nExecutive Summary: This document outlines our strategic priorities for Q4 2024..."
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenantid",
+            "description": "Target tenant ID for document storage (defaults to user's tenant)",
+            "example": "acme_corp"
+          }
+        },
+        "type": "object",
+        "required": [
+          "title",
+          "text"
+        ],
+        "title": "IngestRequestSchema"
+      },
+      "IngestResponseSchema": {
+        "properties": {
+          "ok": {
+            "type": "boolean",
+            "title": "Ok",
+            "description": "Whether the ingestion completed successfully",
+            "example": true
+          },
+          "sourceId": {
+            "type": "string",
+            "title": "Sourceid",
+            "description": "Unique identifier for the ingested document",
+            "example": "doc_abc123def456"
+          },
+          "chunks": {
+            "type": "integer",
+            "title": "Chunks",
+            "description": "Number of text chunks created from the document for retrieval",
+            "example": 15
+          }
+        },
+        "type": "object",
+        "required": [
+          "ok",
+          "sourceId",
+          "chunks"
+        ],
+        "title": "IngestResponseSchema"
+      },
+      "IntelligenceRequest": {
+        "properties": {
+          "agent_ids": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Agent Ids",
+            "description": "Agent IDs to analyze"
+          },
+          "template_id": {
+            "type": "string",
+            "title": "Template Id",
+            "description": "Prompt template to use"
+          },
+          "analysis_depth": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AnalysisDepth"
+              }
+            ],
+            "default": "shallow"
+          },
+          "variables": {
+            "type": "object",
+            "title": "Variables"
+          },
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "priority": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PriorityLevel"
+              }
+            ],
+            "default": "medium"
+          }
+        },
+        "type": "object",
+        "required": [
+          "agent_ids",
+          "template_id",
+          "tenant_id",
+          "user_id"
+        ],
+        "title": "IntelligenceRequest",
+        "description": "Request to generate strategic intelligence from market intelligence data."
+      },
+      "IntelligenceResponse": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "request_id": {
+            "type": "string",
+            "title": "Request Id"
+          },
+          "truths": {
+            "items": {
+              "$ref": "#/components/schemas/OrganizationalTruth"
+            },
+            "type": "array",
+            "title": "Truths"
+          },
+          "reports": {
+            "items": {
+              "$ref": "#/components/schemas/CompiledReport"
+            },
+            "type": "array",
+            "title": "Reports"
+          },
+          "communications": {
+            "items": {
+              "$ref": "#/components/schemas/CommunicationQueue"
+            },
+            "type": "array",
+            "title": "Communications"
+          },
+          "generated_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Generated At"
+          },
+          "processing_time_seconds": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Processing Time Seconds"
+          },
+          "token_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Token Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "request_id"
+        ],
+        "title": "IntelligenceResponse",
+        "description": "Response from strategic intelligence generation."
+      },
+      "MessageSchema": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Message ID"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "Message role (user/assistant)"
+          },
+          "content": {
+            "type": "string",
+            "title": "Content",
+            "description": "Message content"
+          },
+          "timestamp": {
+            "type": "string",
+            "title": "Timestamp",
+            "description": "Message timestamp"
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata",
+            "description": "Message metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "role",
+          "content",
+          "timestamp"
+        ],
+        "title": "MessageSchema"
+      },
+      "OrganizationalTruth": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "statement": {
+            "type": "string",
+            "title": "Statement",
+            "description": "Clear, actionable statement"
+          },
+          "confidence": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Confidence",
+            "description": "Confidence score 0-1"
+          },
+          "evidence_count": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Evidence Count",
+            "description": "Number of supporting data points",
+            "default": 0
+          },
+          "last_updated": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Last Updated"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Version",
+            "default": 1
+          },
+          "category": {
+            "$ref": "#/components/schemas/TruthCategory"
+          },
+          "impact_level": {
+            "$ref": "#/components/schemas/ImpactLevel"
+          },
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "strategic_goals": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Strategic Goals"
+          },
+          "compiled_reports": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Compiled Reports"
+          },
+          "raw_data_sources": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Raw Data Sources"
+          },
+          "related_truths": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Related Truths"
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "statement",
+          "confidence",
+          "category",
+          "impact_level",
+          "tenant_id"
+        ],
+        "title": "OrganizationalTruth",
+        "description": "Strategic insight entity representing fundamental organizational knowledge."
+      },
+      "PriorityLevel": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high",
+          "urgent"
+        ],
+        "title": "PriorityLevel",
+        "description": "Priority levels for priority communications."
+      },
+      "PromptTemplate": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role",
+            "description": "Target role: ceo, cto, cfo, etc."
+          },
+          "category": {
+            "type": "string",
+            "title": "Category",
+            "description": "Category: technology, market, competitive, etc."
+          },
+          "template": {
+            "type": "string",
+            "title": "Template",
+            "description": "Prompt template with variables"
+          },
+          "variables": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Variables"
+          },
+          "analysis_depth": {
+            "type": "string",
+            "title": "Analysis Depth",
+            "description": "daily, weekly, monthly",
+            "default": "daily"
+          },
+          "output_format": {
+            "type": "string",
+            "title": "Output Format",
+            "description": "truth, report, insight",
+            "default": "truth"
+          },
+          "tenant_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenant Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "is_active": {
+            "type": "boolean",
+            "title": "Is Active",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "role",
+          "category",
+          "template"
+        ],
+        "title": "PromptTemplate",
+        "description": "Template for generating insights from agent results."
+      },
+      "QueryRequestSchema": {
+        "properties": {
+          "question": {
+            "type": "string",
+            "title": "Question",
+            "description": "The question to ask about your documents",
+            "example": "What are the key risks mentioned in our quarterly report?"
+          },
+          "k": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "K",
+            "description": "Number of context chunks to retrieve for generating the answer",
+            "default": 5,
+            "example": 5
+          },
+          "tenantId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenantid",
+            "description": "Target tenant ID (defaults to user's tenant)",
+            "example": "tenant_123"
+          }
+        },
+        "type": "object",
+        "required": [
+          "question"
+        ],
+        "title": "QueryRequestSchema"
+      },
+      "QueryResponseSchema": {
+        "properties": {
+          "answer": {
+            "type": "string",
+            "title": "Answer",
+            "description": "AI-generated answer based on retrieved document context",
+            "example": "Based on the strategy documents, the main competitive advantages are: 1) Advanced AI technology, 2) Strong brand recognition, 3) Extensive distribution network..."
+          },
+          "sources": {
+            "items": {
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Sources",
+            "description": "Source documents and chunks used to generate the answer, including relevance scores",
+            "example": [
+              {
+                "content": "Our competitive advantages include...",
+                "id": "doc_123",
+                "score": 0.92,
+                "title": "Q3 Strategy Document"
+              }
+            ]
+          },
+          "confidence": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confidence",
+            "description": "Confidence score for the generated answer (0.0 = low, 1.0 = high)",
+            "example": 0.85
+          },
+          "query_id": {
+            "type": "string",
+            "title": "Query Id",
+            "description": "Unique identifier for this query, used for tracking and debugging",
+            "example": "query_abc123def456"
+          }
+        },
+        "type": "object",
+        "required": [
+          "answer",
+          "sources",
+          "query_id"
+        ],
+        "title": "QueryResponseSchema"
+      },
+      "RecentDocumentSchema": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id",
+            "description": "Document ID"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title",
+            "description": "Document title"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "description": "Document type"
+          },
+          "createdAt": {
+            "type": "string",
+            "title": "Createdat",
+            "description": "Creation timestamp"
+          },
+          "chunks": {
+            "type": "integer",
+            "title": "Chunks",
+            "description": "Number of chunks"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "type",
+          "createdAt",
+          "chunks"
+        ],
+        "title": "RecentDocumentSchema"
+      },
+      "RecentDocumentsResponseSchema": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/RecentDocumentSchema"
+            },
+            "type": "array",
+            "title": "Items",
+            "description": "List of recent documents"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "RecentDocumentsResponseSchema"
+      },
+      "ServiceHealth": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "title": "Name",
+            "description": "Service name"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status",
+            "description": "Service status (healthy/degraded/unhealthy)"
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Ms",
+            "description": "Service latency in milliseconds"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error",
+            "description": "Error message if unhealthy"
+          },
+          "metadata": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Metadata",
+            "description": "Additional service metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "status"
+        ],
+        "title": "ServiceHealth",
+        "description": "Individual service health status."
+      },
+      "StrategicAlignmentScorecard": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "measurement_date": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Measurement Date"
+          },
+          "strategic_initiative_velocity": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Strategic Initiative Velocity",
+            "default": 0.0
+          },
+          "goal_cascade_alignment": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Goal Cascade Alignment",
+            "default": 0.0
+          },
+          "decision_strategy_consistency": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Decision Strategy Consistency",
+            "default": 0.0
+          },
+          "resource_allocation_efficiency": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Resource Allocation Efficiency",
+            "default": 0.0
+          },
+          "strategic_response_time": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Strategic Response Time",
+            "default": 0.0
+          },
+          "cross_functional_alignment": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Cross Functional Alignment",
+            "default": 0.0
+          },
+          "strategic_communication_effectiveness": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Strategic Communication Effectiveness",
+            "default": 0.0
+          },
+          "adaptation_speed": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Adaptation Speed",
+            "default": 0.0
+          },
+          "overall_alignment_score": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Overall Alignment Score",
+            "default": 0.0
+          },
+          "alignment_zone": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/StrategicAlignmentZone"
+              }
+            ],
+            "default": "red"
+          },
+          "strategic_velocity": {
+            "type": "number",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Strategic Velocity",
+            "default": 0.0
+          },
+          "trend_30_days": {
+            "type": "string",
+            "title": "Trend 30 Days",
+            "description": "improving, declining, stable",
+            "default": "stable"
+          },
+          "trend_60_days": {
+            "type": "string",
+            "title": "Trend 60 Days",
+            "description": "improving, declining, stable",
+            "default": "stable"
+          },
+          "trend_90_days": {
+            "type": "string",
+            "title": "Trend 90 Days",
+            "description": "improving, declining, stable",
+            "default": "stable"
+          },
+          "risk_indicators": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Risk Indicators"
+          },
+          "priority_interventions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Priority Interventions"
+          },
+          "metadata": {
+            "type": "object",
+            "title": "Metadata"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tenant_id"
+        ],
+        "title": "StrategicAlignmentScorecard",
+        "description": "Comprehensive strategic alignment scorecard for an organization."
+      },
+      "StrategicAlignmentZone": {
+        "type": "string",
+        "enum": [
+          "red",
+          "yellow",
+          "green"
+        ],
+        "title": "StrategicAlignmentZone",
+        "description": "Strategic alignment health zones."
+      },
+      "SystemMetrics": {
+        "properties": {
+          "cpu_percent": {
+            "type": "number",
+            "title": "Cpu Percent",
+            "description": "CPU usage percentage"
+          },
+          "memory_percent": {
+            "type": "number",
+            "title": "Memory Percent",
+            "description": "Memory usage percentage"
+          },
+          "memory_used_mb": {
+            "type": "number",
+            "title": "Memory Used Mb",
+            "description": "Memory used in MB"
+          },
+          "memory_available_mb": {
+            "type": "number",
+            "title": "Memory Available Mb",
+            "description": "Available memory in MB"
+          },
+          "disk_percent": {
+            "type": "number",
+            "title": "Disk Percent",
+            "description": "Disk usage percentage"
+          },
+          "disk_used_gb": {
+            "type": "number",
+            "title": "Disk Used Gb",
+            "description": "Disk used in GB"
+          },
+          "disk_free_gb": {
+            "type": "number",
+            "title": "Disk Free Gb",
+            "description": "Free disk space in GB"
+          },
+          "active_connections": {
+            "type": "integer",
+            "title": "Active Connections",
+            "description": "Number of active connections"
+          },
+          "process_count": {
+            "type": "integer",
+            "title": "Process Count",
+            "description": "Number of running processes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "cpu_percent",
+          "memory_percent",
+          "memory_used_mb",
+          "memory_available_mb",
+          "disk_percent",
+          "disk_used_gb",
+          "disk_free_gb",
+          "active_connections",
+          "process_count"
+        ],
+        "title": "SystemMetrics",
+        "description": "System metrics model."
+      },
+      "TestResult": {
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "title": "Success"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          },
+          "data": {
+            "type": "object",
+            "title": "Data"
+          },
+          "execution_time_ms": {
+            "type": "number",
+            "title": "Execution Time Ms"
+          }
+        },
+        "type": "object",
+        "required": [
+          "success",
+          "message",
+          "data",
+          "execution_time_ms"
+        ],
+        "title": "TestResult",
+        "description": "Test result summary."
+      },
+      "TestSetupRequest": {
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "user_id": {
+            "type": "string",
+            "title": "User Id"
+          },
+          "industry": {
+            "type": "string",
+            "title": "Industry",
+            "default": "fintech"
+          },
+          "test_scenario": {
+            "type": "string",
+            "title": "Test Scenario",
+            "default": "fintech"
+          },
+          "scope": {
+            "type": "string",
+            "title": "Scope",
+            "default": "industry"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tenant_id",
+          "user_id"
+        ],
+        "title": "TestSetupRequest",
+        "description": "Request to set up test data."
+      },
+      "TestSignalDetectionRequest": {
+        "properties": {
+          "tenant_id": {
+            "type": "string",
+            "title": "Tenant Id"
+          },
+          "swot_analysis_id": {
+            "type": "string",
+            "title": "Swot Analysis Id"
+          },
+          "porters_analysis_id": {
+            "type": "string",
+            "title": "Porters Analysis Id"
+          },
+          "test_agent_results": {
+            "type": "boolean",
+            "title": "Test Agent Results",
+            "default": true
+          }
+        },
+        "type": "object",
+        "required": [
+          "tenant_id",
+          "swot_analysis_id",
+          "porters_analysis_id"
+        ],
+        "title": "TestSignalDetectionRequest",
+        "description": "Request to test signal detection."
+      },
+      "TruthCategory": {
+        "type": "string",
+        "enum": [
+          "technology",
+          "market",
+          "competitive",
+          "regulatory",
+          "social",
+          "operational"
+        ],
+        "title": "TruthCategory",
+        "description": "Categories for strategic insights."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health",
+      "description": "System health monitoring and operational status endpoints. Includes comprehensive health checks, system metrics, and service status monitoring for production deployments."
+    },
+    {
+      "name": "intelligence",
+      "description": "Strategic intelligence operations including SWOT analysis, competitive intelligence, and organizational insights. Provides AI-powered strategic decision support and business intelligence capabilities."
+    },
+    {
+      "name": "Query",
+      "description": "RAG (Retrieval-Augmented Generation) system and conversational AI endpoints. Enables document ingestion, semantic search, and conversational queries with context-aware responses."
+    },
+    {
+      "name": "Strategic Test",
+      "description": "Testing framework for strategic intelligence and signal detection capabilities. Provides comprehensive test scenarios, data setup, and validation for the strategic intelligence pipeline."
+    }
+  ]
+}

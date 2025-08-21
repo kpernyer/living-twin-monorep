@@ -1,0 +1,121 @@
+# Strategic Sources Configuration
+# Different update frequencies for various intelligence sources
+
+high_frequency:
+  - name: "TechCrunch"
+    url: "https://techcrunch.com"
+    category: "tech_news"
+    update_frequency: "real_time"
+    keywords: ["startup", "funding", "AI", "technology", "fintech"]
+    description: "Real-time tech news and startup coverage"
+    crawl_interval_minutes: 30
+
+  - name: "Reuters Technology"
+    url: "https://www.reuters.com/technology"
+    category: "tech_news"
+    update_frequency: "real_time"
+    keywords: ["technology", "AI", "regulation", "cybersecurity", "fintech"]
+    description: "Real-time technology news and analysis"
+    crawl_interval_minutes: 60
+
+  - name: "Financial Times Tech"
+    url: "https://www.ft.com/technology"
+    category: "tech_news"
+    update_frequency: "daily"
+    keywords: ["technology", "fintech", "regulation", "market analysis", "AI"]
+    description: "Daily technology and fintech coverage"
+    crawl_interval_minutes: 1440  # 24 hours
+
+medium_frequency:
+  - name: "MIT Technology Review"
+    url: "https://www.technologyreview.com"
+    category: "research"
+    update_frequency: "weekly"
+    keywords: ["AI", "machine learning", "innovation", "research", "technology trends"]
+    description: "Weekly technology research and trends"
+    crawl_interval_minutes: 10080  # 7 days
+
+  - name: "Harvard Business Review"
+    url: "https://hbr.org"
+    category: "business_strategy"
+    update_frequency: "weekly"
+    keywords: ["strategy", "leadership", "innovation", "business", "management"]
+    description: "Weekly business strategy and leadership insights"
+    crawl_interval_minutes: 10080  # 7 days
+
+  - name: "McKinsey Insights"
+    url: "https://www.mckinsey.com/insights"
+    category: "business_strategy"
+    update_frequency: "weekly"
+    keywords: ["strategy", "digital transformation", "innovation", "business", "management"]
+    description: "Weekly strategic insights and analysis"
+    crawl_interval_minutes: 10080  # 7 days
+
+low_frequency:
+  - name: "CIA World Factbook"
+    url: "https://www.cia.gov/the-world-factbook"
+    category: "geopolitical"
+    update_frequency: "yearly"
+    keywords: ["demographics", "economy", "geography", "government", "infrastructure"]
+    description: "Annual geopolitical and demographic data"
+    crawl_interval_minutes: 525600  # 365 days
+
+  - name: "World Bank Data"
+    url: "https://data.worldbank.org"
+    category: "economic"
+    update_frequency: "quarterly"
+    keywords: ["economy", "GDP", "development", "demographics", "trade"]
+    description: "Quarterly economic and development data"
+    crawl_interval_minutes: 131400  # 90 days
+
+  - name: "UNESCO Statistics"
+    url: "https://en.unesco.org/fieldoffice/brussels/statistics"
+    category: "demographic"
+    update_frequency: "yearly"
+    keywords: ["education", "demographics", "culture", "development", "statistics"]
+    description: "Annual demographic and cultural statistics"
+    crawl_interval_minutes: 525600  # 365 days
+
+megatrends:
+  - name: "Pew Research Center"
+    url: "https://www.pewresearch.org"
+    category: "demographic_trends"
+    update_frequency: "monthly"
+    keywords: ["demographics", "social trends", "technology adoption", "generational changes", "lifestyle"]
+    description: "Monthly demographic and social trend analysis"
+    crawl_interval_minutes: 43200  # 30 days
+
+  - name: "Brookings Institution"
+    url: "https://www.brookings.edu"
+    category: "policy_trends"
+    update_frequency: "weekly"
+    keywords: ["policy", "economics", "technology", "demographics", "global trends"]
+    description: "Weekly policy and economic trend analysis"
+    crawl_interval_minutes: 10080  # 7 days
+
+  - name: "World Economic Forum"
+    url: "https://www.weforum.org"
+    category: "global_trends"
+    update_frequency: "monthly"
+    keywords: ["global trends", "technology", "economics", "demographics", "future of work"]
+    description: "Monthly global trend analysis and future insights"
+    crawl_interval_minutes: 43200  # 30 days
+
+# Source credibility weights for signal scoring
+source_credibility_weights:
+  high_frequency:
+    TechCrunch: 0.8
+    "Reuters Technology": 0.9
+    "Financial Times Tech": 0.9
+  medium_frequency:
+    "MIT Technology Review": 0.95
+    "Harvard Business Review": 0.95
+    "McKinsey Insights": 0.95
+  low_frequency:
+    "CIA World Factbook": 1.0
+    "World Bank Data": 1.0
+    "UNESCO Statistics": 0.9
+  megatrends:
+    "Pew Research Center": 0.9
+    "Brookings Institution": 0.95
+    "World Economic Forum": 0.9

@@ -1,0 +1,105 @@
+# Global Megatrend: Climate Change & Global Warming
+# Affects all regions and all industries
+
+name: "Climate Change & Global Warming"
+description: "Global climate change affecting all industries and regions"
+scope: "global"
+impact: "universal"
+trend_type: "environmental"
+urgency: "high"
+
+key_indicators:
+  - "Global temperature rise"
+  - "Extreme weather events"
+  - "Sea level rise"
+  - "Carbon emissions"
+  - "Renewable energy adoption"
+
+industry_impacts:
+  fintech:
+    opportunities:
+      - "Green finance and ESG investing platforms"
+      - "Carbon credit trading platforms"
+      - "Climate risk assessment tools"
+    threats:
+      - "Regulatory pressure for climate disclosures"
+      - "Physical risks to data centers"
+      - "Transition risks in investment portfolios"
+  
+  healthcare:
+    opportunities:
+      - "Climate-related health monitoring"
+      - "Telemedicine reducing travel emissions"
+      - "Green healthcare facilities"
+    threats:
+      - "Increased climate-related health issues"
+      - "Supply chain disruptions"
+      - "Infrastructure damage from extreme weather"
+  
+  retail:
+    opportunities:
+      - "Sustainable product demand"
+      - "Circular economy platforms"
+      - "Local sourcing to reduce emissions"
+    threats:
+      - "Supply chain disruptions"
+      - "Regulatory compliance costs"
+      - "Consumer boycotts of non-sustainable brands"
+
+regional_impacts:
+  North_America:
+    - "Wildfires affecting supply chains"
+    - "Hurricane damage to infrastructure"
+    - "Drought affecting agriculture"
+  
+  Europe:
+    - "Flooding in low-lying areas"
+    - "Heat waves affecting productivity"
+    - "Energy transition policies"
+  
+  Asia:
+    - "Monsoon intensity changes"
+    - "Coastal flooding in megacities"
+    - "Air quality issues"
+  
+  Global:
+    - "Supply chain disruptions"
+    - "Regulatory harmonization"
+    - "Technology transfer needs"
+
+strategic_signals:
+  - title: "New Climate Disclosure Regulations"
+    keywords: ["climate disclosure", "ESG reporting", "carbon emissions", "regulatory compliance"]
+    impact: "universal"
+    urgency: "high"
+  
+  - title: "Extreme Weather Events Increase"
+    keywords: ["extreme weather", "natural disasters", "infrastructure damage", "supply chain disruption"]
+    impact: "regional"
+    urgency: "critical"
+  
+  - title: "Renewable Energy Cost Parity"
+    keywords: ["renewable energy", "solar power", "wind power", "cost parity", "energy transition"]
+    impact: "global"
+    urgency: "medium"
+  
+  - title: "Carbon Pricing Mechanisms"
+    keywords: ["carbon tax", "carbon pricing", "emissions trading", "climate policy"]
+    impact: "global"
+    urgency: "high"
+
+data_sources:
+  - name: "IPCC Reports"
+    url: "https://www.ipcc.ch"
+    update_frequency: "yearly"
+    credibility: 1.0
+  
+  - name: "NASA Climate Data"
+    url: "https://climate.nasa.gov"
+    update_frequency: "monthly"
+    credibility: 0.95
+  
+  - name: "World Meteorological Organization"
+    url: "https://public.wmo.int"
+    update_frequency: "monthly"
+    credibility: 0.95

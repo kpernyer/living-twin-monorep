@@ -1,0 +1,2297 @@
+components:
+  schemas:
+    AnalysisDepth:
+      description: Analysis depth levels.
+      enum:
+      - shallow
+      - deep
+      - comprehensive
+      title: AnalysisDepth
+      type: string
+    Body_upload_file_query_ingest_upload_post:
+      properties:
+        file:
+          format: binary
+          title: File
+          type: string
+        tenantId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenantid
+        title:
+          title: Title
+          type: string
+      required:
+      - file
+      - title
+      title: Body_upload_file_query_ingest_upload_post
+      type: object
+    CommunicationQueue:
+      description: Priority communication item in the queue.
+      properties:
+        acknowledged:
+          default: false
+          title: Acknowledged
+          type: boolean
+        acknowledged_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Acknowledged At
+        attempts:
+          default: 0
+          minimum: 0.0
+          title: Attempts
+          type: integer
+        content:
+          title: Content
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        delivered:
+          default: false
+          title: Delivered
+          type: boolean
+        escalation_level:
+          default: 0
+          description: 0=nudge, 1=recommendation, 2=order
+          maximum: 2.0
+          minimum: 0.0
+          title: Escalation Level
+          type: integer
+        id:
+          title: Id
+          type: string
+        metadata:
+          title: Metadata
+          type: object
+        priority:
+          default: 5
+          description: Priority 1-10, higher = more important
+          maximum: 10.0
+          minimum: 1.0
+          title: Priority
+          type: integer
+        related_goals:
+          items:
+            type: string
+          title: Related Goals
+          type: array
+        related_truths:
+          items:
+            type: string
+          title: Related Truths
+          type: array
+        scheduled_for:
+          format: date-time
+          title: Scheduled For
+          type: string
+        source_report:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Source Report
+        tenant_id:
+          title: Tenant Id
+          type: string
+        topic:
+          title: Topic
+          type: string
+        type:
+          allOf:
+          - $ref: '#/components/schemas/CommunicationType'
+          default: nudge
+        user_id:
+          title: User Id
+          type: string
+      required:
+      - user_id
+      - tenant_id
+      - topic
+      - content
+      title: CommunicationQueue
+      type: object
+    CommunicationType:
+      description: Types of priority communications.
+      enum:
+      - nudge
+      - recommendation
+      - order
+      title: CommunicationType
+      type: string
+    CompiledReport:
+      description: Compiled analysis report based on agent results.
+      properties:
+        agent_results:
+          items:
+            type: string
+          title: Agent Results
+          type: array
+        analysis_depth:
+          $ref: '#/components/schemas/AnalysisDepth'
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        data_sources:
+          items:
+            type: string
+          title: Data Sources
+          type: array
+        expires_at:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Expires At
+        id:
+          title: Id
+          type: string
+        insights:
+          items:
+            type: string
+          title: Insights
+          type: array
+        metadata:
+          title: Metadata
+          type: object
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityLevel'
+          default: medium
+        recommendations:
+          items:
+            type: string
+          title: Recommendations
+          type: array
+        related_truths:
+          items:
+            type: string
+          title: Related Truths
+          type: array
+        summary:
+          title: Summary
+          type: string
+        tenant_id:
+          title: Tenant Id
+          type: string
+        title:
+          title: Title
+          type: string
+      required:
+      - title
+      - summary
+      - analysis_depth
+      - tenant_id
+      title: CompiledReport
+      type: object
+    ConversationDetailSchema:
+      properties:
+        createdAt:
+          description: Creation timestamp
+          title: Createdat
+          type: string
+        id:
+          description: Conversation ID
+          title: Id
+          type: string
+        messages:
+          description: Conversation messages
+          items:
+            $ref: '#/components/schemas/MessageSchema'
+          title: Messages
+          type: array
+        title:
+          description: Conversation title
+          title: Title
+          type: string
+        updatedAt:
+          description: Last update timestamp
+          title: Updatedat
+          type: string
+      required:
+      - id
+      - title
+      - createdAt
+      - updatedAt
+      - messages
+      title: ConversationDetailSchema
+      type: object
+    ConversationalQueryRequestSchema:
+      properties:
+        conversationId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Existing conversation ID
+          title: Conversationid
+        k:
+          default: 5
+          description: Number of context chunks
+          maximum: 20.0
+          minimum: 1.0
+          title: K
+          type: integer
+        memoryWindow:
+          anyOf:
+          - maximum: 50.0
+            minimum: 1.0
+            type: integer
+          - type: 'null'
+          default: 10
+          description: Memory window size
+          title: Memorywindow
+        question:
+          description: The question to ask
+          title: Question
+          type: string
+        tenantId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Target tenant ID
+          title: Tenantid
+      required:
+      - question
+      title: ConversationalQueryRequestSchema
+      type: object
+    ConversationalQueryResponseSchema:
+      properties:
+        answer:
+          description: Generated answer
+          title: Answer
+          type: string
+        confidence:
+          anyOf:
+          - maximum: 1.0
+            minimum: 0.0
+            type: number
+          - type: 'null'
+          description: Confidence score
+          title: Confidence
+        conversationId:
+          description: Conversation ID
+          title: Conversationid
+          type: string
+        queryId:
+          description: Query ID
+          title: Queryid
+          type: string
+        sources:
+          description: Source documents used
+          items:
+            type: object
+          title: Sources
+          type: array
+      required:
+      - answer
+      - sources
+      - conversationId
+      - queryId
+      title: ConversationalQueryResponseSchema
+      type: object
+    ConversationsResponseSchema:
+      description: Response model for listing conversations.
+      properties:
+        conversations:
+          default: []
+          items: {}
+          title: Conversations
+          type: array
+      title: ConversationsResponseSchema
+      type: object
+    DeleteResponseSchema:
+      properties:
+        success:
+          description: Deletion success status
+          title: Success
+          type: boolean
+      required:
+      - success
+      title: DeleteResponseSchema
+      type: object
+    DetailedHealthResponse:
+      description: Detailed health check response.
+      properties:
+        checks_failed:
+          description: Number of health checks failed
+          title: Checks Failed
+          type: integer
+        checks_passed:
+          description: Number of health checks passed
+          title: Checks Passed
+          type: integer
+        environment:
+          description: Environment (dev/staging/prod)
+          title: Environment
+          type: string
+        services:
+          description: Individual service health
+          items:
+            $ref: '#/components/schemas/ServiceHealth'
+          title: Services
+          type: array
+        status:
+          description: Overall health status
+          title: Status
+          type: string
+        system:
+          allOf:
+          - $ref: '#/components/schemas/SystemMetrics'
+          description: System metrics
+        timestamp:
+          description: Timestamp of health check
+          title: Timestamp
+          type: string
+        uptime_seconds:
+          description: Service uptime in seconds
+          title: Uptime Seconds
+          type: number
+        version:
+          description: API version
+          title: Version
+          type: string
+      required:
+      - status
+      - timestamp
+      - version
+      - environment
+      - uptime_seconds
+      - services
+      - system
+      - checks_passed
+      - checks_failed
+      title: DetailedHealthResponse
+      type: object
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          title: Detail
+          type: array
+      title: HTTPValidationError
+      type: object
+    HealthStatus:
+      description: Health status model.
+      properties:
+        status:
+          description: Overall health status
+          title: Status
+          type: string
+        timestamp:
+          description: Timestamp of health check
+          title: Timestamp
+          type: string
+        uptime_seconds:
+          description: Service uptime in seconds
+          title: Uptime Seconds
+          type: number
+        version:
+          description: API version
+          title: Version
+          type: string
+      required:
+      - status
+      - timestamp
+      - version
+      - uptime_seconds
+      title: HealthStatus
+      type: object
+    ImpactLevel:
+      description: Impact levels for strategic insights.
+      enum:
+      - low
+      - medium
+      - high
+      - critical
+      title: ImpactLevel
+      type: string
+    IngestAcceptedResponseSchema:
+      properties:
+        jobId:
+          title: Jobid
+          type: string
+        ok:
+          title: Ok
+          type: boolean
+        status:
+          title: Status
+          type: string
+      required:
+      - ok
+      - jobId
+      - status
+      title: IngestAcceptedResponseSchema
+      type: object
+    IngestJobStatusSchema:
+      properties:
+        chunkCount:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Chunkcount
+        createdAt:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Createdat
+        durationMs:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Durationms
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        jobId:
+          title: Jobid
+          type: string
+        sourceId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Sourceid
+        status:
+          title: Status
+          type: string
+        tenantId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenantid
+        title:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Title
+        updatedAt:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Updatedat
+        userId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Userid
+      required:
+      - jobId
+      - status
+      title: IngestJobStatusSchema
+      type: object
+    IngestRequestSchema:
+      properties:
+        tenantId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Target tenant ID for document storage (defaults to user's tenant)
+          example: acme_corp
+          title: Tenantid
+        text:
+          description: Full text content of the document to be ingested and indexed
+          example: 'Strategic Plan 2024
+
+
+            Executive Summary: This document outlines our strategic priorities for
+            Q4 2024...'
+          title: Text
+          type: string
+        title:
+          description: Human-readable title for the document
+          example: Q4 2024 Strategic Plan
+          title: Title
+          type: string
+      required:
+      - title
+      - text
+      title: IngestRequestSchema
+      type: object
+    IngestResponseSchema:
+      properties:
+        chunks:
+          description: Number of text chunks created from the document for retrieval
+          example: 15
+          title: Chunks
+          type: integer
+        ok:
+          description: Whether the ingestion completed successfully
+          example: true
+          title: Ok
+          type: boolean
+        sourceId:
+          description: Unique identifier for the ingested document
+          example: doc_abc123def456
+          title: Sourceid
+          type: string
+      required:
+      - ok
+      - sourceId
+      - chunks
+      title: IngestResponseSchema
+      type: object
+    IntelligenceRequest:
+      description: Request to generate strategic intelligence from market intelligence
+        data.
+      properties:
+        agent_ids:
+          description: Agent IDs to analyze
+          items:
+            type: string
+          title: Agent Ids
+          type: array
+        analysis_depth:
+          allOf:
+          - $ref: '#/components/schemas/AnalysisDepth'
+          default: shallow
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/PriorityLevel'
+          default: medium
+        template_id:
+          description: Prompt template to use
+          title: Template Id
+          type: string
+        tenant_id:
+          title: Tenant Id
+          type: string
+        user_id:
+          title: User Id
+          type: string
+        variables:
+          title: Variables
+          type: object
+      required:
+      - agent_ids
+      - template_id
+      - tenant_id
+      - user_id
+      title: IntelligenceRequest
+      type: object
+    IntelligenceResponse:
+      description: Response from strategic intelligence generation.
+      properties:
+        communications:
+          items:
+            $ref: '#/components/schemas/CommunicationQueue'
+          title: Communications
+          type: array
+        generated_at:
+          format: date-time
+          title: Generated At
+          type: string
+        id:
+          title: Id
+          type: string
+        processing_time_seconds:
+          anyOf:
+          - type: number
+          - type: 'null'
+          title: Processing Time Seconds
+        reports:
+          items:
+            $ref: '#/components/schemas/CompiledReport'
+          title: Reports
+          type: array
+        request_id:
+          title: Request Id
+          type: string
+        token_count:
+          anyOf:
+          - type: integer
+          - type: 'null'
+          title: Token Count
+        truths:
+          items:
+            $ref: '#/components/schemas/OrganizationalTruth'
+          title: Truths
+          type: array
+      required:
+      - request_id
+      title: IntelligenceResponse
+      type: object
+    MessageSchema:
+      properties:
+        content:
+          description: Message content
+          title: Content
+          type: string
+        id:
+          description: Message ID
+          title: Id
+          type: string
+        metadata:
+          description: Message metadata
+          title: Metadata
+          type: object
+        role:
+          description: Message role (user/assistant)
+          title: Role
+          type: string
+        timestamp:
+          description: Message timestamp
+          title: Timestamp
+          type: string
+      required:
+      - id
+      - role
+      - content
+      - timestamp
+      title: MessageSchema
+      type: object
+    OrganizationalTruth:
+      description: Strategic insight entity representing fundamental organizational
+        knowledge.
+      properties:
+        category:
+          $ref: '#/components/schemas/TruthCategory'
+        compiled_reports:
+          items:
+            type: string
+          title: Compiled Reports
+          type: array
+        confidence:
+          description: Confidence score 0-1
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+          type: number
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        evidence_count:
+          default: 0
+          description: Number of supporting data points
+          minimum: 0.0
+          title: Evidence Count
+          type: integer
+        id:
+          title: Id
+          type: string
+        impact_level:
+          $ref: '#/components/schemas/ImpactLevel'
+        last_updated:
+          format: date-time
+          title: Last Updated
+          type: string
+        metadata:
+          title: Metadata
+          type: object
+        raw_data_sources:
+          items:
+            type: string
+          title: Raw Data Sources
+          type: array
+        related_truths:
+          items:
+            type: string
+          title: Related Truths
+          type: array
+        statement:
+          description: Clear, actionable statement
+          title: Statement
+          type: string
+        strategic_goals:
+          items:
+            type: string
+          title: Strategic Goals
+          type: array
+        tenant_id:
+          title: Tenant Id
+          type: string
+        version:
+          default: 1
+          minimum: 1.0
+          title: Version
+          type: integer
+      required:
+      - statement
+      - confidence
+      - category
+      - impact_level
+      - tenant_id
+      title: OrganizationalTruth
+      type: object
+    PriorityLevel:
+      description: Priority levels for priority communications.
+      enum:
+      - low
+      - medium
+      - high
+      - urgent
+      title: PriorityLevel
+      type: string
+    PromptTemplate:
+      description: Template for generating insights from agent results.
+      properties:
+        analysis_depth:
+          default: daily
+          description: daily, weekly, monthly
+          title: Analysis Depth
+          type: string
+        category:
+          description: 'Category: technology, market, competitive, etc.'
+          title: Category
+          type: string
+        created_at:
+          format: date-time
+          title: Created At
+          type: string
+        description:
+          title: Description
+          type: string
+        id:
+          title: Id
+          type: string
+        is_active:
+          default: true
+          title: Is Active
+          type: boolean
+        name:
+          title: Name
+          type: string
+        output_format:
+          default: truth
+          description: truth, report, insight
+          title: Output Format
+          type: string
+        role:
+          description: 'Target role: ceo, cto, cfo, etc.'
+          title: Role
+          type: string
+        template:
+          description: Prompt template with variables
+          title: Template
+          type: string
+        tenant_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenant Id
+        variables:
+          items:
+            type: string
+          title: Variables
+          type: array
+      required:
+      - name
+      - description
+      - role
+      - category
+      - template
+      title: PromptTemplate
+      type: object
+    QueryRequestSchema:
+      properties:
+        k:
+          default: 5
+          description: Number of context chunks to retrieve for generating the answer
+          example: 5
+          maximum: 20.0
+          minimum: 1.0
+          title: K
+          type: integer
+        question:
+          description: The question to ask about your documents
+          example: What are the key risks mentioned in our quarterly report?
+          title: Question
+          type: string
+        tenantId:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Target tenant ID (defaults to user's tenant)
+          example: tenant_123
+          title: Tenantid
+      required:
+      - question
+      title: QueryRequestSchema
+      type: object
+    QueryResponseSchema:
+      properties:
+        answer:
+          description: AI-generated answer based on retrieved document context
+          example: 'Based on the strategy documents, the main competitive advantages
+            are: 1) Advanced AI technology, 2) Strong brand recognition, 3) Extensive
+            distribution network...'
+          title: Answer
+          type: string
+        confidence:
+          anyOf:
+          - maximum: 1.0
+            minimum: 0.0
+            type: number
+          - type: 'null'
+          description: Confidence score for the generated answer (0.0 = low, 1.0 =
+            high)
+          example: 0.85
+          title: Confidence
+        query_id:
+          description: Unique identifier for this query, used for tracking and debugging
+          example: query_abc123def456
+          title: Query Id
+          type: string
+        sources:
+          description: Source documents and chunks used to generate the answer, including
+            relevance scores
+          example:
+          - content: Our competitive advantages include...
+            id: doc_123
+            score: 0.92
+            title: Q3 Strategy Document
+          items:
+            type: object
+          title: Sources
+          type: array
+      required:
+      - answer
+      - sources
+      - query_id
+      title: QueryResponseSchema
+      type: object
+    RecentDocumentSchema:
+      properties:
+        chunks:
+          description: Number of chunks
+          title: Chunks
+          type: integer
+        createdAt:
+          description: Creation timestamp
+          title: Createdat
+          type: string
+        id:
+          description: Document ID
+          title: Id
+          type: string
+        title:
+          description: Document title
+          title: Title
+          type: string
+        type:
+          description: Document type
+          title: Type
+          type: string
+      required:
+      - id
+      - title
+      - type
+      - createdAt
+      - chunks
+      title: RecentDocumentSchema
+      type: object
+    RecentDocumentsResponseSchema:
+      properties:
+        items:
+          description: List of recent documents
+          items:
+            $ref: '#/components/schemas/RecentDocumentSchema'
+          title: Items
+          type: array
+      required:
+      - items
+      title: RecentDocumentsResponseSchema
+      type: object
+    ServiceHealth:
+      description: Individual service health status.
+      properties:
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          description: Error message if unhealthy
+          title: Error
+        latency_ms:
+          anyOf:
+          - type: number
+          - type: 'null'
+          description: Service latency in milliseconds
+          title: Latency Ms
+        metadata:
+          anyOf:
+          - type: object
+          - type: 'null'
+          description: Additional service metadata
+          title: Metadata
+        name:
+          description: Service name
+          title: Name
+          type: string
+        status:
+          description: Service status (healthy/degraded/unhealthy)
+          title: Status
+          type: string
+      required:
+      - name
+      - status
+      title: ServiceHealth
+      type: object
+    StrategicAlignmentScorecard:
+      description: Comprehensive strategic alignment scorecard for an organization.
+      properties:
+        adaptation_speed:
+          default: 0.0
+          maximum: 100.0
+          minimum: 0.0
+          title: Adaptation Speed
+          type: number
+        alignment_zone:
+          allOf:
+          - $ref: '#/components/schemas/StrategicAlignmentZone'
+          default: red
+        cross_functional_alignment:
+          default: 0.0
+          maximum: 100.0
+          minimum: 0.0
+          title: Cross Functional Alignment
+          type: number
+        decision_strategy_consistency:
+          default: 0.0
+          maximum: 100.0
+          minimum: 0.0
+          title: Decision Strategy Consistency
+          type: number
+        goal_cascade_alignment:
+          default: 0.0
+          maximum: 100.0
+          minimum: 0.0
+          title: Goal Cascade Alignment
+          type: number
+        id:
+          title: Id
+          type: string
+        measurement_date:
+          format: date-time
+          title: Measurement Date
+          type: string
+        metadata:
+          title: Metadata
+          type: object
+        overall_alignment_score:
+          default: 0.0
+          maximum: 100.0
+          minimum: 0.0
+          title: Overall Alignment Score
+          type: number
+        priority_interventions:
+          items:
+            type: string
+          title: Priority Interventions
+          type: array
+        resource_allocation_efficiency:
+          default: 0.0
+          maximum: 100.0
+          minimum: 0.0
+          title: Resource Allocation Efficiency
+          type: number
+        risk_indicators:
+          items:
+            type: string
+          title: Risk Indicators
+          type: array
+        strategic_communication_effectiveness:
+          default: 0.0
+          maximum: 100.0
+          minimum: 0.0
+          title: Strategic Communication Effectiveness
+          type: number
+        strategic_initiative_velocity:
+          default: 0.0
+          maximum: 100.0
+          minimum: 0.0
+          title: Strategic Initiative Velocity
+          type: number
+        strategic_response_time:
+          default: 0.0
+          maximum: 100.0
+          minimum: 0.0
+          title: Strategic Response Time
+          type: number
+        strategic_velocity:
+          default: 0.0
+          maximum: 100.0
+          minimum: 0.0
+          title: Strategic Velocity
+          type: number
+        tenant_id:
+          title: Tenant Id
+          type: string
+        trend_30_days:
+          default: stable
+          description: improving, declining, stable
+          title: Trend 30 Days
+          type: string
+        trend_60_days:
+          default: stable
+          description: improving, declining, stable
+          title: Trend 60 Days
+          type: string
+        trend_90_days:
+          default: stable
+          description: improving, declining, stable
+          title: Trend 90 Days
+          type: string
+      required:
+      - tenant_id
+      title: StrategicAlignmentScorecard
+      type: object
+    StrategicAlignmentZone:
+      description: Strategic alignment health zones.
+      enum:
+      - red
+      - yellow
+      - green
+      title: StrategicAlignmentZone
+      type: string
+    SystemMetrics:
+      description: System metrics model.
+      properties:
+        active_connections:
+          description: Number of active connections
+          title: Active Connections
+          type: integer
+        cpu_percent:
+          description: CPU usage percentage
+          title: Cpu Percent
+          type: number
+        disk_free_gb:
+          description: Free disk space in GB
+          title: Disk Free Gb
+          type: number
+        disk_percent:
+          description: Disk usage percentage
+          title: Disk Percent
+          type: number
+        disk_used_gb:
+          description: Disk used in GB
+          title: Disk Used Gb
+          type: number
+        memory_available_mb:
+          description: Available memory in MB
+          title: Memory Available Mb
+          type: number
+        memory_percent:
+          description: Memory usage percentage
+          title: Memory Percent
+          type: number
+        memory_used_mb:
+          description: Memory used in MB
+          title: Memory Used Mb
+          type: number
+        process_count:
+          description: Number of running processes
+          title: Process Count
+          type: integer
+      required:
+      - cpu_percent
+      - memory_percent
+      - memory_used_mb
+      - memory_available_mb
+      - disk_percent
+      - disk_used_gb
+      - disk_free_gb
+      - active_connections
+      - process_count
+      title: SystemMetrics
+      type: object
+    TestResult:
+      description: Test result summary.
+      properties:
+        data:
+          title: Data
+          type: object
+        execution_time_ms:
+          title: Execution Time Ms
+          type: number
+        message:
+          title: Message
+          type: string
+        success:
+          title: Success
+          type: boolean
+      required:
+      - success
+      - message
+      - data
+      - execution_time_ms
+      title: TestResult
+      type: object
+    TestSetupRequest:
+      description: Request to set up test data.
+      properties:
+        industry:
+          default: fintech
+          title: Industry
+          type: string
+        scope:
+          default: industry
+          title: Scope
+          type: string
+        tenant_id:
+          title: Tenant Id
+          type: string
+        test_scenario:
+          default: fintech
+          title: Test Scenario
+          type: string
+        user_id:
+          title: User Id
+          type: string
+      required:
+      - tenant_id
+      - user_id
+      title: TestSetupRequest
+      type: object
+    TestSignalDetectionRequest:
+      description: Request to test signal detection.
+      properties:
+        porters_analysis_id:
+          title: Porters Analysis Id
+          type: string
+        swot_analysis_id:
+          title: Swot Analysis Id
+          type: string
+        tenant_id:
+          title: Tenant Id
+          type: string
+        test_agent_results:
+          default: true
+          title: Test Agent Results
+          type: boolean
+      required:
+      - tenant_id
+      - swot_analysis_id
+      - porters_analysis_id
+      title: TestSignalDetectionRequest
+      type: object
+    TruthCategory:
+      description: Categories for strategic insights.
+      enum:
+      - technology
+      - market
+      - competitive
+      - regulatory
+      - social
+      - operational
+      title: TruthCategory
+      type: string
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          title: Location
+          type: array
+        msg:
+          title: Message
+          type: string
+        type:
+          title: Error Type
+          type: string
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+      type: object
+info:
+  contact:
+    email: support@livingtwin.com
+    name: Living Twin API Support
+    url: https://github.com/kpernyer/living-twin-monorep
+  description: "\n# Living Twin Strategic Intelligence Platform\n\nA comprehensive\
+    \ API for strategic intelligence, competitive analysis, and AI-powered business\
+    \ insights.\n\n## Key Capabilities\n\n* **Strategic Intelligence**: SWOT analysis,\
+    \ Porter's Five Forces, competitive intelligence\n* **RAG System**: Document ingestion,\
+    \ semantic search, conversational AI\n* **Health Monitoring**: Comprehensive system\
+    \ health and performance monitoring  \n* **Testing Framework**: End-to-end testing\
+    \ for strategic intelligence workflows\n\n## Authentication\n\nAll endpoints require\
+    \ Firebase authentication via the `Authorization` header:\n```\nAuthorization:\
+    \ Bearer <firebase-jwt-token>\n```\n\nDevelopment environments support bypass\
+    \ mode for testing.\n\n## Tenant Isolation\n\nAll data is isolated by tenant.\
+    \ Cross-tenant access is controlled by role-based permissions.\n"
+  license:
+    name: Proprietary
+    url: https://livingtwin.com/license
+  title: Living Twin API
+  version: 2.0.0
+openapi: 3.1.0
+paths:
+  /health:
+    get:
+      description: Basic health check endpoint for load balancers.
+      operationId: health_check_health_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+          description: Successful Response
+      summary: Health Check
+      tags:
+      - Health
+  /health/live:
+    get:
+      description: Kubernetes liveness probe endpoint.
+      operationId: liveness_probe_health_live_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+          description: Successful Response
+      summary: Liveness Probe
+      tags:
+      - Health
+  /health/metrics:
+    get:
+      description: Get detailed system and application metrics.
+      operationId: get_metrics_health_metrics_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Get Metrics
+      tags:
+      - Health
+  /health/ready:
+    get:
+      description: Kubernetes readiness probe with detailed service checks.
+      operationId: readiness_probe_health_ready_get
+      parameters:
+      - in: query
+        name: request
+        required: true
+        schema:
+          title: Request
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailedHealthResponse'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Readiness Probe
+      tags:
+      - Health
+  /health/shutdown:
+    post:
+      description: Graceful shutdown endpoint (should be protected in production).
+      operationId: shutdown_health_shutdown_post
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Shutdown
+      tags:
+      - Health
+  /healthz:
+    get:
+      description: Simple health check endpoint (Kubernetes style).
+      operationId: healthz_healthz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Healthz
+      tags:
+      - Health
+  /intelligence/alignment/calculate:
+    post:
+      description: Calculate and update strategic alignment scorecard.
+      operationId: calculate_strategic_alignment_intelligence_alignment_calculate_post
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Calculate Strategic Alignment
+      tags:
+      - intelligence
+  /intelligence/alignment/history:
+    get:
+      description: Get historical strategic alignment data.
+      operationId: get_strategic_alignment_history_intelligence_alignment_history_get
+      parameters:
+      - in: query
+        name: date_from
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Date From
+      - in: query
+        name: date_to
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Date To
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 30
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/StrategicAlignmentScorecard'
+                title: Response Get Strategic Alignment History Intelligence Alignment
+                  History Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Strategic Alignment History
+      tags:
+      - intelligence
+  /intelligence/alignment/scorecard:
+    get:
+      description: Get strategic alignment scorecard for the current tenant.
+      operationId: get_strategic_alignment_scorecard_intelligence_alignment_scorecard_get
+      parameters:
+      - in: query
+        name: date_from
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Date From
+      - in: query
+        name: date_to
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Date To
+      - in: query
+        name: include_details
+        required: false
+        schema:
+          default: false
+          title: Include Details
+          type: boolean
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrategicAlignmentScorecard'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Strategic Alignment Scorecard
+      tags:
+      - intelligence
+  /intelligence/communications:
+    get:
+      description: Get priority communications for the current user.
+      operationId: get_priority_communications_intelligence_communications_get
+      parameters:
+      - in: query
+        name: types
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/CommunicationType'
+            type: array
+          - type: 'null'
+          title: Types
+      - in: query
+        name: priority_min
+        required: false
+        schema:
+          anyOf:
+          - maximum: 10
+            minimum: 1
+            type: integer
+          - type: 'null'
+          title: Priority Min
+      - in: query
+        name: delivered
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Delivered
+      - in: query
+        name: acknowledged
+        required: false
+        schema:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Acknowledged
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/CommunicationQueue'
+                title: Response Get Priority Communications Intelligence Communications
+                  Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Priority Communications
+      tags:
+      - intelligence
+  /intelligence/communications/{communication_id}/acknowledge:
+    post:
+      description: Acknowledge a priority communication.
+      operationId: acknowledge_priority_communication_intelligence_communications__communication_id__acknowledge_post
+      parameters:
+      - in: path
+        name: communication_id
+        required: true
+        schema:
+          title: Communication Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Acknowledge Priority Communication
+      tags:
+      - intelligence
+  /intelligence/dashboard:
+    get:
+      description: Get strategic intelligence dashboard data.
+      operationId: get_strategic_intelligence_dashboard_intelligence_dashboard_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Get Strategic Intelligence Dashboard
+      tags:
+      - intelligence
+  /intelligence/generate:
+    post:
+      description: "Generate comprehensive strategic intelligence reports from agent-collected\
+        \ market data.\n    \n    This endpoint orchestrates the strategic intelligence\
+        \ pipeline to:\n    1. Collect data from specified intelligence agents\n \
+        \   2. Apply strategic analysis frameworks (SWOT, Porter's Forces)\n    3.\
+        \ Generate actionable insights and recommendations\n    4. Create priority\
+        \ communications for stakeholders\n    \n    **Strategic Analysis Capabilities:**\n\
+        \    - Market trend analysis and competitive intelligence\n    - Risk assessment\
+        \ and opportunity identification\n    - Strategic alignment scoring and recommendations\n\
+        \    - Executive briefings and priority alerts\n    \n    **Agent Integration:**\n\
+        \    - News monitoring and sentiment analysis\n    - Competitor tracking and\
+        \ benchmarking\n    - Regulatory change detection\n    - Technology trend\
+        \ analysis\n    \n    **Output Formats:**\n    - Strategic truths and organizational\
+        \ insights\n    - Executive reports and briefings\n    - Priority communication\
+        \ queue\n    - Strategic alignment scorecards"
+      operationId: generate_strategic_intelligence_intelligence_generate_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntelligenceRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntelligenceResponse'
+          description: Generated strategic intelligence with insights, reports, and
+            communications
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Generate Strategic Intelligence
+      tags:
+      - intelligence
+  /intelligence/metrics:
+    get:
+      description: Get intelligence system metrics.
+      operationId: get_intelligence_metrics_intelligence_metrics_get
+      parameters:
+      - in: query
+        name: date_from
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Date From
+      - in: query
+        name: date_to
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Date To
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Intelligence Metrics
+      tags:
+      - intelligence
+  /intelligence/process-escalations:
+    post:
+      description: Process escalation rules for communications.
+      operationId: process_escalations_intelligence_process_escalations_post
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Process Escalations
+      tags:
+      - intelligence
+  /intelligence/setup-demo:
+    post:
+      description: Setup demo strategic intelligence data.
+      operationId: setup_demo_strategic_intelligence_intelligence_setup_demo_post
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Setup Demo Strategic Intelligence
+      tags:
+      - intelligence
+  /intelligence/templates:
+    get:
+      description: Get available prompt templates.
+      operationId: get_templates_intelligence_templates_get
+      parameters:
+      - in: query
+        name: role
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Role
+      - in: query
+        name: category
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Category
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/PromptTemplate'
+                title: Response Get Templates Intelligence Templates Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Templates
+      tags:
+      - intelligence
+    post:
+      description: Create a new prompt template.
+      operationId: create_template_intelligence_templates_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PromptTemplate'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PromptTemplate'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Create Template
+      tags:
+      - intelligence
+  /intelligence/truths:
+    get:
+      description: Get strategic insights based on query criteria.
+      operationId: get_strategic_insights_intelligence_truths_get
+      parameters:
+      - in: query
+        name: categories
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/TruthCategory'
+            type: array
+          - type: 'null'
+          title: Categories
+      - in: query
+        name: impact_levels
+        required: false
+        schema:
+          anyOf:
+          - items:
+              $ref: '#/components/schemas/ImpactLevel'
+            type: array
+          - type: 'null'
+          title: Impact Levels
+      - in: query
+        name: confidence_min
+        required: false
+        schema:
+          anyOf:
+          - maximum: 1.0
+            minimum: 0.0
+            type: number
+          - type: 'null'
+          title: Confidence Min
+      - in: query
+        name: date_from
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Date From
+      - in: query
+        name: date_to
+        required: false
+        schema:
+          anyOf:
+          - format: date-time
+            type: string
+          - type: 'null'
+          title: Date To
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 50
+          maximum: 200
+          minimum: 1
+          title: Limit
+          type: integer
+      - in: query
+        name: offset
+        required: false
+        schema:
+          default: 0
+          minimum: 0
+          title: Offset
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/OrganizationalTruth'
+                title: Response Get Strategic Insights Intelligence Truths Get
+                type: array
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Strategic Insights
+      tags:
+      - intelligence
+  /query:
+    post:
+      description: "Perform a semantic search across your ingested documents and get\
+        \ an AI-generated answer.\n    \n    This endpoint uses RAG (Retrieval-Augmented\
+        \ Generation) to:\n    1. Search through your document collection using semantic\
+        \ similarity\n    2. Retrieve the most relevant content chunks\n    3. Generate\
+        \ a comprehensive answer using AI with the retrieved context\n    \n    **Use\
+        \ Cases:**\n    - Ask questions about your business documents\n    - Research\
+        \ specific topics across your knowledge base\n    - Get insights from reports,\
+        \ policies, and documentation\n    \n    **Example Questions:**\n    - \"\
+        What are our key strategic priorities for 2024?\"\n    - \"What risks were\
+        \ identified in the quarterly review?\"\n    - \"How does our pricing compare\
+        \ to competitors?\""
+      operationId: query_query_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResponseSchema'
+          description: AI-generated answer with source citations and confidence score
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Query Documents
+  /query/conversation/query:
+    post:
+      description: Conversational query endpoint with memory.
+      operationId: conversational_query_query_conversation_query_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConversationalQueryRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationalQueryResponseSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Conversational Query
+  /query/conversations:
+    get:
+      description: List user's conversations.
+      operationId: list_conversations_query_conversations_get
+      parameters:
+      - in: query
+        name: limit
+        required: false
+        schema:
+          default: 20
+          maximum: 100
+          minimum: 1
+          title: Limit
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationsResponseSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: List Conversations
+  /query/conversations/{conversation_id}:
+    delete:
+      description: Delete a conversation.
+      operationId: delete_conversation_query_conversations__conversation_id__delete
+      parameters:
+      - in: path
+        name: conversation_id
+        required: true
+        schema:
+          title: Conversation Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeleteResponseSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Delete Conversation
+    get:
+      description: Get conversation with full message history.
+      operationId: get_conversation_query_conversations__conversation_id__get
+      parameters:
+      - in: path
+        name: conversation_id
+        required: true
+        schema:
+          title: Conversation Id
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConversationDetailSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Conversation
+  /query/debug/rag:
+    post:
+      description: Debug RAG pipeline - returns detailed retrieval information.
+      operationId: debug_rag_query_debug_rag_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QueryRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                title: Response Debug Rag Query Debug Rag Post
+                type: object
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Debug Rag
+  /query/ingest/recent:
+    get:
+      description: Get recently ingested documents.
+      operationId: get_recent_documents_query_ingest_recent_get
+      parameters:
+      - in: query
+        name: tenantId
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Tenantid
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecentDocumentsResponseSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Recent Documents
+  /query/ingest/status:
+    get:
+      description: Get ingest job status by jobId.
+      operationId: get_ingest_status_query_ingest_status_get
+      parameters:
+      - in: query
+        name: jobId
+        required: true
+        schema:
+          title: Jobid
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestJobStatusSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Ingest Status
+  /query/ingest/text:
+    post:
+      description: Ingest endpoint - thin HTTP layer delegating to domain service.
+      operationId: ingest_query_ingest_text_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IngestRequestSchema'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                anyOf:
+                - $ref: '#/components/schemas/IngestAcceptedResponseSchema'
+                - $ref: '#/components/schemas/IngestResponseSchema'
+                title: Response Ingest Query Ingest Text Post
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Ingest
+  /query/ingest/upload:
+    post:
+      description: Upload and ingest a document file (PDF, DOCX, TXT, MD).
+      operationId: upload_file_query_ingest_upload_post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Body_upload_file_query_ingest_upload_post'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestResponseSchema'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Upload File
+  /readyz:
+    get:
+      description: Simple readiness check endpoint (Kubernetes style).
+      operationId: readyz_readyz_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema: {}
+          description: Successful Response
+      summary: Readyz
+      tags:
+      - Health
+  /strategic-test/agent-results:
+    get:
+      description: Get test agent results for signal detection.
+      operationId: get_test_agent_results_strategic_test_agent_results_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResult'
+          description: Successful Response
+      summary: Get Test Agent Results
+      tags:
+      - Strategic Test
+  /strategic-test/megatrend/{trend_name}:
+    get:
+      description: Get a specific megatrend analysis.
+      operationId: get_megatrend_strategic_test_megatrend__trend_name__get
+      parameters:
+      - in: path
+        name: trend_name
+        required: true
+        schema:
+          title: Trend Name
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResult'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Megatrend
+      tags:
+      - Strategic Test
+  /strategic-test/regional/{region_name}/{factor_type}:
+    get:
+      description: Get a specific regional factor analysis.
+      operationId: get_regional_factor_strategic_test_regional__region_name___factor_type__get
+      parameters:
+      - in: path
+        name: region_name
+        required: true
+        schema:
+          title: Region Name
+          type: string
+      - in: path
+        name: factor_type
+        required: true
+        schema:
+          title: Factor Type
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResult'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Get Regional Factor
+      tags:
+      - Strategic Test
+  /strategic-test/round-trip:
+    post:
+      description: 'Test the complete round-trip: setup → signal detection → analysis.'
+      operationId: test_complete_round_trip_strategic_test_round_trip_post
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResult'
+          description: Successful Response
+      summary: Test Complete Round Trip
+      tags:
+      - Strategic Test
+  /strategic-test/scenarios:
+    get:
+      description: Get list of available test scenarios.
+      operationId: get_available_scenarios_strategic_test_scenarios_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResult'
+          description: Successful Response
+      summary: Get Available Scenarios
+      tags:
+      - Strategic Test
+  /strategic-test/setup:
+    post:
+      description: Set up comprehensive test data for strategic signal detection.
+      operationId: setup_test_data_strategic_test_setup_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestSetupRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResult'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Setup Test Data
+      tags:
+      - Strategic Test
+  /strategic-test/signal-detection:
+    post:
+      description: Test the complete signal detection pipeline.
+      operationId: test_signal_detection_strategic_test_signal_detection_post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TestSignalDetectionRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResult'
+          description: Successful Response
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+          description: Validation Error
+      summary: Test Signal Detection
+      tags:
+      - Strategic Test
+  /strategic-test/sources:
+    get:
+      description: Get strategic test sources with different update frequencies.
+      operationId: get_test_sources_strategic_test_sources_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResult'
+          description: Successful Response
+      summary: Get Test Sources
+      tags:
+      - Strategic Test
+  /strategic-test/taxonomy:
+    get:
+      description: Get the strategic intelligence taxonomy structure.
+      operationId: get_taxonomy_strategic_test_taxonomy_get
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TestResult'
+          description: Successful Response
+      summary: Get Taxonomy
+      tags:
+      - Strategic Test
+servers:
+- description: Production server
+  url: https://api.livingtwin.com
+- description: Staging server
+  url: https://staging-api.livingtwin.com
+- description: Development server
+  url: http://localhost:8000
+tags:
+- description: System health monitoring and operational status endpoints. Includes
+    comprehensive health checks, system metrics, and service status monitoring for
+    production deployments.
+  name: Health
+- description: Strategic intelligence operations including SWOT analysis, competitive
+    intelligence, and organizational insights. Provides AI-powered strategic decision
+    support and business intelligence capabilities.
+  name: intelligence
+- description: RAG (Retrieval-Augmented Generation) system and conversational AI endpoints.
+    Enables document ingestion, semantic search, and conversational queries with context-aware
+    responses.
+  name: Query
+- description: Testing framework for strategic intelligence and signal detection capabilities.
+    Provides comprehensive test scenarios, data setup, and validation for the strategic
+    intelligence pipeline.
+  name: Strategic Test

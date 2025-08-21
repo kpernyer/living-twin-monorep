@@ -33,7 +33,39 @@ def get_intelligence_service() -> IntelligenceService:
     return IntelligenceService(agent_service)
 
 
-@router.post("/generate", response_model=IntelligenceResponse)
+@router.post(
+    "/generate",
+    response_model=IntelligenceResponse,
+    summary="Generate Strategic Intelligence",
+    description="""
+    Generate comprehensive strategic intelligence reports from agent-collected market data.
+    
+    This endpoint orchestrates the strategic intelligence pipeline to:
+    1. Collect data from specified intelligence agents
+    2. Apply strategic analysis frameworks (SWOT, Porter's Forces)
+    3. Generate actionable insights and recommendations
+    4. Create priority communications for stakeholders
+    
+    **Strategic Analysis Capabilities:**
+    - Market trend analysis and competitive intelligence
+    - Risk assessment and opportunity identification
+    - Strategic alignment scoring and recommendations
+    - Executive briefings and priority alerts
+    
+    **Agent Integration:**
+    - News monitoring and sentiment analysis
+    - Competitor tracking and benchmarking
+    - Regulatory change detection
+    - Technology trend analysis
+    
+    **Output Formats:**
+    - Strategic truths and organizational insights
+    - Executive reports and briefings
+    - Priority communication queue
+    - Strategic alignment scorecards
+    """,
+    response_description="Generated strategic intelligence with insights, reports, and communications"
+)
 async def generate_strategic_intelligence(
     request: IntelligenceRequest,
     intelligence_service: IntelligenceService = Depends(get_intelligence_service),

@@ -1,0 +1,108 @@
+# Healthcare SWOT Analysis Test Data
+# Q1 2024 Strategic Review for Digital Health Startup
+
+name: "Q1 2024 Digital Health Strategic Review"
+description: "Strategic analysis for emerging digital health startup in telemedicine"
+strategic_period: "Q1 2024"
+industry_focus: ["healthcare", "telemedicine", "digital health", "healthtech"]
+market_position: "emerging challenger in telemedicine"
+
+strengths:
+  - title: "AI-Powered Diagnostics"
+    description: "Advanced machine learning diagnostic system with 94% accuracy rate"
+    priority: 1
+    keywords: ["AI diagnostics", "machine learning", "diagnostic accuracy", "healthcare AI", "medical technology"]
+    impact_areas: ["technology", "clinical"]
+
+  - title: "HIPAA Compliance"
+    description: "Full HIPAA compliance with enterprise-grade security and privacy controls"
+    priority: 2
+    keywords: ["HIPAA", "compliance", "privacy", "security", "healthcare regulations"]
+    impact_areas: ["compliance", "operations"]
+
+  - title: "Physician Network"
+    description: "Network of 500+ board-certified physicians across 45 states"
+    priority: 3
+    keywords: ["physician network", "board certified", "healthcare providers", "medical professionals"]
+    impact_areas: ["operations", "market"]
+
+  - title: "User-Friendly Platform"
+    description: "Intuitive telemedicine platform with 4.7-star rating and 92% patient satisfaction"
+    priority: 4
+    keywords: ["user experience", "telemedicine platform", "patient satisfaction", "ease of use"]
+    impact_areas: ["market", "operations"]
+
+weaknesses:
+  - title: "Limited Insurance Coverage"
+    description: "Only covered by 3 major insurance providers, limiting patient access"
+    priority: 1
+    keywords: ["insurance coverage", "healthcare providers", "patient access", "reimbursement"]
+    impact_areas: ["market", "finance"]
+
+  - title: "Geographic Restrictions"
+    description: "Licensed in only 45 states, missing key markets like California and New York"
+    priority: 2
+    keywords: ["geographic restrictions", "licensing", "state regulations", "market coverage"]
+    impact_areas: ["market", "operations"]
+
+  - title: "High Customer Acquisition Cost"
+    description: "Average CAC of $150 per patient, significantly higher than industry average"
+    priority: 3
+    keywords: ["customer acquisition cost", "CAC", "marketing costs", "patient acquisition"]
+    impact_areas: ["finance", "operations"]
+
+  - title: "Limited Specialty Coverage"
+    description: "Focus on primary care, limited specialty services like cardiology and oncology"
+    priority: 4
+    keywords: ["specialty coverage", "primary care", "specialized services", "medical specialties"]
+    impact_areas: ["operations", "market"]
+
+opportunities:
+  - title: "Post-Pandemic Telemedicine Growth"
+    description: "Telemedicine adoption increased 300% during pandemic, creating lasting demand"
+    priority: 1
+    keywords: ["telemedicine growth", "pandemic impact", "virtual care", "remote healthcare"]
+    impact_areas: ["market", "finance"]
+
+  - title: "AI Integration Opportunities"
+    description: "Growing demand for AI-powered healthcare solutions and predictive analytics"
+    priority: 2
+    keywords: ["AI integration", "predictive analytics", "healthcare technology", "digital health"]
+    impact_areas: ["technology", "market"]
+
+  - title: "Partnership with Health Systems"
+    description: "Opportunity to partner with major health systems for integrated care"
+    priority: 3
+    keywords: ["health systems", "partnerships", "integrated care", "healthcare collaboration"]
+    impact_areas: ["market", "operations"]
+
+  - title: "Regulatory Changes"
+    description: "New telehealth regulations expanding coverage and reimbursement"
+    priority: 4
+    keywords: ["telehealth regulations", "reimbursement", "policy changes", "healthcare policy"]
+    impact_areas: ["compliance", "market"]
+
+threats:
+  - title: "Big Tech Competition"
+    description: "Amazon, Google, and Apple entering telemedicine with significant resources"
+    priority: 1
+    keywords: ["Amazon", "Google", "Apple", "big tech", "telemedicine competition"]
+    impact_areas: ["market", "competition"]
+
+  - title: "Regulatory Uncertainty"
+    description: "Changing telehealth regulations and state-by-state licensing requirements"
+    priority: 2
+    keywords: ["regulatory uncertainty", "telehealth regulations", "licensing", "compliance"]
+    impact_areas: ["compliance", "operations"]
+
+  - title: "Data Security Threats"
+    description: "Increasing cyber attacks targeting healthcare data and patient privacy"
+    priority: 3
+    keywords: ["data security", "cyber attacks", "patient privacy", "healthcare cybersecurity"]
+    impact_areas: ["technology", "security"]
+
+  - title: "Economic Pressure"
+    description: "Healthcare cost pressures and potential reimbursement cuts affecting margins"
+    priority: 4
+    keywords: ["healthcare costs", "reimbursement cuts", "economic pressure", "profit margins"]
+    impact_areas: ["finance", "market"]

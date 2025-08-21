@@ -1,0 +1,56 @@
+# OpenAPI Generator configuration for TypeScript/JavaScript client generation
+# Usage: npx @openapitools/openapi-generator-cli generate -c openapi-generator-config.yaml
+
+# Generator settings
+generatorName: typescript-fetch
+inputSpec: ./docs/openapi.json
+outputDir: ../admin_web/src/api/generated
+additionalProperties:
+  # TypeScript specific settings
+  npmName: "@living-twin/api-client"
+  npmVersion: "2.0.0"
+  npmDescription: "TypeScript client for Living Twin Strategic Intelligence API"
+  npmAuthor: "Living Twin"
+  supportsES6: true
+  withInterfaces: true
+  typescriptThreePlus: true
+  useSingleRequestParameter: true
+  
+  # Model and API settings
+  modelPropertyNaming: camelCase
+  enumPropertyNaming: UPPERCASE
+  withSeparateModelsAndApi: true
+  apiPackage: "apis"
+  modelPackage: "models"
+  
+  # Authentication
+  withCredentials: true
+
+# Global properties
+globalProperties:
+  models: ""
+  apis: ""
+  supportingFiles: "ApiException.ts,base.ts,common.ts,configuration.ts,git_push.sh,index.ts"
+
+# Template files to ignore (we'll handle these manually)
+ignoreFileOverride:
+  - ".gitignore"
+  - ".npmignore"
+  - "README.md"
+
+# Type mappings
+typeMappings:
+  DateTime: Date
+  date: Date
+
+# Import mappings
+importMappings:
+  ApiResponse: "./base"
+  Configuration: "./configuration"
+
+# Additional files to generate
+additionalFiles:
+  - templateData:
+      description: "TypeScript client for Living Twin API"
+      npmName: "@living-twin/api-client"
+      version: "2.0.0"
