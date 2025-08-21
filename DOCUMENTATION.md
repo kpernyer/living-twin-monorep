@@ -71,6 +71,7 @@ make quick-start
 - **[RAG vs Fine-tuning](docs/ai-ml/rag-vs-finetuning.md)** - When to use each approach
 - **[Strategic Alignment](docs/ai-ml/strategic-alignment.md)** - Multi-tenant strategic AI architecture
 - **[Ollama Setup](docs/ai-ml/ollama-setup.md)** - Local LLM setup and configuration
+- **[Verifiable Rewards](docs/guides/verifiable-rewards.md)** - Organizational learning and evolution
 
 ### Conversational AI:
 - **[Conversational AI](docs/ai-ml/conversational-ai.md)** - Conversational AI evolution guide
