@@ -140,9 +140,30 @@ Market Intelligence → Strategic Insights → Priority Communications → Organ
 **Nudge → Recommendation → Order**
 
 - **Smart Prioritization** - Automatically assess importance and urgency
-- **Role-Based Delivery** - Right information to the right people
-- **Escalation Logic** - Automatic escalation when action is needed
-- **Acknowledgment Tracking** - Monitor engagement and response
+- **Response Tracking** - Monitor acknowledgment and action rates
+- **Escalation Logic** - Automatically escalate based on response patterns
+- **Role-Based Delivery** - Tailor communication style to recipient role
+
+---
+
+## Verifiable Rewards: The Learning Engine
+
+### **How the Twin Evolves**
+
+The Organizational Twin doesn't just provide insights—it learns from organizational responses and continuously improves:
+
+1. **Strategic Nudging** - The Twin suggests directions through catchball dialog
+2. **Organizational Response** - Teams and individuals respond to guidance
+3. **Outcome Measurement** - System tracks alignment with strategic goals
+4. **Learning Integration** - Twin incorporates learnings to improve future nudges
+5. **Continuous Evolution** - System becomes increasingly effective at guiding the organization
+
+### **The Wisdom of the Crowd**
+
+- **Catchball Dialog** - Two-way conversations refine strategic understanding
+- **Response Patterns** - Twin learns which approaches work best for different teams
+- **Success Metrics** - Measurable outcomes validate strategic guidance
+- **Adaptive Learning** - System continuously improves decision support capabilities
 
 ---
 

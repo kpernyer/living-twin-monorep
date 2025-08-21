@@ -1,6 +1,16 @@
 # =========================
 # Living Twin Monorepo - Makefile
 # =========================
+# 
+# Note: Simulation engine has been moved to separate repository:
+# https://github.com/living-twin/living-twin-simulation
+#
+# This Makefile covers the main Living Twin platform components:
+# - API (FastAPI with strategic intelligence)
+# - Admin Web (React/TypeScript)
+# - Mobile App (Flutter)
+# - Infrastructure (Terraform/GCP)
+# =========================
 
 .PHONY: help dev staging prod check-costs check-resources terraform-init terraform-plan terraform-apply terraform-destroy docker-build docker-up docker-down
 
@@ -34,6 +44,7 @@ help:
 	@echo "  seed-db                                     Seed local databases with test data"
 	@echo "  api-dev                                     Run API in development mode"
 	@echo "  web-dev                                     Run admin web in development mode"
+	@echo "  mobile-dev                                  Run mobile app in development mode"
 	@echo ""
 	@echo "🔍 Code Quality:"
 	@echo "  lint                                        Run all linters (Python, JS, Flutter)"
@@ -47,6 +58,9 @@ help:
 	@echo "  make check-costs ENV=dev PROJECT=my-living-twin-project"
 	@echo "  make terraform-plan ENV=staging PROJECT=my-living-twin-project"
 	@echo "  make docker-up"
+	@echo ""
+	@echo "🧪 For Simulation Engine:"
+	@echo "  See: https://github.com/living-twin/living-twin-simulation"
 
 # =========================
 # Cost & Resource Management
