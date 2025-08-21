@@ -34,6 +34,30 @@ This is the development stack for **Living Twin** — a RAG-enabled, Neo4j-backe
  - Stub (RAG_ONLY): skip LLM, return top snippets
 ```
 
+## 📚 Documentation & Guides
+
+> 🚀 **Start Here:** [**Complete Documentation Index**](DOCUMENTATION.md) - Your gateway to 61+ organized guides, tutorials, and references
+
+### **Quick Navigation:**
+- **[Getting Started](docs/getting-started/)** - New user onboarding and setup guides
+- **[API Documentation](docs/api/)** - REST API, GraphQL, and PubSub event guides
+- **[AI/ML Implementation](docs/ai-ml/)** - RAG, fine-tuning, and strategic AI guides
+- **[Architecture](docs/architecture/)** - System design and technical architecture
+- **[Development](docs/development/)** - Development workflows and tools
+- **[Deployment](docs/deployment/)** - Production deployment and operations
+
+### **Key Features:**
+- **Strategic AI** - Multi-tenant organizational intelligence with SWOT/Porter's analysis
+- **Hybrid RAG** - Fine-tuned DNA models + dynamic strategy RAG
+- **GraphQL API** - Modern API with real-time strategic insights
+- **Mobile Support** - Flutter app with comprehensive development guides
+- **Business Presentations** - Complete pitch deck collection
+
+### **🚀 Quick API Access:**
+- **REST API**: <http://localhost:8000/docs> (Swagger UI)
+- **GraphQL**: <http://localhost:8000/graphql> (GraphQL Playground)
+- **API Documentation**: [Complete API Guides](docs/api/)
+
 ## 1️⃣ Prerequisites
 
 - **Docker + Docker Compose**
@@ -48,7 +72,7 @@ This is the development stack for **Living Twin** — a RAG-enabled, Neo4j-backe
 
 - OpenAI account with API key (if using OpenAI models)
 
-> 📋 **New to the project?** Check out our [**Complete Documentation Index**](DOCUMENTATION.md) for comprehensive guides and [**Getting Started**](docs/getting-started/) for automated installation scripts and containerization strategies for macOS and Linux.
+> 📋 **New to the project?** Start with our [**Complete Documentation Index**](DOCUMENTATION.md) for comprehensive guides and [**Getting Started**](docs/getting-started/) for automated installation scripts and containerization strategies for macOS and Linux.
 
 ## 2️⃣ One-time setup
 
